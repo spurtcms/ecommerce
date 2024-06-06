@@ -1,10 +1,10 @@
-module github.com/spurtcms/pkgcontent
+module github.com/spurtcms/ecommerce
 
 go 1.22.2
 
 require (
 	github.com/spurtcms/auth v0.0.0-20240426140149-9722eae2938c
-	github.com/spurtcms/member v0.0.0-20240504110725-e256e66e1ab2
+	github.com/spurtcms/member v0.0.5
 	github.com/spurtcms/team-roles v0.0.0-20240430065325-536ea33aaa3a
 	golang.org/x/crypto v0.21.0
 	gorm.io/driver/postgres v1.5.4

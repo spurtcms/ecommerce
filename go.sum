@@ -32,8 +32,8 @@ github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZb
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/spurtcms/auth v0.0.0-20240426140149-9722eae2938c h1:GU2lzPLingEQ23hZs0MvTDc5mvowNFJZhEcUxCtS5WY=
 github.com/spurtcms/auth v0.0.0-20240426140149-9722eae2938c/go.mod h1:1u46UkHWHcsN99jNGCaei0/75rslezIpOGITEhVkvAM=
-github.com/spurtcms/member v0.0.0-20240504110725-e256e66e1ab2 h1:7LxuH4YcpOyPbwdaPPuw+5X3x+cl+W2LQLxYd2jruwA=
-github.com/spurtcms/member v0.0.0-20240504110725-e256e66e1ab2/go.mod h1:aIQUCATHUS9uAqY058dUq0I3Xw6MYpW3ByW5xzTbBbk=
+github.com/spurtcms/member v0.0.5 h1:xiWowPrk88yhUf8bDc8ts/AHlD4cRKb51dNjiy12Q1E=
+github.com/spurtcms/member v0.0.5/go.mod h1:aIQUCATHUS9uAqY058dUq0I3Xw6MYpW3ByW5xzTbBbk=
 github.com/spurtcms/team-roles v0.0.0-20240430065325-536ea33aaa3a h1:TY7kJSxok2AgDVMHhs/TS7177Y28iPk2vmZNiAh6MvU=
 github.com/spurtcms/team-roles v0.0.0-20240430065325-536ea33aaa3a/go.mod h1:46tp3RJaZkJvehn2I4Xk3xpIdWrS22h27o15LUMtlY4=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=

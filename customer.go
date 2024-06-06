@@ -348,23 +348,28 @@ func (ecommerce *Ecommerce) MultiSelectCustomerDelete(id []int, deletedby int) e
 
 	db := ecommerce.DBconf()
 
-	err := db.MultiSelectMemberDelete(id, deletedby)
+	flg, err := db.MultiSelectedMemberDelete(id, deletedby)
 
 	if err != nil {
 		return err
 	}
-	var customer TblEcomCustomers
 
-	customer.IsDeleted = 1
+	if flg {
 
-	customer.DeletedBy = deletedby
+		var customer TblEcomCustomers
 
-	customer.DeletedOn, _ = time.Parse("2006-01-02 15:04:05", time.Now().UTC().Format("2006-01-02 15:04:05"))
+		customer.IsDeleted = 1
 
-	err1 := Ecommercemodel.MultiSelectDeleteCustomers(customer, id, ecommerce.DB)
+		customer.DeletedBy = deletedby
 
-	if err1 != nil {
-		return err1
+		customer.DeletedOn, _ = time.Parse("2006-01-02 15:04:05", time.Now().UTC().Format("2006-01-02 15:04:05"))
+
+		err1 := Ecommercemodel.MultiSelectDeleteCustomers(customer, id, ecommerce.DB)
+
+		if err1 != nil {
+			return err1
+		}
+
 	}
 
 	return nil
