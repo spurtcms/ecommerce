@@ -1,6 +1,6 @@
 module github.com/spurtcms/ecommerce
 
-go 1.22.2
+go 1.20
 
 require (
 	github.com/spurtcms/auth v0.0.0-20240426140149-9722eae2938c

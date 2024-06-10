@@ -468,14 +468,14 @@ func TestCustomerOrderInfo(t *testing.T) {
 
 	if permisison {
 
-		product, status, err := ecommerce.CustomerOrderInfo(id)
+		product, cusinfo, address, status, err := ecommerce.CustomerOrderInfo(id)
 
 		if err != nil {
 
 			panic(err)
 		}
 
-		log.Println("order,product,status", product, status)
+		log.Println("order,product,status", product, status, cusinfo, address)
 
 	} else {
 

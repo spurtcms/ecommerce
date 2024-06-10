@@ -75,6 +75,65 @@ type Filter struct {
 	CategoryId   int
 }
 
+type EcommerceCart struct {
+	ID         int
+	ProductID  int
+	CustomerID int
+	Quantity   int
+	CreatedOn  time.Time
+	ModifiedOn *time.Time
+	IsDeleted  int
+	DeletedOn  *time.Time
+}
+
+type ProductFilter struct {
+	Status, SearchKeyword, OrderId, StartingDate, EndingDate string
+	StartingPrice, EndingPrice, OrderHistory, UpcomingOrders int
+}
+
+type ProductSort struct {
+	Price int
+	Date  int
+}
+
+type EcommerceProduct struct {
+	ID                 int
+	CategoriesID       int
+	ProductName        string
+	ProductSlug        string
+	ProductDescription string
+	ProductImagePath   string
+	ProductYoutubePath string
+	ProductVimeoPath   string
+	Sku                string
+	Tax                int
+	Totalcost          int
+	IsActive           int
+	CreatedOn          time.Time
+	CreatedBy          int
+	ModifiedOn         time.Time
+	ModifiedBy         int
+	IsDeleted          int
+	DeletedBy          int
+	DeletedOn          time.Time
+	ViewCount          int
+	DefaultPrice       int
+	DiscountPrice      int
+	SpecialPrice       int
+	ProductImageArray  []string
+	EcommerceCart      EcommerceCart
+	OrderID            int
+	OrderUniqueID      string
+	OrderQuantity      int
+	OrderPrice         int
+	OrderTax           int
+	OrderStatus        string
+	OrderCustomer      int
+	OrderTime          time.Time
+	PaymentMode        string
+	ShippingDetails    string
+}
+
 // pass limit , offset get customerlist
 func (ecommerceModel EcommerceModel) CustomersList(limit int, offset int, filter Filter, DB *gorm.DB) (customer []TblEcomCustomers, totalcustomer int64, err error) {
 
@@ -590,4 +649,190 @@ func (ecommerceModel EcommerceModel) MultiSelectDeleteCustomers(customer TblEcom
 
 	return nil
 
+}
+
+// Get Product details
+func (ecommerceModel EcommerceModel) GetProductId(productSlug *string, DB *gorm.DB) (productId int, err error) {
+
+	if err := DB.Table("tbl_ecom_products").Select("id").Where("is_deleted = 0 and product_slug = ?", *productSlug).Scan(&productId).Error; err != nil {
+
+		return -1, err
+	}
+
+	return productId, nil
+}
+
+// Get Customer Id
+func (ecommerceModel EcommerceModel) GetCustomerId(memberId int, DB *gorm.DB) (customerId int, err error) {
+
+	if err := DB.Table("tbl_ecom_customers").Select("tbl_ecom_customers.id").Where("tbl_ecom_customers.is_deleted = 0 and tbl_ecom_customers.member_id = ?", memberId).Scan(&customerId).Error; err != nil {
+
+		return -1, err
+	}
+
+	return memberId, nil
+}
+
+// Get Cart Count
+func (ecommerce EcommerceModel) GetCartCount(customerId int, productId int, DB *gorm.DB) (count int64, err error) {
+
+	result := DB.Debug().Table("tbl_ecom_carts").Where("is_deleted = 0 and customer_id = ? and product_id = ?", customerId, productId).Count(&count)
+	if result.Error != nil {
+		return -1, result.Error
+	}
+
+	return count, nil
+}
+
+// Add to product in cart
+func (ecommerceModel EcommerceModel) AddToCart(count int64, cart EcommerceCart, DB *gorm.DB) error {
+
+	query := DB.Table("tbl_ecom_carts")
+
+	if count > 0 {
+		query = query.Where("is_deleted = 0 and customer_id = ? and product_id = ?", cart.CustomerID, cart.ProductID).UpdateColumns(map[string]interface{}{"quantity": gorm.Expr("quantity + ?", cart.Quantity), "modified_on": cart.ModifiedOn})
+
+	} else {
+
+		query = query.Create(&cart)
+	}
+
+	if query.Error != nil {
+		return query.Error
+	}
+
+	return nil
+}
+
+// Get Cart list
+func (ecommerce EcommerceModel) GetCartListById(customerId int, limit int, offset int, DB *gorm.DB) (cartList []EcommerceProduct, count int64, err error) {
+
+	result := DB.Debug().Table("tbl_ecom_products").Select("tbl_ecom_products.*,rp.price AS discount_price ,rs.price AS special_price,tbl_ecom_carts.*").Joins("inner join tbl_ecom_carts on tbl_ecom_carts.product_id =  tbl_ecom_products.id ").Joins("left join (select *, ROW_NUMBER() OVER (PARTITION BY tbl_ecom_product_pricings.id, tbl_ecom_product_pricings.type ORDER BY tbl_ecom_product_pricings.priority,tbl_ecom_product_pricings.start_date desc) AS rn from tbl_ecom_product_pricings where tbl_ecom_product_pricings.type ='discount' and tbl_ecom_product_pricings.start_date <= now() and tbl_ecom_product_pricings.end_date >= now()) rp on rp.product_id = tbl_ecom_products.id").Joins("left join (select *, ROW_NUMBER() OVER (PARTITION BY tbl_ecom_product_pricings.id, tbl_ecom_product_pricings.type ORDER BY tbl_ecom_product_pricings.priority,tbl_ecom_product_pricings.start_date desc) AS rn from tbl_ecom_product_pricings where tbl_ecom_product_pricings.type ='special' and tbl_ecom_product_pricings.start_date <= now() and tbl_ecom_product_pricings.end_date >= now()) rs on rs.product_id = tbl_ecom_products.id").Joins("inner join tbl_ecom_customers on tbl_ecom_customers.id = tbl_ecom_carts.customer_id").
+		Where("tbl_ecom_carts.is_deleted = 0 and tbl_ecom_products.is_deleted = 0 and tbl_ecom_customers.is_deleted = 0 and tbl_ecom_products.is_active = 1 and tbl_ecom_customers.id = ?", customerId).Preload("EcommerceCart").Limit(limit).Offset(offset).Order("tbl_ecom_carts.id desc").Find(&cartList)
+
+	if result.Error != nil {
+		return []EcommerceProduct{}, -1, result.Error
+	}
+
+	result = DB.Table("tbl_ecom_carts").Joins("inner join tbl_ecom_products on tbl_ecom_products.id = tbl_ecom_carts.product_id").Joins("left join (select *, ROW_NUMBER() OVER (PARTITION BY tbl_ecom_product_pricings.id, tbl_ecom_product_pricings.type ORDER BY tbl_ecom_product_pricings.priority,tbl_ecom_product_pricings.start_date desc) AS rn from tbl_ecom_product_pricings where tbl_ecom_product_pricings.type ='discount' and tbl_ecom_product_pricings.start_date <= now() and tbl_ecom_product_pricings.end_date >= now()) rp on rp.product_id = tbl_ecom_products.id").Joins("left join (select *, ROW_NUMBER() OVER (PARTITION BY tbl_ecom_product_pricings.id, tbl_ecom_product_pricings.type ORDER BY tbl_ecom_product_pricings.priority,tbl_ecom_product_pricings.start_date desc) AS rn from tbl_ecom_product_pricings where tbl_ecom_product_pricings.type ='special' and tbl_ecom_product_pricings.start_date <= now() and tbl_ecom_product_pricings.end_date >= now()) rs on rs.product_id = tbl_ecom_products.id").Joins("inner join tbl_ecom_customers on tbl_ecom_customers.id = tbl_ecom_carts.customer_id").
+		Where("tbl_ecom_carts.is_deleted = 0 and tbl_ecom_products.is_deleted = 0 and tbl_ecom_customers.is_deleted = 0 and tbl_ecom_products.is_active = 1 and tbl_ecom_customers.id = ?", customerId).Count(&count)
+
+	if result.Error != nil {
+		return []EcommerceProduct{}, -1, result.Error
+	}
+
+	return cartList, count, nil
+}
+
+// Remove product from cart list
+
+func (ecommerce EcommerceModel) RemoveProductFromCartlist(productId int, memberId int, DB *gorm.DB) (err error) {
+
+	currentTime, _ := time.Parse("2006-01-02 15:04:05", time.Now().UTC().Format("2006-01-02 15:04:05"))
+
+	subquery := DB.Table("tbl_ecom_customers").Select("id").Where("is_deleted = 0 and member_id = ?", memberId)
+
+	result := DB.Debug().Table("tbl_ecom_carts").Where("tbl_ecom_carts.is_deleted = 0 and tbl_ecom_carts.product_id = ? and tbl_ecom_carts.customer_id = (?)", productId, subquery).UpdateColumns(map[string]interface{}{"is_deleted": 1, "deleted_on": currentTime})
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
+}
+
+// Get Product order list
+func (ecommerce EcommerceModel) GetProductOrdersList(filter ProductFilter, sort ProductSort, customerId int, limit int, offset int, DB *gorm.DB) (productOrdersList []EcommerceProduct, count int64, err error) {
+
+	query := DB.Debug().Table("tbl_ecom_products as p").Joins("inner join tbl_ecom_product_order_details d on d.product_id = p.id").Joins("inner join tbl_ecom_product_orders o on o.id = d.order_id").Joins("inner join tbl_ecom_order_payments op on op.order_id = o.id").Where("p.is_deleted = 0 and o.is_deleted = 0 and o.customer_id = ?", customerId)
+
+	if filter.UpcomingOrders == 1 {
+
+		query = query.Where("o.status in (?)", []string{"placed", "outofdelivery", "shipped"})
+
+	} else if filter.OrderHistory == 1 {
+
+		query = query.Where("o.status in (?)", []string{"delivered", "cancelled"})
+
+	} else if filter.Status != "" {
+
+		query = query.Where("o.status = ?", filter.Status)
+	}
+
+	if filter.StartingPrice != 0 && filter.EndingPrice != 0 {
+
+		query = query.Where("d.price between ? and ?", filter.StartingPrice, filter.EndingPrice)
+
+	} else if filter.StartingPrice != 0 {
+
+		query = query.Where("d.price >= ?", filter.StartingPrice)
+
+	} else if filter.EndingPrice != 0 {
+
+		query = query.Where("d.price <= ?", filter.EndingPrice)
+
+	}
+
+	if filter.SearchKeyword != "" {
+
+		query = query.Where("LOWER(TRIM(p.product_name)) ILIKE LOWER(TRIM(?))", "%"+filter.SearchKeyword+"%")
+	}
+
+	if filter.StartingDate != "" && filter.EndingDate != "" {
+
+		query = query.Where("o.created_on between ? and ?", filter.StartingDate, filter.EndingDate)
+
+	} else if filter.StartingDate != "" {
+
+		query = query.Where("o.created_on >= ?", filter.StartingDate)
+
+	} else if filter.EndingDate != "" {
+
+		query = query.Where("o.created_on <= ?", filter.EndingDate)
+	}
+
+	if filter.OrderId != "" {
+
+		query = query.Where("o.uuid = ?", filter.OrderId)
+	}
+
+	if err := query.Count(&count).Error; err != nil {
+
+		return []EcommerceProduct{}, -1, err
+	}
+
+	if sort.Date != -1 {
+
+		if sort.Date == 1 {
+
+			query = query.Order("o.id desc")
+
+		} else if sort.Date == 0 {
+
+			query = query.Order("o.id")
+
+		}
+
+	} else if sort.Price != -1 {
+
+		if sort.Price == 1 {
+
+			query = query.Order("d.price desc")
+
+		} else if sort.Price == 0 {
+
+			query = query.Order("d.price")
+
+		}
+
+	} else {
+
+		query = query.Order("o.id desc")
+	}
+
+	if err := query.Select("p.*,o.id,o.uuid,o.status,o.customer_id,o.created_on,o.shipping_address,d.quantity,d.price,d.tax,op.payment_mode").Limit(limit).Offset(offset).Find(&productOrdersList).Error; err != nil {
+
+		return []EcommerceProduct{}, -1, err
+	}
+
+	return productOrdersList, count, nil
 }

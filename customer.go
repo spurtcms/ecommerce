@@ -1,11 +1,14 @@
 package ecommerce
 
 import (
+	"encoding/json"
+	"fmt"
 	"log"
 	"strings"
 	"time"
 
 	"github.com/spurtcms/member"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type tblecomcustomers struct {
@@ -34,7 +37,17 @@ type tblecomcustomers struct {
 	ProfileImage     string
 	ProfileImagePath string
 	NameString       string `gorm:"-:migration;<-:false"`
-	ShippingAddress  string `gorm:"-:migration;<-:false"`
+}
+
+type ShippingAddress struct {
+	Name    string `json:"name"`
+	Area    string `json:"area"`
+	Number  string `json:"number"`
+	Email   string `json:"email"`
+	HouseNo string `json:"houseno"`
+	City    string `json:"city"`
+	Country string `json:"country"`
+	States  string `json:"states"`
 }
 
 // EcommerceSetup used initialize Ecommerce configruation
@@ -437,18 +450,18 @@ func (ecommerce *Ecommerce) CheckDuplicateValue(memberid int, email string, user
 }
 
 // To Get Customer order info details
-func (ecommerce *Ecommerce) CustomerOrderInfo(uuid string) (productorder []TblEcomProducts, laststatus string, err error) {
+func (ecommerce *Ecommerce) CustomerOrderInfo(uuid string) (productorder []TblEcomProducts, order TblEcomProductOrders, address ShippingAddress, laststatus string, err error) {
 
 	if AuthErr := AuthandPermission(ecommerce); AuthErr != nil {
 
-		return []TblEcomProducts{}, "", AuthErr
+		return []TblEcomProducts{}, TblEcomProductOrders{}, ShippingAddress{}, "", AuthErr
 	}
 	cusinfo, err := Ecommercemodel.GetOrderDetailsbyuuid(uuid, ecommerce.DB)
 
 	log.Println("cusinfo", cusinfo)
 
 	if err != nil {
-		return []TblEcomProducts{}, "", err
+		return []TblEcomProducts{}, TblEcomProductOrders{}, ShippingAddress{}, "", err
 	}
 
 	var first = cusinfo.FirstName
@@ -489,7 +502,7 @@ func (ecommerce *Ecommerce) CustomerOrderInfo(uuid string) (productorder []TblEc
 
 	if err1 != nil {
 
-		return []TblEcomProducts{}, "", err1
+		return []TblEcomProducts{}, TblEcomProductOrders{}, ShippingAddress{}, "", err1
 	}
 
 	var product_id []int
@@ -503,7 +516,8 @@ func (ecommerce *Ecommerce) CustomerOrderInfo(uuid string) (productorder []TblEc
 	productdetails, err2 := Ecommercemodel.GetProductdetailsByProductId(product_id, ecommerce.DB)
 
 	if err2 != nil {
-		return []TblEcomProducts{}, "", err2
+		return []TblEcomProducts{}, TblEcomProductOrders{}, ShippingAddress{}, "", err2
+
 	}
 	var productList []TblEcomProducts
 
@@ -542,7 +556,15 @@ func (ecommerce *Ecommerce) CustomerOrderInfo(uuid string) (productorder []TblEc
 		}
 	}
 
-	return productList, lstatus, nil
+	var shippingAddress ShippingAddress
+
+	err4 := json.Unmarshal([]byte(cusinfo.ShippingAddress), &shippingAddress)
+	if err4 != nil {
+		fmt.Println("Error unmarshalling JSON:", err)
+		return
+	}
+
+	return productList, cusinfo, shippingAddress, lstatus, nil
 
 }
 
@@ -609,4 +631,34 @@ func (ecommerce *Ecommerce) CustomerInfo(limit, offset, customerid int) (custome
 	}
 
 	return customer, finalorderlist, count, nil
+}
+
+// Password Hasing
+func (ecommerce *Ecommerce) HashingPassword(pass string) string {
+
+	passbyte, err := bcrypt.GenerateFromPassword([]byte(pass), 14)
+
+	if err != nil {
+
+		panic(err)
+
+	}
+
+	return string(passbyte)
+}
+
+// Get Customer details
+func (Ecommerce *Ecommerce) GetCustomerId(memberId int) (customerId int, err error) {
+
+	if AuthErr := AuthandPermission(Ecommerce); AuthErr != nil {
+
+		return -1, AuthErr
+	}
+
+	customerId, err = Ecommerce.GetCustomerId(memberId)
+	if err != nil {
+		return -1, err
+	}
+
+	return customerId, nil
 }

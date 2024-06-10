@@ -120,7 +120,7 @@ func (ecommerce *Ecommerce) CreateProduct(Pc CreateProductReq) error {
 
 	product.CreatedOn, _ = time.Parse("2006-01-02 15:04:05", time.Now().UTC().Format("2006-01-02 15:04:05"))
 
-	cproduct,err := Ecommercemodel.ProductCreate(product, ecommerce.DB)
+	cproduct, err := Ecommercemodel.ProductCreate(product, ecommerce.DB)
 
 	if err != nil {
 		return err
@@ -348,4 +348,87 @@ func (ecommerce *Ecommerce) SelectProductsChangeStatus(status int, productid []i
 	}
 
 	return nil
+}
+
+// Add to product in cart
+
+func (Ecommerce *Ecommerce) AddToCart(cart EcommerceCart) (boolean bool, err error) {
+
+	var count int64
+
+	count, err = EcommerceModel.GetCartCount(EcommerceModel{}, cart.CustomerID, cart.ProductID, Ecommerce.DB)
+	if err != nil {
+		return false, err
+	}
+
+	err = EcommerceModel.AddToCart(EcommerceModel{}, count, cart, Ecommerce.DB)
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
+
+// Get Product Id
+func (Ecommerce *Ecommerce) GetProductId(productSlug *string) (productId int, err error) {
+
+	if AuthErr := AuthandPermission(Ecommerce); AuthErr != nil {
+
+		return -1, AuthErr
+	}
+
+	productId, err = Ecommercemodel.GetProductId(productSlug, Ecommerce.DB)
+	if err != nil {
+		return -1, err
+	}
+
+	return productId, nil
+}
+
+// Get cart list
+func (Ecommerce *Ecommerce) GetCartListById(customerId, limit, offset int) (cartList []EcommerceProduct, count int64, err error) {
+
+	if AuthErr := AuthandPermission(Ecommerce); AuthErr != nil {
+
+		return []EcommerceProduct{}, -1, AuthErr
+	}
+
+	cartList, count, err = EcommerceModel.GetCartListById(EcommerceModel{}, customerId, limit, offset, Ecommerce.DB)
+	if err != nil {
+		return []EcommerceProduct{}, 0, err
+	}
+
+	return cartList, count, err
+}
+
+// Remove product forom cart list
+func (Ecommerce *Ecommerce) RemoveProductFromCartlist(productId int, memberId int) (err error) {
+
+	if AuthErr := AuthandPermission(Ecommerce); AuthErr != nil {
+
+		return AuthErr
+	}
+
+	err = EcommerceModel.RemoveProductFromCartlist(EcommerceModel{}, productId, memberId, Ecommerce.DB)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Get product order list
+func (Ecommerce *Ecommerce) GetProductOrdersList(filter ProductFilter, sort ProductSort, customerId int, limit int, offset int) (orderedProductList []EcommerceProduct, count int64, err error) {
+
+	if AuthErr := AuthandPermission(Ecommerce); AuthErr != nil {
+
+		return []EcommerceProduct{}, -1, AuthErr
+	}
+
+	orderedProductList, count, err = EcommerceModel.GetProductOrdersList(EcommerceModel{}, filter, sort, customerId, limit, offset, Ecommerce.DB)
+	if err != nil {
+		return []EcommerceProduct{}, -1, err
+	}
+
+	return orderedProductList, count, nil
 }
