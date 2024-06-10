@@ -432,3 +432,20 @@ func (Ecommerce *Ecommerce) GetProductOrdersList(filter ProductFilter, sort Prod
 
 	return orderedProductList, count, nil
 }
+
+// update product count
+func (Ecommerce *Ecommerce) UpdateProductViewCount(productId int, productSlug string) (err error) {
+
+	if AuthErr := AuthandPermission(Ecommerce); AuthErr != nil {
+
+		return AuthErr
+	}
+
+	err = EcommerceModel.UpdateProductViewCount(EcommerceModel{}, productId, productSlug, Ecommerce.DB)
+	if err != nil {
+
+		return err
+	}
+
+	return nil
+}

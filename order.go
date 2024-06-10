@@ -312,3 +312,132 @@ func (ecommerce *Ecommerce) MultiSelectOrdersDelete(orderids []int, deletedby in
 	return nil
 
 }
+
+// Get Order status list
+func (Ecommerce *Ecommerce) GetOrderStatusNames() (orderStatus []OrderStatusNames, err error) {
+
+	if AuthErr := AuthandPermission(Ecommerce); AuthErr != nil {
+
+		return []OrderStatusNames{}, AuthErr
+	}
+
+	orderStatus, err = EcommerceModel.GetOrderStatusNames(EcommerceModel{}, Ecommerce.DB)
+	if err != nil {
+
+		return []OrderStatusNames{}, err
+	}
+
+	return orderStatus, nil
+}
+
+func (Ecommerce *Ecommerce) PlaceOrder(orderPlaced EcommerceOrder) (err error) {
+
+	if AuthErr := AuthandPermission(Ecommerce); AuthErr != nil {
+
+		return AuthErr
+	}
+
+	err = EcommerceModel.PlaceOrder(EcommerceModel{}, orderPlaced, Ecommerce.DB)
+	if err != nil {
+
+		return err
+	}
+
+	return nil
+}
+
+func (Ecommerce *Ecommerce) GetOrderByOrderId(orderId string) (order EcommerceOrder, err error) {
+
+	if AuthErr := AuthandPermission(Ecommerce); AuthErr != nil {
+
+		return EcommerceOrder{}, AuthErr
+	}
+
+	order, err = EcommerceModel.GetOrderByOrderId(EcommerceModel{}, orderId, Ecommerce.DB)
+	if err != nil {
+
+		return EcommerceOrder{}, err
+	}
+
+	return order, err
+}
+
+func (Ecommerce *Ecommerce) CreateOrderDetails(orderDetails OrderProduct) (err error) {
+
+	if AuthErr := AuthandPermission(Ecommerce); AuthErr != nil {
+
+		return AuthErr
+	}
+
+	err = EcommerceModel.CreateOrderDetails(EcommerceModel{}, orderDetails, Ecommerce.DB)
+	if err != nil {
+
+		return err
+	}
+
+	return nil
+}
+
+func (Ecommerce *Ecommerce) UpdateStock(productId, quantity int) (err error) {
+
+	if AuthErr := AuthandPermission(Ecommerce); AuthErr != nil {
+
+		return AuthErr
+	}
+
+	err = EcommerceModel.UpdateStock(EcommerceModel{}, productId, quantity, Ecommerce.DB)
+	if err != nil {
+
+		return err
+	}
+
+	return nil
+}
+
+func (Ecommerce *Ecommerce) CreateOrderStatus(orderStatus TblEcomOrderStatuses) (err error) {
+
+	if AuthErr := AuthandPermission(Ecommerce); AuthErr != nil {
+
+		return AuthErr
+	}
+
+	err = EcommerceModel.CreateOrderStatus(Ecommercemodel, orderStatus, Ecommerce.DB)
+	if err != nil {
+
+		return err
+	}
+
+	return nil
+}
+
+func (Ecommerce *Ecommerce) CreateOrderPayment(orderPayment OrderPayment) (err error) {
+
+	if AuthErr := AuthandPermission(Ecommerce); AuthErr != nil {
+
+		return AuthErr
+	}
+
+	err = EcommerceModel.CreateOrderPayment(EcommerceModel{}, orderPayment, Ecommerce.DB)
+	if err != nil {
+
+		return err
+	}
+
+	return nil
+}
+
+func (Ecommerce *Ecommerce) DeleteFromCartAfterOrder(orderedproductIds []int, customerId int) (err error) {
+
+	if AuthErr := AuthandPermission(Ecommerce); AuthErr != nil {
+
+		return AuthErr
+	}
+
+	err = EcommerceModel.DeleteFromCartAfterOrder(EcommerceModel{}, orderedproductIds, customerId, Ecommerce.DB)
+	if err != nil {
+
+		return err
+	}
+
+	return nil
+}

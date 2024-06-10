@@ -114,13 +114,13 @@ func (ecommerce *Ecommerce) CustomerList(limit, offset int, filter Filter) (cust
 
 }
 
-// Create Customer
+// Create Member
 
-func (ecommerce *Ecommerce) CreateCustomer(Cc CreateCustomerReq) error {
+func (ecommerce *Ecommerce) CreateMember(Cc CreateCustomerReq) (ccmember member.Tblmember, err error) {
 
 	if AuthErr := AuthandPermission(ecommerce); AuthErr != nil {
 
-		return AuthErr
+		return member.Tblmember{}, AuthErr
 	}
 
 	db := ecommerce.DBconf()
@@ -152,9 +152,22 @@ func (ecommerce *Ecommerce) CreateCustomer(Cc CreateCustomerReq) error {
 		log.Println(err)
 	}
 
+	return cmember, nil
+
+}
+
+// Create Customer
+
+func (ecommerce *Ecommerce) CreateCustomer(Cc CreateCustomerReq) error {
+
+	if AuthErr := AuthandPermission(ecommerce); AuthErr != nil {
+
+		return AuthErr
+	}
+
 	var ccustomer TblEcomCustomers
 
-	ccustomer.MemberId = cmember.Id
+	ccustomer.MemberId = Cc.MemberId
 
 	ccustomer.City = Cc.City
 

@@ -96,6 +96,56 @@ type ProductSort struct {
 	Date  int
 }
 
+type OrderStatusNames struct {
+	Id          int
+	Status      string
+	Priority    int
+	Description string
+	IsActive    int
+	CreatedBy   int
+	CreatedOn   time.Time
+	ModifiedBy  int
+	ModifiedOn  time.Time
+	IsDeleted   int
+}
+
+type EcommerceOrder struct {
+	Id              int
+	OrderId         string
+	CustomerId      int
+	Status          string
+	ShippingAddress string
+	IsDeleted       int
+	CreatedOn       time.Time
+	ModifiedOn      time.Time
+	Price           int
+	Tax             int
+	TotalCost       int
+}
+
+type OrderProduct struct {
+	Id        int
+	OrderId   int
+	ProductId int
+	Quantity  int
+	Price     int
+	Tax       int
+}
+
+type OrderStatus struct {
+	Id          int
+	OrderId     int
+	OrderStatus int
+	CreatedBy   int
+	CreatedOn   time.Time
+}
+
+type OrderPayment struct {
+	Id          int
+	OrderId     int
+	PaymentMode string
+}
+
 type EcommerceProduct struct {
 	ID                 int
 	CategoriesID       int
@@ -835,4 +885,107 @@ func (ecommerce EcommerceModel) GetProductOrdersList(filter ProductFilter, sort 
 	}
 
 	return productOrdersList, count, nil
+}
+
+// update product view
+func (ecommerce EcommerceModel) UpdateProductViewCount(productId int, productSlug string, DB *gorm.DB) (err error) {
+
+	query := DB.Debug().Table("tbl_ecom_products").Where("is_deleted = 0 and is_active = 1")
+
+	if productId != 0 && productId != -1 {
+
+		query = query.Where("id = ?", productId)
+
+	} else if productSlug != "" {
+
+		query = query.Where("product_slug = ?", productSlug)
+	}
+
+	err = query.Update("view_count", gorm.Expr("view_count + 1")).Error
+	if err != nil {
+
+		return err
+	}
+
+	return nil
+}
+// place order
+
+func (ecommerce EcommerceModel) PlaceOrder(orderPlaced EcommerceOrder, DB *gorm.DB) (err error) {
+
+	if err := DB.Table("tbl_ecom_product_orders").Create(&orderPlaced).Error; err != nil {
+
+		return err
+	}
+
+	return nil
+}
+
+// get order list
+func (ecommerce EcommerceModel) GetOrderByOrderId(orderId string, DB *gorm.DB) (order EcommerceOrder, err error) {
+
+	if err := DB.Table("tbl_ecom_product_orders").Where("uuid = ?", orderId).First(&order).Error; err != nil {
+
+		return EcommerceOrder{}, err
+	}
+
+	return order, nil
+}
+
+// create order
+func (ecommerce EcommerceModel) CreateOrderDetails(orderDetails OrderProduct, DB *gorm.DB) (err error) {
+
+	if err = DB.Table("tbl_ecom_product_order_details").Create(&orderDetails).Error; err != nil {
+
+		return err
+	}
+
+	return nil
+}
+
+// update stock
+func (ecommerce EcommerceModel) UpdateStock(productId int, quantity int, DB *gorm.DB) (err error) {
+
+	if err = DB.Debug().Table("tbl_ecom_products").Where("is_deleted = 0 and is_active = 1 and id = ?", productId).Update("stock", gorm.Expr("stock - ?", quantity)).Error; err != nil {
+
+		return err
+	}
+
+	return nil
+
+}
+
+// create order payment
+func (ecommerce EcommerceModel) CreateOrderPayment(orderpayment OrderPayment, DB *gorm.DB) (err error) {
+
+	if err := DB.Table("tbl_ecom_order_payments").Create(&orderpayment).Error; err != nil {
+
+		return err
+	}
+
+	return nil
+}
+
+// Delete form cart after order
+func (ecommerce EcommerceModel) DeleteFromCartAfterOrder(orderedProductIds []int, customerId int, DB *gorm.DB) (err error) {
+
+	currentTime, _ := time.Parse("2006-01-02 15:04:05", time.Now().UTC().Format("2006-01-02 15:04:05"))
+
+	if err := DB.Table("tbl_ecom_carts").Where("is_deleted = 0 and product_id in (?) and customer_id = ?", orderedProductIds, customerId).UpdateColumns(map[string]interface{}{"is_deleted": 1, "deleted_on": currentTime}).Error; err != nil {
+
+		return err
+	}
+
+	return nil
+}
+
+// Get Status list
+func (ecommerce EcommerceModel) GetOrderStatusNames(DB *gorm.DB) (orderStatus []OrderStatusNames, err error) {
+
+	if err := DB.Debug().Table("tbl_ecom_statuses").Where("is_deleted = 0").Order("priority").Find(&orderStatus).Error; err != nil {
+
+		return []OrderStatusNames{}, err
+	}
+
+	return orderStatus, nil
 }
