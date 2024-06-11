@@ -2,6 +2,7 @@ package ecommerce
 
 import (
 	"fmt"
+
 	"strings"
 	"time"
 )
@@ -149,48 +150,59 @@ func (ecommerce *Ecommerce) CreateProduct(Pc CreateProductReq) error {
 
 // pass product id  get particular product details
 
-func (ecommerce *Ecommerce) EditProduct(productid int) (products TblEcomProducts, price []TblEcomProductPricings, err error) {
+func (ecommerce *Ecommerce) EditProduct(productid int) (products TblEcomProducts, price []TblEcomProductPricings, discountprice []TblEcomProductPricings, err error) {
 
 	if AuthErr := AuthandPermission(ecommerce); AuthErr != nil {
 
-		return TblEcomProducts{}, []TblEcomProductPricings{}, AuthErr
+		return TblEcomProducts{}, []TblEcomProductPricings{}, []TblEcomProductPricings{}, AuthErr
 	}
 
 	product, err := Ecommercemodel.ProductDetailsByProductId(productid, ecommerce.DB)
 
+	product.Imgpath = strings.Split(product.ProductImagePath, ",")
+
 	if err != nil {
 
-		return TblEcomProducts{}, []TblEcomProductPricings{}, err
+		return TblEcomProducts{}, []TblEcomProductPricings{}, []TblEcomProductPricings{}, err
 	}
 
-	var pricings []TblEcomProductPricings
+	var discount []TblEcomProductPricings
 
-	pricing, err1 := Ecommercemodel.ProductPricingByProductId(productid, ecommerce.DB)
+	var special []TblEcomProductPricings
+
+	offers, err1 := Ecommercemodel.ProductPricingByProductId(product.Id, ecommerce.DB)
+
+	for _, val := range offers {
+
+		layout := "2006-01-02"
+
+		if !val.StartDate.IsZero() {
+
+			val.Startdate = val.StartDate.Format(layout)
+
+		}
+		if !val.EndDate.IsZero() {
+
+			val.Enddate = val.EndDate.Format(layout)
+
+		}
+
+		if val.Type == "discount" {
+
+			discount = append(discount, val)
+		}
+		if val.Type == "special" {
+
+			special = append(special, val)
+		}
+	}
 
 	if err1 != nil {
 
-		return TblEcomProducts{}, []TblEcomProductPricings{}, err1
+		return TblEcomProducts{}, []TblEcomProductPricings{}, []TblEcomProductPricings{}, err
 	}
 
-	for _, pricevalue := range pricing {
-
-		layout := "2006-01-02T15:04"
-
-		if !pricevalue.StartDate.IsZero() {
-
-			pricevalue.Startdate = pricevalue.StartDate.Format(layout)
-
-		}
-		if !pricevalue.EndDate.IsZero() {
-
-			pricevalue.Enddate = pricevalue.EndDate.Format(layout)
-
-		}
-
-		pricings = append(pricings, pricevalue)
-	}
-
-	return product, pricings, nil
+	return product, discount, special, nil
 
 }
 
@@ -282,9 +294,9 @@ func (ecommerce *Ecommerce) UpdateProduct(Productid int, offerid int, removeoff 
 	return nil
 }
 
-// pass Product id soft delete the particular record
+// pass multiple Product id soft delete the particular record
 
-func (ecommerce *Ecommerce) DeleteProduct(productid []int) error {
+func (ecommerce *Ecommerce) MultiDeleteProduct(productid []int, id int) error {
 
 	if AuthErr := AuthandPermission(ecommerce); AuthErr != nil {
 
@@ -293,9 +305,39 @@ func (ecommerce *Ecommerce) DeleteProduct(productid []int) error {
 
 	var product TblEcomProducts
 
+	product.DeletedBy = id
+
 	product.DeletedOn, _ = time.Parse("2006-01-02 15:04:05", time.Now().UTC().Format("2006-01-02 15:04:05"))
 
 	err := Ecommercemodel.DeleteSelectedProducts(product, productid, ecommerce.DB)
+
+	if err != nil {
+
+		return err
+	}
+
+	return nil
+
+}
+
+// pass Product id soft delete the particular record
+
+func (ecommerce *Ecommerce) DeleteProduct(productid int, id int) error {
+
+	if AuthErr := AuthandPermission(ecommerce); AuthErr != nil {
+
+		return AuthErr
+	}
+
+	var product TblEcomProducts
+
+	product.Id = productid
+
+	product.DeletedBy = id
+
+	product.DeletedOn, _ = time.Parse("2006-01-02 15:04:05", time.Now().UTC().Format("2006-01-02 15:04:05"))
+
+	err := Ecommercemodel.DeleteSingleProducts(product, ecommerce.DB)
 
 	if err != nil {
 

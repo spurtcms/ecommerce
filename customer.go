@@ -507,7 +507,7 @@ func (ecommerce *Ecommerce) CustomerOrderInfo(uuid string) (productorder []TblEc
 		val.CreatedDate = val.CreatedOn.In(TZONE).Format("02 Jan 2006 03:04 PM")
 
 		Orderstatus = append(Orderstatus, val)
-		lstatus = val.OrderStatus
+		// lstatus = val.OrderStatus
 
 	}
 

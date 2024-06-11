@@ -1,8 +1,10 @@
 package ecommerce
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
+
 	"strings"
 	"time"
 )
@@ -96,11 +98,11 @@ func (ecommerce *Ecommerce) OrdersList(offset int, limit int, filter Filter) (or
 
 // pass Order id  get particular Order details
 
-func (ecommerce *Ecommerce) OrderInfo(id string) (orderstatus []TblEcomOrderStatuses, product []tblEcomProducts, err error) {
+func (ecommerce *Ecommerce) OrderInfo(id string) (orderlists TblEcomProductOrders, product []tblEcomProducts, Address OrderShippingAddress, count int, err error) {
 
 	if AuthErr := AuthandPermission(ecommerce); AuthErr != nil {
 
-		return []TblEcomOrderStatuses{}, []tblEcomProducts{}, AuthErr
+		return TblEcomProductOrders{}, []tblEcomProducts{}, OrderShippingAddress{}, 0, AuthErr
 	}
 
 	orderlist, err := Ecommercemodel.OrderEdit(id, ecommerce.DB)
@@ -108,23 +110,25 @@ func (ecommerce *Ecommerce) OrderInfo(id string) (orderstatus []TblEcomOrderStat
 	if err != nil {
 		log.Println(err)
 	}
+	var shippingAddress OrderShippingAddress
+
+	err4 := json.Unmarshal([]byte(orderlist.ShippingAddress), &shippingAddress)
+
+	if err4 != nil {
+		fmt.Println("Error unmarshalling JSON:", err4)
+		return
+	}
 	orderlist.CreatedDate = orderlist.CreatedOn.In(TZONE).Format("02 Jan 2006 03:04 PM")
 
-	var Orderstatus []TblEcomOrderStatuses
-
-	for _, val := range orderlist.Orders {
-
-		val.CreatedDate = val.CreatedOn.In(TZONE).Format("02 Jan 2006 03:04 PM")
-
-		Orderstatus = append(Orderstatus, val)
-
-	}
-
-	log.Println("orderlist.Id", orderlist.Id)
+	orderlist.ModifiedDate = orderlist.ModifiedOn.In(TZONE).Format("02 Jan 2006 03:04 PM")
 
 	orid := orderlist.Id
 
+	var length int
+
 	productinfo, err1 := Ecommercemodel.GetProductdetailsByOrderId(orid, ecommerce.DB)
+
+	length = len(productinfo)
 
 	if err1 != nil {
 
@@ -186,46 +190,23 @@ func (ecommerce *Ecommerce) OrderInfo(id string) (orderstatus []TblEcomOrderStat
 		}
 	}
 
-	return Orderstatus, productList, nil
+	return orderlist, productList, shippingAddress, length, nil
 
 }
 
 // Update Order status
-func (ecommerce *Ecommerce) UpdateOrderStatus(id, orderid, status int) error {
+func (ecommerce *Ecommerce) UpdateOrderStatus(orderid, status int) error {
 
 	if AuthErr := AuthandPermission(ecommerce); AuthErr != nil {
 
 		return AuthErr
 	}
 
-	var Placed = 1
-	var Shipped = 2
-	var Outofdelivery = 3
-	var Delivered = 4
-
-	var Statusvalue string
-
-	if status == Placed {
-		Statusvalue = "placed"
-	} else if status == Shipped {
-		Statusvalue = "shipped"
-
-	} else if status == Outofdelivery {
-		Statusvalue = "shipped"
-		Statusvalue = "outofdelivery"
-
-	} else if status == Delivered {
-		Statusvalue = "shipped"
-		Statusvalue = "outofdelivery"
-		Statusvalue = "delivered"
-
-	}
-
 	var order TblEcomProductOrders
 
-	order.Status = Statusvalue
-
 	order.Id = orderid
+
+	order.OrderStatus = status
 
 	order.ModifiedOn, _ = time.Parse("2006-01-02 15:04:05", time.Now().UTC().Format("2006-01-02 15:04:05"))
 
@@ -234,11 +215,10 @@ func (ecommerce *Ecommerce) UpdateOrderStatus(id, orderid, status int) error {
 	if err != nil {
 		return err
 	}
-
 	var orderstatus TblEcomOrderStatuses
 
 	orderstatus.OrderId = orderid
-	orderstatus.OrderStatus = Statusvalue
+	orderstatus.OrderStatus = status
 	orderstatus.CreatedBy = 1
 	orderstatus.CreatedOn, _ = time.Parse("2006-01-02 15:04:05", time.Now().UTC().Format("2006-01-02 15:04:05"))
 
@@ -314,14 +294,14 @@ func (ecommerce *Ecommerce) MultiSelectOrdersDelete(orderids []int, deletedby in
 }
 
 // Get Order status list
-func (Ecommerce *Ecommerce) GetOrderStatusNames() (orderStatus []OrderStatusNames, err error) {
+func (Ecommerce *Ecommerce) GetOrderStatusList() (orderStatus []OrderStatusNames, err error) {
 
 	if AuthErr := AuthandPermission(Ecommerce); AuthErr != nil {
 
 		return []OrderStatusNames{}, AuthErr
 	}
 
-	orderStatus, err = EcommerceModel.GetOrderStatusNames(EcommerceModel{}, Ecommerce.DB)
+	orderStatus, err = EcommerceModel.GetOrderStatusList(EcommerceModel{}, Ecommerce.DB)
 	if err != nil {
 
 		return []OrderStatusNames{}, err

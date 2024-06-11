@@ -135,14 +135,14 @@ func TestEditProduct(t *testing.T) {
 
 	if permisison {
 
-		product, price, err := ecommerce.EditProduct(1)
+		product, price, discount, err := ecommerce.EditProduct(1)
 
 		if err != nil {
 
 			panic(err)
 		}
 
-		fmt.Println(product, price)
+		fmt.Println(product, price, discount)
 	} else {
 
 		log.Println("permissions enabled not initialised")
@@ -228,11 +228,13 @@ func TestDeleteProduct(t *testing.T) {
 		Auth:             Auth,
 	})
 
-	var productid = []int{1, 2}
+	var productid = 1
+
+	var id = 1
 
 	if permisison {
 
-		err := ecommerce.DeleteProduct(productid)
+		err := ecommerce.DeleteProduct(productid, id)
 
 		if err != nil {
 

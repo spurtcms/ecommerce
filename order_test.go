@@ -89,14 +89,14 @@ func TestOrderInfo(t *testing.T) {
 
 		id := "SP03052024"
 
-		orderstatus, product, err := ecommerce.OrderInfo(id)
+		orderstatus, product, address, count, err := ecommerce.OrderInfo(id)
 
 		if err != nil {
 
 			panic(err)
 		}
 
-		fmt.Println(orderstatus, product)
+		fmt.Println(orderstatus, product, address, count)
 	} else {
 
 		log.Println("permissions enabled not initialised")
@@ -135,7 +135,7 @@ func TestUpdateOrderStatus(t *testing.T) {
 
 	if permisison {
 
-		err := ecommerce.UpdateOrderStatus(1, 1, 1)
+		err := ecommerce.UpdateOrderStatus(1, 1)
 
 		if err != nil {
 
