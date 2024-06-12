@@ -661,17 +661,17 @@ func (ecommerce *Ecommerce) HashingPassword(pass string) string {
 }
 
 // Get Customer details
-func (Ecommerce *Ecommerce) GetCustomerId(memberId int) (customerId int, err error) {
+func (Ecommerce *Ecommerce) GetCustomer(memberId int) (customer TblEcomCustomers, err error) {
 
 	if AuthErr := AuthandPermission(Ecommerce); AuthErr != nil {
 
-		return -1, AuthErr
+		return TblEcomCustomers{}, AuthErr
 	}
 
-	customerId, err = Ecommerce.GetCustomerId(memberId)
+	customer, err = Ecommercemodel.GetCustomer(memberId, Ecommerce.DB)
 	if err != nil {
-		return -1, err
+		return TblEcomCustomers{}, err
 	}
 
-	return customerId, nil
+	return customer, nil
 }

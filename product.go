@@ -411,36 +411,36 @@ func (Ecommerce *Ecommerce) AddToCart(cart EcommerceCart) (boolean bool, err err
 	return true, nil
 }
 
-// Get Product Id
-func (Ecommerce *Ecommerce) GetProductId(productSlug *string) (productId int, err error) {
+// Get Product details
+func (Ecommerce *Ecommerce) GetProduct(productId int, productSlug string) (product EcommerceProduct, err error) {
 
 	if AuthErr := AuthandPermission(Ecommerce); AuthErr != nil {
 
-		return -1, AuthErr
+		return EcommerceProduct{}, AuthErr
 	}
 
-	productId, err = Ecommercemodel.GetProductId(productSlug, Ecommerce.DB)
+	product, err = Ecommercemodel.GetProduct(productId, productSlug, Ecommerce.DB)
 	if err != nil {
-		return -1, err
+		return EcommerceProduct{}, err
 	}
 
-	return productId, nil
+	return product, nil
 }
 
 // Get cart list
-func (Ecommerce *Ecommerce) GetCartListById(customerId, limit, offset int) (cartList []EcommerceProduct, count int64, err error) {
+func (Ecommerce *Ecommerce) GetCartListById(customerId, limit, offset int) (cartList []EcommerceProduct, err error) {
 
 	if AuthErr := AuthandPermission(Ecommerce); AuthErr != nil {
 
-		return []EcommerceProduct{}, -1, AuthErr
+		return []EcommerceProduct{}, AuthErr
 	}
 
-	cartList, count, err = EcommerceModel.GetCartListById(EcommerceModel{}, customerId, limit, offset, Ecommerce.DB)
+	cartList, err = EcommerceModel.GetCartListById(EcommerceModel{}, customerId, limit, offset, Ecommerce.DB)
 	if err != nil {
-		return []EcommerceProduct{}, 0, err
+		return []EcommerceProduct{}, err
 	}
 
-	return cartList, count, err
+	return cartList, err
 }
 
 // Remove product forom cart list
@@ -490,4 +490,39 @@ func (Ecommerce *Ecommerce) UpdateProductViewCount(productId int, productSlug st
 	}
 
 	return nil
+}
+
+// Get Cart list cunt by id
+
+func (Ecommerce *Ecommerce) GetCartListCountById(customerId int) (count int64, err error) {
+
+	if AuthErr := AuthandPermission(Ecommerce); AuthErr != nil {
+
+		return -1, AuthErr
+	}
+
+	count, err = EcommerceModel.GetCartListCountById(EcommerceModel{}, customerId, Ecommerce.DB)
+	if err != nil {
+		return -1, err
+	}
+
+	return count, nil
+
+}
+
+// Get Product Details By ID
+func (Ecommerce *Ecommerce) GetProductdetailsById(productId int, productSlug string) (product EcommerceProduct, err error) {
+
+	if AuthErr := AuthandPermission(Ecommerce); AuthErr != nil {
+
+		return EcommerceProduct{}, AuthErr
+	}
+
+	product, err = EcommerceModel.GetProductdetailsById(EcommerceModel{}, productId, productSlug, Ecommerce.DB)
+	if err != nil {
+
+		return EcommerceProduct{}, err
+	}
+
+	return product, nil
 }

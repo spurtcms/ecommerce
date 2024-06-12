@@ -131,10 +131,74 @@ type TblEcomOrderStatuses struct {
 	CreatedDate string    `gorm:"-:migration;<-:false"`
 }
 
+type TblEcomCurrency struct {
+	Id              int    `gorm:"primaryKey;auto_increment;type:serial"`
+	CurrencyName    string `gorm:"type:character varying"`
+	CurrencyType    string `gorm:"type:character varying"`
+	CurrencySymbol  string `gorm:"type:character varying"`
+	IsActive        int    `gorm:"type:integer"`
+	CurrencyDefault int    `gorm:"type:integer"`
+	CreatedOn       time.Time
+	CreatedBy       int
+	ModifiedOn      time.Time `gorm:"type:timestamp without time zone;DEFAULT:NULL"`
+	ModifiedBy      int       `gorm:"DEFAULT:NULL"`
+	IsDeleted       int       `gorm:"type:integer"`
+	DeletedOn       time.Time `gorm:"type:timestamp without time zone;DEFAULT:NULL"`
+	DeletedBy       int       `gorm:"type:integer"`
+	DateString      string    `gorm:"-"`
+}
+
+type TblEcomStatus struct {
+	Id          int    `gorm:"primaryKey;auto_increment;type:serial"`
+	Status      string `gorm:"type:character varying"`
+	Description string `gorm:"type:character varying"`
+	IsActive    int    `gorm:"type:integer"`
+	Priority    int    `gorm:"type:integer"`
+	ColorCode   string `gorm:"type:character varying"`
+	CreatedOn   time.Time
+	CreatedBy   int
+	ModifiedOn  time.Time `gorm:"type:timestamp without time zone;DEFAULT:NULL"`
+	ModifiedBy  int       `gorm:"DEFAULT:NULL"`
+	IsDeleted   int       `gorm:"type:integer"`
+	DeletedOn   time.Time `gorm:"type:timestamp without time zone;DEFAULT:NULL"`
+	DeletedBy   int       `gorm:"type:integer"`
+}
+
+type TblEcomPayment struct {
+	Id           int    `gorm:"primaryKey;auto_increment;type:serial"`
+	PaymentName  string `gorm:"type:character varying"`
+	Description  string `gorm:"type:character varying"`
+	PaymentImage string `gorm:"type:character varying"`
+	IsActive     int    `gorm:"type:integer"`
+	CreatedOn    time.Time
+	CreatedBy    int
+	ModifiedOn   time.Time `gorm:"type:timestamp without time zone;DEFAULT:NULL"`
+	ModifiedBy   int       `gorm:"DEFAULT:NULL"`
+	IsDeleted    int       `gorm:"type:integer"`
+	DeletedOn    time.Time `gorm:"type:timestamp without time zone;DEFAULT:NULL"`
+	DeletedBy    int       `gorm:"type:integer"`
+}
+
+type TblEcomSettings struct {
+	Id              int       `gorm:"primaryKey;auto_increment;type:serial"`
+	StoreName       string    `gorm:"type:character varying"`
+	DisplayStock    int       `gorm:"type:integer"`
+	StockWarning    int       `gorm:"type:integer"`
+	StockCheckout   int       `gorm:"type:integer"`
+	CurrencyDefault int       `gorm:"type:integer"`
+	PaymentDefault  int       `gorm:"type:integer"`
+	StatusDefault   int       `gorm:"type:integer"`
+	CreatedOn       time.Time `gorm:"type:timestamp without time zone;DEFAULT:NULL"`
+	CreatedBy       int
+	ModifiedOn      time.Time `gorm:"type:timestamp without time zone;DEFAULT:NULL"`
+	ModifiedBy      int       `gorm:"DEFAULT:NULL"`
+}
+
 // MigrateTable creates this package related tables in your database
 func MigrateTables(db *gorm.DB) {
 
-	db.AutoMigrate(&TblEcomCustomers{}, &TblEcomOrderStatuses{}, &TblEcomProductOrderDetails{}, &TblEcomProductOrders{}, &TblEcomProductPricings{}, &TblEcomProducts{})
+	db.AutoMigrate(&TblEcomCustomers{}, &TblEcomOrderStatuses{}, &TblEcomProductOrderDetails{}, &TblEcomProductOrders{}, &TblEcomProductPricings{}, &TblEcomProducts{}, TblEcomCurrency{},
+		TblEcomStatus{}, TblEcomPayment{}, TblEcomSettings{})
 
 	db.Exec(`CREATE INDEX IF NOT EXISTS email_unique
     ON public.tbl_ecom_customers USING btree
