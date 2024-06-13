@@ -208,7 +208,7 @@ func (ecommerce *Ecommerce) EditProduct(productid int) (products TblEcomProducts
 
 // pass Product id and pass update Product details
 
-func (ecommerce *Ecommerce) UpdateProduct(Productid int, offerid int, removeoff []int, Pc CreateProductReq) error {
+func (ecommerce *Ecommerce) UpdateProduct(Pc CreateProductReq, removeoff []int, userid int) error {
 
 	if AuthErr := AuthandPermission(ecommerce); AuthErr != nil {
 
@@ -217,7 +217,7 @@ func (ecommerce *Ecommerce) UpdateProduct(Productid int, offerid int, removeoff 
 
 	var product TblEcomProducts
 
-	product.Id = Productid
+	product.Id = Pc.ProductId
 
 	product.CategoriesId = Pc.CategoriesId
 
@@ -239,6 +239,8 @@ func (ecommerce *Ecommerce) UpdateProduct(Productid int, offerid int, removeoff 
 
 	product.ProductImagePath = Pc.ProductImagePath
 
+	product.ModifiedBy = userid
+
 	product.ModifiedOn, _ = time.Parse("2006-01-02 15:04:05", time.Now().UTC().Format("2006-01-02 15:04:05"))
 
 	err := Ecommercemodel.UpdateProducts(product, ecommerce.DB)
@@ -249,9 +251,9 @@ func (ecommerce *Ecommerce) UpdateProduct(Productid int, offerid int, removeoff 
 
 	var pricing TblEcomProductPricings
 
-	pricing.Id = offerid
+	pricing.Id = Pc.PricingId
 
-	pricing.ProductId = Productid
+	pricing.ProductId = Pc.ProductId
 
 	pricing.Priority = Pc.Price
 
@@ -261,7 +263,7 @@ func (ecommerce *Ecommerce) UpdateProduct(Productid int, offerid int, removeoff 
 
 	pricing.Type = Pc.Type
 
-	if offerid != 0 {
+	if Pc.PricingId != 0 {
 		err1 := Ecommercemodel.UpdateProductPricing(pricing, ecommerce.DB)
 
 		if err1 != nil {
@@ -269,7 +271,7 @@ func (ecommerce *Ecommerce) UpdateProduct(Productid int, offerid int, removeoff 
 		}
 	}
 
-	if offerid == 0 {
+	if Pc.PricingId == 0 {
 
 		err2 := Ecommercemodel.CreateProductPricing(pricing, ecommerce.DB)
 
@@ -280,6 +282,8 @@ func (ecommerce *Ecommerce) UpdateProduct(Productid int, offerid int, removeoff 
 	}
 
 	var price TblEcomProductPricings
+
+	price.DeletedBy = userid
 
 	price.DeletedOn, _ = time.Parse("2006-01-02 15:04:05", time.Now().UTC().Format("2006-01-02 15:04:05"))
 

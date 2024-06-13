@@ -184,7 +184,7 @@ func TestUpdateProduct(t *testing.T) {
 
 	if permisison {
 
-		err := ecommerce.UpdateProduct(10, 2, offerid, CreateProductReq{CategoriesId: "1", ProductDescription: "Bad product", ProductName: "Mobile", Sku: "welcome", ProductPrice: 12000, Tax: 1000, Totalcost: 13000, CreatedBy: 1, Type: "discount", Price: 2000, Priority: 1})
+		err := ecommerce.UpdateProduct(CreateProductReq{CategoriesId: "1", ProductDescription: "Bad product", ProductName: "Mobile", Sku: "welcome", ProductPrice: 12000, Tax: 1000, Totalcost: 13000, CreatedBy: 1, Type: "discount", Price: 2000, Priority: 1, ModifiedBy: 1}, offerid,1)
 
 		if err != nil {
 

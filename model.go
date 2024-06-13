@@ -63,6 +63,7 @@ type CreateProductReq struct {
 	Type               string
 	Stock              int
 	IsActive           int
+	PricingId          int
 }
 
 type CreateSettingReq struct {
@@ -613,7 +614,7 @@ func (ecommerceModel EcommerceModel) UpdateProducts(product TblEcomProducts, DB 
 
 	query := DB.Table("tbl_ecom_products").Where("id=?", product.Id)
 
-	if err := query.UpdateColumns(map[string]interface{}{"categories_id": product.CategoriesId, "product_name": product.ProductName, "product_description": product.ProductDescription, "product_image_path": product.ProductImagePath, "product_vimeo_path": product.ProductVimeoPath, "sku": product.Sku, "product_youtube_path": product.ProductYoutubePath, "product_price": product.ProductPrice, "tax": product.Tax, "totalcost": product.Totalcost, "modified_on": product.ModifiedOn, "status": product.Status}).Error; err != nil {
+	if err := query.UpdateColumns(map[string]interface{}{"categories_id": product.CategoriesId, "product_name": product.ProductName, "product_description": product.ProductDescription, "product_image_path": product.ProductImagePath, "product_vimeo_path": product.ProductVimeoPath, "sku": product.Sku, "product_youtube_path": product.ProductYoutubePath, "product_price": product.ProductPrice, "tax": product.Tax, "totalcost": product.Totalcost, "modified_on": product.ModifiedOn, "status": product.Status, "modified_by": product.ModifiedBy}).Error; err != nil {
 
 		return err
 	}
@@ -636,7 +637,7 @@ func (ecommerceModel EcommerceModel) UpdateProductPricing(pricing TblEcomProduct
 // Delete offers
 func (ecommerceModel EcommerceModel) RemoveOffers(price TblEcomProductPricings, deloffers []int, DB *gorm.DB) error {
 
-	if err := DB.Debug().Model(TblEcomProductPricings{}).Where("id IN (?)", deloffers).UpdateColumns(map[string]interface{}{"is_deleted": 1, "deleted_on": price.DeletedOn}).Error; err != nil {
+	if err := DB.Debug().Model(TblEcomProductPricings{}).Where("id IN (?)", deloffers).UpdateColumns(map[string]interface{}{"is_deleted": 1, "deleted_by": price.DeletedBy, "deleted_on": price.DeletedOn}).Error; err != nil {
 
 		return err
 	}
