@@ -675,3 +675,43 @@ func (Ecommerce *Ecommerce) GetCustomer(memberId int) (customer TblEcomCustomers
 
 	return customer, nil
 }
+
+// Get Customer Details by Id
+func (Ecommerce *Ecommerce) GetCustomerDetailsById(memberId int) (customer CustomerDetails, err error) {
+
+	if AuthErr := AuthandPermission(Ecommerce); AuthErr != nil {
+
+		return CustomerDetails{}, AuthErr
+	}
+
+	customer, err = EcommerceModel.GetCustomerDetailsById(EcommerceModel{}, memberId, Ecommerce.DB)
+	if err != nil {
+
+		return CustomerDetails{}, err
+	}
+
+	return customer, err
+}
+
+// Update member and customer details
+func (Ecommerce *Ecommerce) UpdateCustomerAndMemberDetails(memberId int, memberDetails map[string]interface{}, customerDetails map[string]interface{}) (err error) {
+
+	if AuthErr := AuthandPermission(Ecommerce); AuthErr != nil {
+
+		return AuthErr
+	}
+
+	err = EcommerceModel.UpdateMemberDetails(EcommerceModel{}, memberId, memberDetails, Ecommerce.DB)
+	if err != nil {
+
+		return err
+	}
+
+	err = EcommerceModel.UpdateCustomerDetails(EcommerceModel{}, memberId, customerDetails, Ecommerce.DB)
+	if err != nil {
+
+		return err
+	}
+
+	return nil
+}

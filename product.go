@@ -55,14 +55,14 @@ type tblEcomProductPricings struct {
 }
 
 // pass limit , offset get productslist
-func (ecommerce *Ecommerce) ProductsList(limit int, offset int, filter Filter) (productlists []TblEcomProducts, totalcount int64, err error) {
+func (ecommerce *Ecommerce) ProductsList(offset int, limit int, filter Filter) (productlists []TblEcomProducts, totalcount int64, err error) {
 
 	if AuthErr := AuthandPermission(ecommerce); AuthErr != nil {
 
 		return []TblEcomProducts{}, 0, AuthErr
 	}
 
-	productlist, _, err := Ecommercemodel.ProductList(limit, offset, filter, ecommerce.DB)
+	productlist, _, err := Ecommercemodel.ProductList(offset, limit, filter, ecommerce.DB)
 
 	_, count, _ := Ecommercemodel.ProductList(0, 0, filter, ecommerce.DB)
 
@@ -107,7 +107,9 @@ func (ecommerce *Ecommerce) CreateProduct(Pc CreateProductReq) error {
 
 	product.Tax = Pc.Tax
 
-	product.Status = Pc.Status
+	product.Totalcost = Pc.Totalcost
+
+	product.IsActive = Pc.IsActive
 
 	product.Sku = Pc.Sku
 
@@ -127,22 +129,27 @@ func (ecommerce *Ecommerce) CreateProduct(Pc CreateProductReq) error {
 		return err
 	}
 
-	var pricing TblEcomProductPricings
+	if Pc.Priority != 0 {
 
-	pricing.ProductId = cproduct.Id
+		var pricing TblEcomProductPricings
 
-	pricing.Priority = Pc.Priority
+		pricing.ProductId = cproduct.Id
 
-	pricing.StartDate = Pc.StartDate
+		pricing.Priority = Pc.Priority
 
-	pricing.EndDate = Pc.EndDate
+		pricing.StartDate = Pc.StartDate
 
-	pricing.Type = Pc.Type
+		pricing.EndDate = Pc.EndDate
 
-	err1 := Ecommercemodel.CreateProductPricing(pricing, ecommerce.DB)
+		pricing.Type = Pc.Type
 
-	if err1 != nil {
-		return err1
+		pricing.Price = Pc.Price
+
+		err1 := Ecommercemodel.CreateProductPricing(pricing, ecommerce.DB)
+
+		if err1 != nil {
+			return err1
+		}
 	}
 
 	return nil
@@ -150,7 +157,7 @@ func (ecommerce *Ecommerce) CreateProduct(Pc CreateProductReq) error {
 
 // pass product id  get particular product details
 
-func (ecommerce *Ecommerce) EditProduct(productid int) (products TblEcomProducts, price []TblEcomProductPricings, discountprice []TblEcomProductPricings, err error) {
+func (ecommerce *Ecommerce) EditProduct(productid int) (products TblEcomProducts, discountprice []TblEcomProductPricings, price []TblEcomProductPricings, err error) {
 
 	if AuthErr := AuthandPermission(ecommerce); AuthErr != nil {
 
@@ -201,7 +208,7 @@ func (ecommerce *Ecommerce) EditProduct(productid int) (products TblEcomProducts
 
 		return TblEcomProducts{}, []TblEcomProductPricings{}, []TblEcomProductPricings{}, err
 	}
-
+	fmt.Println("product", product)
 	return product, discount, special, nil
 
 }
@@ -227,7 +234,7 @@ func (ecommerce *Ecommerce) UpdateProduct(Pc CreateProductReq, removeoff []int, 
 
 	product.Tax = Pc.Tax
 
-	product.Status = Pc.Status
+	product.IsActive = Pc.IsActive
 
 	product.Sku = Pc.Sku
 
@@ -383,7 +390,7 @@ func (ecommerce *Ecommerce) SelectProductsChangeStatus(status int, productid []i
 
 	var product TblEcomProducts
 
-	product.Status = status
+	product.IsActive = status
 
 	product.ModifiedOn, _ = time.Parse("2006-01-02 15:04:05", time.Now().UTC().Format("2006-01-02 15:04:05"))
 
@@ -529,4 +536,20 @@ func (Ecommerce *Ecommerce) GetProductdetailsById(productId int, productSlug str
 	}
 
 	return product, nil
+}
+
+// Get Product Order Details By Id
+func (Ecommerce *Ecommerce) GetProductOrderDetailsById(productId int, productSlug string, customerId int, orderId int) (product EcommerceProduct, productOrderStatus []OrderStatus, err error) {
+
+	if AuthErr := AuthandPermission(Ecommerce); AuthErr != nil {
+
+		return EcommerceProduct{}, []OrderStatus{}, AuthErr
+	}
+
+	product, productOrderStatus, err = EcommerceModel.GetProductDetailsAndOrderStatus(EcommerceModel{}, productId, productSlug, customerId, orderId, Ecommerce.DB)
+	if err != nil {
+		return EcommerceProduct{}, []OrderStatus{}, err
+	}
+
+	return product, productOrderStatus, nil
 }

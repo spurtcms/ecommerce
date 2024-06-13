@@ -56,7 +56,8 @@ type TblEcomProducts struct {
 	Order_id           int       `gorm:"-:migration;<-:false"`
 	Product_id         int       `gorm:"-:migration;<-:false"`
 	Quantityprice      int       `gorm:"-:migration;<-:false"`
-	Status             int
+	IsActive           int
+	Stock              int
 	CreatedOn          time.Time `gorm:"type:timestamp without time zone;DEFAULT:NULL"`
 	CreatedBy          int       `gorm:"DEFAULT:NULL"`
 	ModifiedOn         time.Time `gorm:"type:timestamp without time zone;DEFAULT:NULL"`
