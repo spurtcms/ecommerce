@@ -189,7 +189,12 @@ func (ecommerce *Ecommerce) CreateCustomer(Cc CreateCustomerReq) error {
 
 	ccustomer.MobileNo = Cc.MobileNo
 
-	ccustomer.Password = Cc.Password
+	if Cc.Password != "" {
+
+		password := HashingPassword(Cc.Password)
+
+		ccustomer.Password = password
+	}
 
 	ccustomer.ProfileImage = Cc.ProfileImage
 
@@ -305,7 +310,10 @@ func (ecommerce *Ecommerce) UpdateCustomer(Cc CreateCustomerReq, memberid int) e
 
 	upadtecustomer.MobileNo = Cc.MobileNo
 
-	upadtecustomer.Password = Cc.Password
+	if Cc.Password != "" {
+		password := HashingPassword(Cc.Password)
+		upadtecustomer.Password = password
+	}
 
 	upadtecustomer.ProfileImage = Cc.ProfileImage
 

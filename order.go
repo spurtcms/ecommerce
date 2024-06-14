@@ -73,26 +73,7 @@ func (ecommerce *Ecommerce) OrdersList(offset int, limit int, filter Filter) (or
 
 	_, totalcount, _ := Ecommercemodel.OrderList(0, 0, filter, ecommerce.DB)
 
-	var finalorderlist []TblEcomProductOrders
-
-	for _, orders := range orders {
-
-		orders.CreatedDate = orders.CreatedOn.In(TZONE).Format("02 Jan 2006 03:04 PM")
-
-		if !orders.ModifiedOn.IsZero() {
-
-			orders.ModifiedDate = orders.ModifiedOn.In(TZONE).Format("02 Jan 2006 03:04 PM")
-
-		} else {
-
-			orders.ModifiedDate = orders.CreatedOn.In(TZONE).Format("02 Jan 2006 03:04 PM")
-
-		}
-
-		finalorderlist = append(finalorderlist, orders)
-	}
-
-	return finalorderlist, totalcount, nil
+	return orders, totalcount, nil
 
 }
 
@@ -118,9 +99,6 @@ func (ecommerce *Ecommerce) OrderInfo(id string) (orderlists TblEcomProductOrder
 		fmt.Println("Error unmarshalling JSON:", err4)
 		return
 	}
-	orderlist.CreatedDate = orderlist.CreatedOn.In(TZONE).Format("02 Jan 2006 03:04 PM")
-
-	orderlist.ModifiedDate = orderlist.ModifiedOn.In(TZONE).Format("02 Jan 2006 03:04 PM")
 
 	orid := orderlist.Id
 

@@ -87,7 +87,7 @@ type TblEcomProductOrders struct {
 	Id              int                    `gorm:"primaryKey;auto_increment;type:serial"`
 	Uuid            string                 `gorm:"type:character varying"`
 	CustomerId      int                    `gorm:"type:integer"`
-	OrderStatus     int                    `gorm:"type:character varying"`
+	OrderStatus     int                    `gorm:"type:integer"`
 	ShippingAddress string                 `gorm:"type:character varying"`
 	IsDeleted       int                    `gorm:"type:integer"`
 	Username        string                 `gorm:"-:migration;<-:false"`
@@ -109,10 +109,11 @@ type TblEcomProductOrders struct {
 	LastName        string                 `gorm:"-:migration;<-:false"`
 	NameString      string                 `gorm:"-:migration;<-:false"`
 	Orders          []TblEcomOrderStatuses `gorm:"foreignKey:OrderId;references:Id"`
+	StatusValue     string                 `gorm:"-:migration;<-:false"`
+	StatusPriority  int                    `gorm:"-:migration;<-:false"`
+	StatusColor     string                 `gorm:"-:migration;<-:false"`
 	DeletedOn       time.Time              `gorm:"type:timestamp without time zone;DEFAULT:NULL"`
 	DeletedBy       int                    `gorm:"type:integer;DEFAULT:NULL"`
-	CreatedBy       int                    `gorm:"type:integer;DEFAULT:NULL"`
-	ModifiedBy      int                    `gorm:"type:integer;DEFAULT:NULL"`
 }
 
 type TblEcomProductOrderDetails struct {

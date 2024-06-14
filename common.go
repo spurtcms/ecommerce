@@ -4,6 +4,8 @@ import (
 	"errors"
 	"os"
 	"time"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 var (
@@ -32,4 +34,18 @@ func AuthandPermission(ecommerce *Ecommerce) error {
 	}
 
 	return nil
+}
+
+// Hass Password
+func HashingPassword(pass string) string {
+
+	passbyte, err := bcrypt.GenerateFromPassword([]byte(pass), 14)
+
+	if err != nil {
+
+		panic(err)
+
+	}
+
+	return string(passbyte)
 }

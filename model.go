@@ -398,11 +398,11 @@ func (ecommerceModel EcommerceModel) CustomerDelete(customer TblEcomCustomers, D
 // Order list
 func (ecommerceModel EcommerceModel) OrderList(offset int, limit int, filter Filter, DB *gorm.DB) (tblorders []TblEcomProductOrders, ordercount int64, err error) {
 
-	query := DB.Table("tbl_ecom_product_orders").Select("tbl_ecom_product_orders.*,tbl_ecom_customers.username").Joins("inner join tbl_ecom_customers on tbl_ecom_product_orders.customer_id = tbl_ecom_customers.id").Where("tbl_ecom_product_orders.is_deleted = 0")
+	query := DB.Table("tbl_ecom_product_orders").Select("tbl_ecom_statuses.status as status_value,tbl_ecom_statuses.color_code as status_color,tbl_ecom_product_orders.*,tbl_ecom_customers.username").Joins("inner join tbl_ecom_customers on tbl_ecom_product_orders.customer_id = tbl_ecom_customers.id").Joins("inner join tbl_ecom_statuses on tbl_ecom_product_orders.order_status = tbl_ecom_statuses.id").Where("tbl_ecom_product_orders.is_deleted = 0")
 
 	if filter.Keyword != "" {
 
-		query = query.Debug().Where("LOWER(TRIM(tbl_ecom_customers.username)) ILIKE LOWER(TRIM(?))"+" OR tbl_ecom_product_orders.uuid =?"+" OR LOWER(TRIM(tbl_ecom_order_statuses.order_status::text)) ILIKE LOWER(TRIM(?))", "%"+filter.Keyword+"%", filter.Keyword, "%"+filter.Keyword+"%")
+		query = query.Where("LOWER(TRIM(tbl_ecom_customers.username)) ILIKE LOWER(TRIM(?))"+" OR tbl_ecom_product_orders.uuid =?"+" OR LOWER(TRIM(tbl_ecom_order_statuses.order_status::text)) ILIKE LOWER(TRIM(?))", "%"+filter.Keyword+"%", filter.Keyword, "%"+filter.Keyword+"%")
 
 	}
 
@@ -1304,7 +1304,7 @@ func (ecommerce EcommerceModel) PaymentCreate(pay TblEcomPayment, DB *gorm.DB) e
 
 func (ecommerce EcommerceModel) UpdatePayment(pay TblEcomPayment, DB *gorm.DB) error {
 
-	if err := DB.Table("tbl_ecom_payments").Where("id = ?", pay.Id).UpdateColumns(map[string]interface{}{"payment_name": pay.PaymentName, "description": pay.Description, "modified_on": pay.ModifiedOn, "modified_by": pay.ModifiedBy}).Error; err != nil {
+	if err := DB.Table("tbl_ecom_payments").Where("id = ?", pay.Id).UpdateColumns(map[string]interface{}{"payment_name": pay.PaymentName, "payment_image": pay.PaymentImage, "description": pay.Description, "modified_on": pay.ModifiedOn, "modified_by": pay.ModifiedBy}).Error; err != nil {
 		return err
 	}
 	return nil

@@ -1,6 +1,7 @@
 package ecommerce
 
 import (
+	"fmt"
 	"log"
 	"time"
 )
@@ -92,6 +93,8 @@ func (ecommerce *Ecommerce) CreateSettings(Ss CreateSettingReq) error {
 
 	setting.DisplayStock = Ss.DisplayStock
 
+	setting.StockCheckout = Ss.StockCheckout
+
 	setting.StoreName = Ss.StoreName
 
 	setting.CreatedOn, _ = time.Parse("2006-01-02 15:04:05", time.Now().UTC().Format("2006-01-02 15:04:05"))
@@ -129,6 +132,8 @@ func (ecommerce *Ecommerce) UpdateSettings(Ss CreateSettingReq) error {
 
 	setting.DisplayStock = Ss.DisplayStock
 
+	setting.StockCheckout = Ss.StockCheckout
+
 	setting.StoreName = Ss.StoreName
 
 	setting.ModifiedOn, _ = time.Parse("2006-01-02 15:04:05", time.Now().UTC().Format("2006-01-02 15:04:05"))
@@ -161,6 +166,8 @@ func (ecommerce *Ecommerce) CreateCurrency(Cc CreateCurrencyReq) error {
 	currency.CurrencySymbol = Cc.CurrencySymbol
 
 	currency.CurrencyType = Cc.CurrencyType
+
+	currency.IsActive = Cc.IsActive
 
 	currency.CreatedOn, _ = time.Parse("2006-01-02 15:04:05", time.Now().UTC().Format("2006-01-02 15:04:05"))
 
@@ -330,6 +337,8 @@ func (ecommerce *Ecommerce) StatusCreate(Cs CreateStatusReq) error {
 
 	status.CreatedBy = Cs.CreatedBy
 
+	status.IsActive = Cs.IsActive
+
 	status.Priority = Cs.Priority
 
 	status.CreatedOn, _ = time.Parse("2006-01-02 15:04:05", time.Now().UTC().Format("2006-01-02 15:04:05"))
@@ -445,6 +454,8 @@ func (ecommerce *Ecommerce) CreatePayment(Cp CreatePaymentReq) error {
 	pay.PaymentName = Cp.PaymentName
 
 	pay.Description = Cp.Description
+
+	pay.IsActive = Cp.IsActive
 
 	pay.PaymentImage = Cp.PaymentImage
 
@@ -681,7 +692,9 @@ func (ecommerce *Ecommerce) CheckStatusName(id int, name string) (flgs bool, err
 	flg, err := Ecommercemodel.CheckStatusName(status, ecommerce.DB)
 
 	if err != nil {
-		log.Println(err)
+
+		fmt.Println(err)
+
 		return false, err
 	}
 

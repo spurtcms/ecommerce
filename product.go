@@ -373,7 +373,7 @@ func (ecommerce *Ecommerce) CheckSkuName(sku string, id int) (bool, error) {
 
 	if err != nil {
 
-		return flg, err
+		return false, err
 	}
 
 	return flg, nil
