@@ -27,7 +27,7 @@ func AuthandPermission(ecommerce *Ecommerce) error {
 		return ErrorAuth
 	}
 	//check permission enable if enabled, use team-role pkg otherwise it will return error
-	if ecommerce.PermissionEnable && !ecommerce.Permissions.PermissionFlg {
+	if ecommerce.PermissionEnable && !ecommerce.Auth.PermissionFlg {
 
 		return ErrorPermission
 
