@@ -39,21 +39,6 @@ type tblEcomProducts struct {
 	Imgpath            []string  `gorm:"-"`
 }
 
-type tblEcomProductPricings struct {
-	Id        int `gorm:"primaryKey;auto_increment;type:serial"`
-	ProductId int
-	Priority  int
-	Price     int
-	StartDate time.Time `gorm:"type:timestamp without time zone;DEFAULT:NULL"`
-	EndDate   time.Time `gorm:"type:timestamp without time zone;DEFAULT:NULL"`
-	Type      string
-	IsDeleted int       `gorm:"DEFAULT:0"`
-	Startdate string    `gorm:"-:migration;<-:false"`
-	Enddate   string    `gorm:"-:migration;<-:false"`
-	DeletedOn time.Time `gorm:"type:timestamp without time zone;DEFAULT:NULL"`
-	DeletedBy int       `gorm:"type:integer;DEFAULT:NULL"`
-}
-
 // pass limit , offset get productslist
 func (ecommerce *Ecommerce) ProductsList(offset int, limit int, filter Filter) (productlists []TblEcomProducts, totalcount int64, err error) {
 
@@ -120,6 +105,10 @@ func (ecommerce *Ecommerce) CreateProduct(Pc CreateProductReq) error {
 	product.ProductYoutubePath = Pc.ProductYoutubePath
 
 	product.ProductImagePath = Pc.ProductImagePath
+
+	product.Stock = Pc.Stock
+
+	product.CreatedBy = Pc.CreatedBy
 
 	product.CreatedOn, _ = time.Parse("2006-01-02 15:04:05", time.Now().UTC().Format("2006-01-02 15:04:05"))
 
@@ -215,7 +204,7 @@ func (ecommerce *Ecommerce) EditProduct(productid int) (products TblEcomProducts
 
 // pass Product id and pass update Product details
 
-func (ecommerce *Ecommerce) UpdateProduct(Pc CreateProductReq, removeoff []int, userid int) error {
+func (ecommerce *Ecommerce) UpdateProduct(Pc CreateProductReq, removeoff []int) error {
 
 	if AuthErr := AuthandPermission(ecommerce); AuthErr != nil {
 
@@ -232,6 +221,8 @@ func (ecommerce *Ecommerce) UpdateProduct(Pc CreateProductReq, removeoff []int, 
 
 	product.ProductDescription = Pc.ProductDescription
 
+	product.Totalcost = Pc.Totalcost
+
 	product.Tax = Pc.Tax
 
 	product.IsActive = Pc.IsActive
@@ -246,7 +237,9 @@ func (ecommerce *Ecommerce) UpdateProduct(Pc CreateProductReq, removeoff []int, 
 
 	product.ProductImagePath = Pc.ProductImagePath
 
-	product.ModifiedBy = userid
+	product.Stock = Pc.Stock
+
+	product.ModifiedBy = Pc.ModifiedBy
 
 	product.ModifiedOn, _ = time.Parse("2006-01-02 15:04:05", time.Now().UTC().Format("2006-01-02 15:04:05"))
 
@@ -262,7 +255,9 @@ func (ecommerce *Ecommerce) UpdateProduct(Pc CreateProductReq, removeoff []int, 
 
 	pricing.ProductId = Pc.ProductId
 
-	pricing.Priority = Pc.Price
+	pricing.Priority = Pc.Priority
+
+	pricing.Price = Pc.Price
 
 	pricing.StartDate = Pc.StartDate
 
@@ -290,7 +285,7 @@ func (ecommerce *Ecommerce) UpdateProduct(Pc CreateProductReq, removeoff []int, 
 
 	var price TblEcomProductPricings
 
-	price.DeletedBy = userid
+	price.DeletedBy = Pc.ModifiedBy
 
 	price.DeletedOn, _ = time.Parse("2006-01-02 15:04:05", time.Now().UTC().Format("2006-01-02 15:04:05"))
 

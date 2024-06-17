@@ -11,34 +11,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-type tblecomcustomers struct {
-	Id               int `gorm:"primaryKey;auto_increment;type:serial"`
-	MemberId         int
-	FirstName        string
-	LastName         string
-	Email            string
-	MobileNo         string
-	Username         string
-	Password         string
-	StreetAddress    string
-	City             string
-	State            string
-	Country          string
-	ZipCode          string
-	IsActive         int       `gorm:"type:integer"`
-	CreatedOn        time.Time `gorm:"DEFAULT:NULL"`
-	CreatedBy        int       `gorm:"type:integer"`
-	ModifiedOn       time.Time `gorm:"DEFAULT:NULL"`
-	ModifiedBy       int       `gorm:"DEFAULT:NULL"`
-	IsDeleted        int       `gorm:"type:integer"`
-	DeletedOn        time.Time `gorm:"DEFAULT:NULL"`
-	DeletedBy        int       `gorm:"DEFAULT:NULL"`
-	Count            int       `gorm:"-:migration;<-:false"`
-	ProfileImage     string
-	ProfileImagePath string
-	NameString       string `gorm:"-:migration;<-:false"`
-}
-
 type ShippingAddress struct {
 	Name    string `json:"name"`
 	Area    string `json:"area"`
@@ -156,6 +128,46 @@ func (ecommerce *Ecommerce) CreateMember(Cc CreateCustomerReq) (ccmember member.
 
 }
 
+func (ecommerce *Ecommerce) UpdateMember(Cc CreateCustomerReq, memberid int) error {
+
+	if AuthErr := AuthandPermission(ecommerce); AuthErr != nil {
+
+		return AuthErr
+	}
+
+	db := ecommerce.DBconf()
+
+	err := db.UpdateMember(member.MemberCreationUpdation{
+
+		FirstName: Cc.FirstName,
+
+		LastName: Cc.LastName,
+
+		Email: Cc.Email,
+
+		MobileNo: Cc.MobileNo,
+
+		Username: Cc.Username,
+
+		ProfileImage: Cc.ProfileImage,
+
+		ProfileImagePath: Cc.ProfileImagePath,
+
+		IsActive: Cc.IsActive,
+
+		Password: Cc.Password,
+
+		ModifiedBy: Cc.CreatedBy,
+	}, memberid)
+
+	if err != nil {
+		log.Println(err)
+	}
+
+	return nil
+
+}
+
 // Create Customer
 
 func (ecommerce *Ecommerce) CreateCustomer(Cc CreateCustomerReq) error {
@@ -199,6 +211,8 @@ func (ecommerce *Ecommerce) CreateCustomer(Cc CreateCustomerReq) error {
 	ccustomer.ProfileImage = Cc.ProfileImage
 
 	ccustomer.ProfileImagePath = Cc.ProfileImagePath
+
+	ccustomer.IsActive = Cc.IsActive
 
 	ccustomer.CreatedOn, _ = time.Parse("2006-01-02 15:04:05", time.Now().UTC().Format("2006-01-02 15:04:05"))
 
@@ -249,83 +263,53 @@ func (ecommerce *Ecommerce) EditCustomer(id int) (customers TblEcomCustomers, er
 
 // Update Customer
 
-func (ecommerce *Ecommerce) UpdateCustomer(Cc CreateCustomerReq, memberid int) error {
+func (ecommerce *Ecommerce) UpdateCustomer(Cc CreateCustomerReq) error {
 
 	if AuthErr := AuthandPermission(ecommerce); AuthErr != nil {
 
 		return AuthErr
 	}
 
-	db := ecommerce.DBconf()
+	var updatecustomer TblEcomCustomers
 
-	err := db.UpdateMember(member.MemberCreationUpdation{
+	updatecustomer.MemberId = Cc.MemberId
 
-		FirstName: Cc.FirstName,
+	updatecustomer.City = Cc.City
 
-		LastName: Cc.LastName,
+	updatecustomer.Country = Cc.Country
 
-		Email: Cc.Email,
+	updatecustomer.StreetAddress = Cc.StreetAddress
 
-		MobileNo: Cc.MobileNo,
+	updatecustomer.ZipCode = Cc.ZipCode
 
-		Username: Cc.Username,
+	updatecustomer.State = Cc.State
 
-		ProfileImage: Cc.ProfileImage,
+	updatecustomer.CreatedBy = Cc.CreatedBy
 
-		ProfileImagePath: Cc.ProfileImagePath,
+	updatecustomer.FirstName = Cc.FirstName
 
-		IsActive: Cc.IsActive,
+	updatecustomer.LastName = Cc.LastName
 
-		Password: Cc.Password,
+	updatecustomer.Email = Cc.Email
 
-		ModifiedBy: Cc.CreatedBy,
-	}, memberid)
-	// cmember.CreatedOn, _ = time.Parse("2006-01-02 15:04:05", time.Now().UTC().Format("2006-01-02 15:04:05"))
-
-	if err != nil {
-		log.Println(err)
-	}
-
-	var upadtecustomer TblEcomCustomers
-
-	upadtecustomer.MemberId = memberid
-
-	upadtecustomer.City = Cc.City
-
-	upadtecustomer.Country = Cc.Country
-
-	upadtecustomer.StreetAddress = Cc.StreetAddress
-
-	upadtecustomer.ZipCode = Cc.ZipCode
-
-	upadtecustomer.State = Cc.State
-
-	upadtecustomer.CreatedBy = Cc.CreatedBy
-
-	upadtecustomer.FirstName = Cc.FirstName
-
-	upadtecustomer.LastName = Cc.LastName
-
-	upadtecustomer.Email = Cc.Email
-
-	upadtecustomer.MobileNo = Cc.MobileNo
+	updatecustomer.MobileNo = Cc.MobileNo
 
 	if Cc.Password != "" {
 		password := HashingPassword(Cc.Password)
-		upadtecustomer.Password = password
+		updatecustomer.Password = password
 	}
 
-	upadtecustomer.ProfileImage = Cc.ProfileImage
+	updatecustomer.ProfileImage = Cc.ProfileImage
 
-	upadtecustomer.ProfileImagePath = Cc.ProfileImagePath
+	updatecustomer.ProfileImagePath = Cc.ProfileImagePath
 
-	upadtecustomer.IsActive = Cc.IsActive
+	updatecustomer.IsActive = Cc.IsActive
 
-	upadtecustomer.ModifiedBy = Cc.ModifiedBy
+	updatecustomer.ModifiedBy = Cc.ModifiedBy
 
-	upadtecustomer.ModifiedOn, _ = time.Parse("2006-01-02 15:04:05", time.Now().UTC().Format("2006-01-02 15:04:05"))
+	updatecustomer.ModifiedOn, _ = time.Parse("2006-01-02 15:04:05", time.Now().UTC().Format("2006-01-02 15:04:05"))
 
-	err1 := Ecommercemodel.CustomerUpdate(upadtecustomer, ecommerce.DB)
+	err1 := Ecommercemodel.CustomerUpdate(updatecustomer, ecommerce.DB)
 
 	if err1 != nil {
 
@@ -343,15 +327,6 @@ func (ecommerce *Ecommerce) DeleteCustomer(id int, deletedby int) error {
 	if AuthErr := AuthandPermission(ecommerce); AuthErr != nil {
 
 		return AuthErr
-	}
-
-	db := ecommerce.DBconf()
-
-	err := db.DeleteMember(id, deletedby)
-
-	if err != nil {
-
-		return err
 	}
 
 	var customer TblEcomCustomers
@@ -380,30 +355,18 @@ func (ecommerce *Ecommerce) MultiSelectCustomerDelete(id []int, deletedby int) e
 		return AuthErr
 	}
 
-	db := ecommerce.DBconf()
+	var customer TblEcomCustomers
 
-	flg, err := db.MultiSelectedMemberDelete(id, deletedby)
+	customer.IsDeleted = 1
 
-	if err != nil {
-		return err
-	}
+	customer.DeletedBy = deletedby
 
-	if flg {
+	customer.DeletedOn, _ = time.Parse("2006-01-02 15:04:05", time.Now().UTC().Format("2006-01-02 15:04:05"))
 
-		var customer TblEcomCustomers
+	err1 := Ecommercemodel.MultiSelectDeleteCustomers(customer, id, ecommerce.DB)
 
-		customer.IsDeleted = 1
-
-		customer.DeletedBy = deletedby
-
-		customer.DeletedOn, _ = time.Parse("2006-01-02 15:04:05", time.Now().UTC().Format("2006-01-02 15:04:05"))
-
-		err1 := Ecommercemodel.MultiSelectDeleteCustomers(customer, id, ecommerce.DB)
-
-		if err1 != nil {
-			return err1
-		}
-
+	if err1 != nil {
+		return err1
 	}
 
 	return nil
@@ -508,16 +471,16 @@ func (ecommerce *Ecommerce) CustomerOrderInfo(uuid string) (productorder []TblEc
 
 	var lstatus string
 
-	var Orderstatus []TblEcomOrderStatuses
+	// var Orderstatus []TblEcomOrderStatuses
 
-	for _, val := range cusinfo.Orders {
+	// for _, val := range cusinfo.Orders {
 
-		val.CreatedDate = val.CreatedOn.In(TZONE).Format("02 Jan 2006 03:04 PM")
+	// 	val.CreatedDate = val.CreatedOn.In(TZONE).Format("02 Jan 2006 03:04 PM")
 
-		Orderstatus = append(Orderstatus, val)
-		// lstatus = val.OrderStatus
+	// 	Orderstatus = append(Orderstatus, val)
+	// 	// lstatus = val.OrderStatus
 
-	}
+	// }
 
 	productinfo, err1 := Ecommercemodel.GetProductdetailsByOrderId(orderid, ecommerce.DB)
 

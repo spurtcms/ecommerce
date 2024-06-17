@@ -218,11 +218,9 @@ func TestUpdateCustomer(t *testing.T) {
 		Auth:             Auth,
 	})
 
-	memberid := 6
-
 	if permisison {
 
-		err := ecommerce.UpdateCustomer(CreateCustomerReq{FirstName: "Tester", LastName: "New", Username: "Tester", Email: "tester@gmail.com", MobileNo: "9080706050", Password: "Tester@123"}, memberid)
+		err := ecommerce.UpdateCustomer(CreateCustomerReq{FirstName: "Tester", LastName: "New", Username: "Tester", Email: "tester@gmail.com", MobileNo: "9080706050", Password: "Tester@123"})
 
 		if err != nil {
 
