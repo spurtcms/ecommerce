@@ -616,11 +616,7 @@ func (ecommerce *Ecommerce) CheckCurrencyName(id int, name string) (flgs bool, e
 
 	var currency TblEcomCurrency
 
-	currency.Id = id
-
-	currency.CurrencyName = name
-
-	flg, err := Ecommercemodel.CheckCurrencyName(currency, ecommerce.DB)
+	flg, err := Ecommercemodel.CheckCurrencyName(id, name, currency, ecommerce.DB)
 
 	if err != nil {
 		log.Println(err)
@@ -639,11 +635,8 @@ func (ecommerce *Ecommerce) CheckCurrencyType(id int, currencytype string) (flgs
 	}
 	var currency TblEcomCurrency
 
-	currency.Id = id
+	flg, err := Ecommercemodel.CheckCurrencyType(id, currencytype, currency, ecommerce.DB)
 
-	currency.CurrencyType = currencytype
-
-	flg, err := Ecommercemodel.CheckCurrencyType(currency, ecommerce.DB)
 	if err != nil {
 		log.Println(err)
 		return flg, err
@@ -662,11 +655,8 @@ func (ecommerce *Ecommerce) CheckCurrencySymbol(id int, csymbol string) (flgs bo
 	}
 	var currency TblEcomCurrency
 
-	currency.Id = id
+	flg, err := Ecommercemodel.CheckCurrencySymbol(id, csymbol, currency, ecommerce.DB)
 
-	currency.CurrencySymbol = csymbol
-
-	flg, err := Ecommercemodel.CheckCurrencySymbol(currency, ecommerce.DB)
 	if err != nil {
 		log.Println(err)
 		return false, err
@@ -685,11 +675,7 @@ func (ecommerce *Ecommerce) CheckStatusName(id int, name string) (flgs bool, err
 	}
 	var status TblEcomStatus
 
-	status.Id = id
-
-	status.Status = name
-
-	flg, err := Ecommercemodel.CheckStatusName(status, ecommerce.DB)
+	flg, err := Ecommercemodel.CheckStatusName(id, name, status, ecommerce.DB)
 
 	if err != nil {
 
@@ -709,11 +695,7 @@ func (ecommerce *Ecommerce) CheckPaymentName(id int, name string) (flgs bool, er
 	}
 	var payment TblEcomPayment
 
-	payment.Id = id
-
-	payment.PaymentName = name
-
-	flg, err := Ecommercemodel.CheckPaymentName(payment, ecommerce.DB)
+	flg, err := Ecommercemodel.CheckPaymentName(id, name, payment, ecommerce.DB)
 
 	if err != nil {
 		log.Println(err)

@@ -794,14 +794,14 @@ func (ecommerceModel EcommerceModel) GetOrderDetailsbyCustomerId(limit, offset i
 }
 
 // Multiple delete
-func (ecommerceModel EcommerceModel) MultiSelectDeleteCustomers(customer TblEcomCustomers, customerid []int, DB *gorm.DB) error {
+func (ecommerceModel EcommerceModel) MultiSelectDeleteCustomers(customer TblEcomCustomers, customerid []int, DB *gorm.DB) (flg bool, err error) {
 
 	if err := DB.Table("tbl_ecom_customers").Where("member_id in (?)", customerid).UpdateColumns(map[string]interface{}{"is_deleted": customer.IsDeleted, "deleted_by": customer.DeletedBy, "deleted_on": customer.DeletedOn}).Error; err != nil {
 
-		return err
+		return false, err
 	}
 
-	return nil
+	return true, nil
 
 }
 
@@ -1364,17 +1364,17 @@ func (ecommerce EcommerceModel) StatusGet(id int, DB *gorm.DB) (status TblEcomSt
 
 // Currency Name Already Exists
 
-func (ecommerce EcommerceModel) CheckCurrencyName(currency TblEcomCurrency, DB *gorm.DB) (bool, error) {
+func (ecommerce EcommerceModel) CheckCurrencyName(id int, name string, currency TblEcomCurrency, DB *gorm.DB) (bool, error) {
 
 	if currency.Id == 0 {
 
-		if err := DB.Table("tbl_ecom_currencies").Where("LOWER(TRIM(currency_name))=LOWER(TRIM(?)) and is_deleted=0", currency.CurrencyName).First(&currency).Error; err != nil {
+		if err := DB.Table("tbl_ecom_currencies").Where("LOWER(TRIM(currency_name))=LOWER(TRIM(?)) and is_deleted=0", name).First(&currency).Error; err != nil {
 
 			return false, err
 		}
 	} else {
 
-		if err := DB.Table("tbl_ecom_currencies").Where("LOWER(TRIM(currency_name))=LOWER(TRIM(?)) and id not in (?) and is_deleted=0", currency.CurrencyName, currency.Id).First(&currency).Error; err != nil {
+		if err := DB.Table("tbl_ecom_currencies").Where("LOWER(TRIM(currency_name))=LOWER(TRIM(?)) and id not in (?) and is_deleted=0", name, id).First(&currency).Error; err != nil {
 
 			return false, err
 		}
@@ -1385,17 +1385,17 @@ func (ecommerce EcommerceModel) CheckCurrencyName(currency TblEcomCurrency, DB *
 
 // Currency Name Already Exists
 
-func (ecommerce EcommerceModel) CheckCurrencyType(currency TblEcomCurrency, DB *gorm.DB) (bool, error) {
+func (ecommerce EcommerceModel) CheckCurrencyType(id int, ctype string, currency TblEcomCurrency, DB *gorm.DB) (bool, error) {
 
 	if currency.Id == 0 {
 
-		if err := DB.Table("tbl_ecom_currencies").Where("LOWER(TRIM(currency_type))=LOWER(TRIM(?)) and is_deleted=0", currency.CurrencyType).First(&currency).Error; err != nil {
+		if err := DB.Table("tbl_ecom_currencies").Where("LOWER(TRIM(currency_type))=LOWER(TRIM(?)) and is_deleted=0", ctype).First(&currency).Error; err != nil {
 
 			return false, err
 		}
 	} else {
 
-		if err := DB.Table("tbl_ecom_currencies").Where("LOWER(TRIM(currency_type))=LOWER(TRIM(?)) and id not in (?) and is_deleted=0", currency.CurrencyType, currency.Id).First(&currency).Error; err != nil {
+		if err := DB.Table("tbl_ecom_currencies").Where("LOWER(TRIM(currency_type))=LOWER(TRIM(?)) and id not in (?) and is_deleted=0", ctype, id).First(&currency).Error; err != nil {
 
 			return false, err
 		}
@@ -1406,17 +1406,17 @@ func (ecommerce EcommerceModel) CheckCurrencyType(currency TblEcomCurrency, DB *
 
 // Currency Name Already Exists
 
-func (ecommerce EcommerceModel) CheckCurrencySymbol(currency TblEcomCurrency, DB *gorm.DB) (bool, error) {
+func (ecommerce EcommerceModel) CheckCurrencySymbol(id int, currencysymbol string, currency TblEcomCurrency, DB *gorm.DB) (bool, error) {
 
 	if currency.Id == 0 {
 
-		if err := DB.Table("tbl_ecom_currencies").Where("LOWER(TRIM(currency_symbol))=LOWER(TRIM(?)) and is_deleted=0", currency.CurrencySymbol).First(&currency).Error; err != nil {
+		if err := DB.Table("tbl_ecom_currencies").Where("LOWER(TRIM(currency_symbol))=LOWER(TRIM(?)) and is_deleted=0", currencysymbol).First(&currency).Error; err != nil {
 
 			return false, err
 		}
 	} else {
 
-		if err := DB.Table("tbl_ecom_currencies").Where("LOWER(TRIM(currency_symbol))=LOWER(TRIM(?)) and id not in (?) and is_deleted=0", currency.CurrencySymbol, currency.Id).First(&currency).Error; err != nil {
+		if err := DB.Table("tbl_ecom_currencies").Where("LOWER(TRIM(currency_symbol))=LOWER(TRIM(?)) and id not in (?) and is_deleted=0", currencysymbol, id).First(&currency).Error; err != nil {
 
 			return false, err
 		}
@@ -1451,17 +1451,17 @@ func (ecommerce EcommerceModel) GetProductdetailsById(productId int, productSlug
 
 // Status Name Already Exists
 
-func (ecommerce EcommerceModel) CheckStatusName(status TblEcomStatus, DB *gorm.DB) (bool, error) {
+func (ecommerce EcommerceModel) CheckStatusName(id int, name string, status TblEcomStatus, DB *gorm.DB) (bool, error) {
 
 	if status.Id == 0 {
 
-		if err := DB.Table("tbl_ecom_statuses").Where("LOWER(TRIM(status))=LOWER(TRIM(?)) and is_deleted=0", status.Status).First(&status).Error; err != nil {
+		if err := DB.Table("tbl_ecom_statuses").Where("LOWER(TRIM(status))=LOWER(TRIM(?)) and is_deleted=0", name).First(&status).Error; err != nil {
 
 			return false, err
 		}
 	} else {
 
-		if err := DB.Table("tbl_ecom_statuses").Where("LOWER(TRIM(status))=LOWER(TRIM(?)) and id not in (?) and is_deleted=0", status.Status, status.Id).First(&status).Error; err != nil {
+		if err := DB.Table("tbl_ecom_statuses").Where("LOWER(TRIM(status))=LOWER(TRIM(?)) and id not in (?) and is_deleted=0", name, id).First(&status).Error; err != nil {
 
 			return false, err
 		}
@@ -1472,17 +1472,17 @@ func (ecommerce EcommerceModel) CheckStatusName(status TblEcomStatus, DB *gorm.D
 
 // Payment Name Already Exists
 
-func (ecommerce EcommerceModel) CheckPaymentName(payment TblEcomPayment, DB *gorm.DB) (bool, error) {
+func (ecommerce EcommerceModel) CheckPaymentName(id int, name string, payment TblEcomPayment, DB *gorm.DB) (bool, error) {
 
 	if payment.Id == 0 {
 
-		if err := DB.Table("tbl_ecom_payments").Where("LOWER(TRIM(payment_name))=LOWER(TRIM(?)) and is_deleted=0", payment.PaymentName).First(&payment).Error; err != nil {
+		if err := DB.Table("tbl_ecom_payments").Where("LOWER(TRIM(payment_name))=LOWER(TRIM(?)) and is_deleted=0", name).First(&payment).Error; err != nil {
 
 			return false, err
 		}
 	} else {
 
-		if err := DB.Table("tbl_ecom_payments").Where("LOWER(TRIM(payment_name))=LOWER(TRIM(?)) and id not in (?) and is_deleted=0", payment.PaymentName, payment.Id).First(&payment).Error; err != nil {
+		if err := DB.Table("tbl_ecom_payments").Where("LOWER(TRIM(payment_name))=LOWER(TRIM(?)) and id not in (?) and is_deleted=0", name, id).First(&payment).Error; err != nil {
 
 			return false, err
 		}

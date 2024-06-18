@@ -197,6 +197,8 @@ func (ecommerce *Ecommerce) CreateCustomer(Cc CreateCustomerReq) error {
 
 	ccustomer.LastName = Cc.LastName
 
+	ccustomer.Username = Cc.Username
+
 	ccustomer.Email = Cc.Email
 
 	ccustomer.MobileNo = Cc.MobileNo
@@ -307,6 +309,8 @@ func (ecommerce *Ecommerce) UpdateCustomer(Cc CreateCustomerReq) error {
 
 	updatecustomer.ModifiedBy = Cc.ModifiedBy
 
+	updatecustomer.Username = Cc.Username
+
 	updatecustomer.ModifiedOn, _ = time.Parse("2006-01-02 15:04:05", time.Now().UTC().Format("2006-01-02 15:04:05"))
 
 	err1 := Ecommercemodel.CustomerUpdate(updatecustomer, ecommerce.DB)
@@ -348,11 +352,11 @@ func (ecommerce *Ecommerce) DeleteCustomer(id int, deletedby int) error {
 }
 
 // multi customer delete
-func (ecommerce *Ecommerce) MultiSelectCustomerDelete(id []int, deletedby int) error {
+func (ecommerce *Ecommerce) MultiSelectCustomerDelete(id []int, deletedby int) (flgs bool, err error) {
 
 	if AuthErr := AuthandPermission(ecommerce); AuthErr != nil {
 
-		return AuthErr
+		return false, AuthErr
 	}
 
 	var customer TblEcomCustomers
@@ -363,13 +367,13 @@ func (ecommerce *Ecommerce) MultiSelectCustomerDelete(id []int, deletedby int) e
 
 	customer.DeletedOn, _ = time.Parse("2006-01-02 15:04:05", time.Now().UTC().Format("2006-01-02 15:04:05"))
 
-	err1 := Ecommercemodel.MultiSelectDeleteCustomers(customer, id, ecommerce.DB)
+	flg, err1 := Ecommercemodel.MultiSelectDeleteCustomers(customer, id, ecommerce.DB)
 
 	if err1 != nil {
-		return err1
+		return false, err1
 	}
 
-	return nil
+	return flg, nil
 }
 
 // multi customer status change

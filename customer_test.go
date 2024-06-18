@@ -318,12 +318,14 @@ func TestMultiSelectCustomerDelete(t *testing.T) {
 
 	if permisison {
 
-		err := ecommerce.MultiSelectCustomerDelete(id, deletedby)
+		flg, err := ecommerce.MultiSelectCustomerDelete(id, deletedby)
 
 		if err != nil {
 
 			panic(err)
 		}
+
+	fmt.Println("flg",flg)
 
 	} else {
 
