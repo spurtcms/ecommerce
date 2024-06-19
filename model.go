@@ -273,7 +273,7 @@ type OrderShippingAddress struct {
 }
 
 // pass limit , offset get customerlist
-func (ecommerceModel EcommerceModel) CustomersList(limit int, offset int, filter Filter, DB *gorm.DB) (customer []TblEcomCustomers, totalcustomer int64, err error) {
+func (ecommerceModel EcommerceModel) CustomersList(offset int, limit int, filter Filter, DB *gorm.DB) (customer []TblEcomCustomers, totalcustomer int64, err error) {
 
 	if filter.IsActive == "InActive" {
 
@@ -476,7 +476,7 @@ func (ecommerceModel EcommerceModel) GetProductdetailsByProductId(productid []in
 
 // Create order status
 
-func (ecommerceModel EcommerceModel) CreateOrderStatus(status TblEcomOrderStatuses, DB *gorm.DB) error {
+func (ecommerceModel EcommerceModel) CreateOrderStatus(status TblEcomOrderStatus, DB *gorm.DB) error {
 
 	if err := DB.Table("tbl_ecom_order_statuses").Create(&status).Error; err != nil {
 		return err
@@ -506,6 +506,18 @@ func (ecommerceModel EcommerceModel) OrderEdit(id string, DB *gorm.DB) (producto
 		return TblEcomProductOrders{}, err
 	}
 	return productord, nil
+
+}
+
+// Get order status details in particular
+
+func (ecommerceModel EcommerceModel) OrderStatusDetails(id string, DB *gorm.DB) (status []TblEcomOrderStatus, err error) {
+
+	if err := DB.Table("tbl_ecom_order_statuses").Select("tbl_ecom_order_statuses.order_status,tbl_ecom_order_statuses.order_id,tbl_ecom_statuses.priority as status_priority,tbl_ecom_order_statuses.created_on").Joins("inner join tbl_ecom_product_orders on tbl_ecom_product_orders.id=tbl_ecom_order_statuses.order_id").Joins("inner join tbl_ecom_statuses on tbl_ecom_statuses.id = tbl_ecom_order_statuses.order_status").Where("tbl_ecom_product_orders.uuid=?", id).Find(&status).Error; err != nil {
+
+		return []TblEcomOrderStatus{}, err
+	}
+	return status, nil
 
 }
 
@@ -1366,7 +1378,7 @@ func (ecommerce EcommerceModel) StatusGet(id int, DB *gorm.DB) (status TblEcomSt
 
 func (ecommerce EcommerceModel) CheckCurrencyName(id int, name string, currency TblEcomCurrency, DB *gorm.DB) (bool, error) {
 
-	if currency.Id == 0 {
+	if id == 0 {
 
 		if err := DB.Table("tbl_ecom_currencies").Where("LOWER(TRIM(currency_name))=LOWER(TRIM(?)) and is_deleted=0", name).First(&currency).Error; err != nil {
 
@@ -1387,7 +1399,7 @@ func (ecommerce EcommerceModel) CheckCurrencyName(id int, name string, currency 
 
 func (ecommerce EcommerceModel) CheckCurrencyType(id int, ctype string, currency TblEcomCurrency, DB *gorm.DB) (bool, error) {
 
-	if currency.Id == 0 {
+	if id == 0 {
 
 		if err := DB.Table("tbl_ecom_currencies").Where("LOWER(TRIM(currency_type))=LOWER(TRIM(?)) and is_deleted=0", ctype).First(&currency).Error; err != nil {
 
@@ -1408,7 +1420,7 @@ func (ecommerce EcommerceModel) CheckCurrencyType(id int, ctype string, currency
 
 func (ecommerce EcommerceModel) CheckCurrencySymbol(id int, currencysymbol string, currency TblEcomCurrency, DB *gorm.DB) (bool, error) {
 
-	if currency.Id == 0 {
+	if id == 0 {
 
 		if err := DB.Table("tbl_ecom_currencies").Where("LOWER(TRIM(currency_symbol))=LOWER(TRIM(?)) and is_deleted=0", currencysymbol).First(&currency).Error; err != nil {
 
@@ -1453,7 +1465,7 @@ func (ecommerce EcommerceModel) GetProductdetailsById(productId int, productSlug
 
 func (ecommerce EcommerceModel) CheckStatusName(id int, name string, status TblEcomStatus, DB *gorm.DB) (bool, error) {
 
-	if status.Id == 0 {
+	if id == 0 {
 
 		if err := DB.Table("tbl_ecom_statuses").Where("LOWER(TRIM(status))=LOWER(TRIM(?)) and is_deleted=0", name).First(&status).Error; err != nil {
 
@@ -1474,7 +1486,7 @@ func (ecommerce EcommerceModel) CheckStatusName(id int, name string, status TblE
 
 func (ecommerce EcommerceModel) CheckPaymentName(id int, name string, payment TblEcomPayment, DB *gorm.DB) (bool, error) {
 
-	if payment.Id == 0 {
+	if id == 0 {
 
 		if err := DB.Table("tbl_ecom_payments").Where("LOWER(TRIM(payment_name))=LOWER(TRIM(?)) and is_deleted=0", name).First(&payment).Error; err != nil {
 
@@ -1493,17 +1505,17 @@ func (ecommerce EcommerceModel) CheckPaymentName(id int, name string, payment Tb
 
 // Check Status Priority Already Exists
 
-func (ecommerce EcommerceModel) CheckStatusPriority(status TblEcomStatus, DB *gorm.DB) (bool, error) {
+func (ecommerce EcommerceModel) CheckStatusPriority(id int, priority int, status TblEcomStatus, DB *gorm.DB) (bool, error) {
 
-	if status.Id == 0 {
+	if id == 0 {
 
-		if err := DB.Table("tbl_ecom_statuses").Where("priority = ? and is_deleted=0", status.Priority).First(&status).Error; err != nil {
+		if err := DB.Table("tbl_ecom_statuses").Where("priority = ? and is_deleted=0", priority).First(&status).Error; err != nil {
 
 			return false, err
 		}
 	} else {
 
-		if err := DB.Table("tbl_ecom_statuses").Where("priority = ? and id not in (?) and is_deleted=0", status.Priority, status.Id).First(&status).Error; err != nil {
+		if err := DB.Table("tbl_ecom_statuses").Where("priority = ? and id not in (?) and is_deleted=0", priority, id).First(&status).Error; err != nil {
 
 			return false, err
 		}

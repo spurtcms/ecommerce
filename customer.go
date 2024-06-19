@@ -53,7 +53,7 @@ func (ecommerce *Ecommerce) CustomerList(limit, offset int, filter Filter) (cust
 		return []TblEcomCustomers{}, 0, AuthErr
 	}
 
-	customerlist, _, _ := Ecommercemodel.CustomersList(limit, offset, filter, ecommerce.DB)
+	customerlist, _, _ := Ecommercemodel.CustomersList(offset,limit, filter, ecommerce.DB)
 
 	_, totalcount, _ := Ecommercemodel.CustomersList(0, 0, filter, ecommerce.DB)
 

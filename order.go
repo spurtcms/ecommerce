@@ -30,11 +30,11 @@ func (ecommerce *Ecommerce) OrdersList(offset int, limit int, filter Filter) (or
 
 // pass Order id  get particular Order details
 
-func (ecommerce *Ecommerce) OrderInfo(id string) (orderlists TblEcomProductOrders, product []tblEcomProducts, Address OrderShippingAddress, count int, err error) {
+func (ecommerce *Ecommerce) OrderInfo(id string) (orderlists TblEcomProductOrders, product []tblEcomProducts, Address OrderShippingAddress, count int, status []TblEcomOrderStatus, err error) {
 
 	if AuthErr := AuthandPermission(ecommerce); AuthErr != nil {
 
-		return TblEcomProductOrders{}, []tblEcomProducts{}, OrderShippingAddress{}, 0, AuthErr
+		return TblEcomProductOrders{}, []tblEcomProducts{}, OrderShippingAddress{}, 0, []TblEcomOrderStatus{}, AuthErr
 	}
 
 	orderlist, err := Ecommercemodel.OrderEdit(id, ecommerce.DB)
@@ -79,6 +79,13 @@ func (ecommerce *Ecommerce) OrderInfo(id string) (orderlists TblEcomProductOrder
 		log.Println(err2)
 	}
 
+	// To get order stauts is particular id
+	statusdetails, err6 := Ecommercemodel.OrderStatusDetails(id, ecommerce.DB)
+
+	if err6 != nil {
+		log.Println(err6)
+	}
+
 	var productList []tblEcomProducts
 
 	for i, val := range productdetails {
@@ -119,7 +126,7 @@ func (ecommerce *Ecommerce) OrderInfo(id string) (orderlists TblEcomProductOrder
 		}
 	}
 
-	return orderlist, productList, shippingAddress, length, nil
+	return orderlist, productList, shippingAddress, length, statusdetails, nil
 
 }
 
@@ -144,7 +151,7 @@ func (ecommerce *Ecommerce) UpdateOrderStatus(orderid, status int) error {
 	if err != nil {
 		return err
 	}
-	var orderstatus TblEcomOrderStatuses
+	var orderstatus TblEcomOrderStatus
 
 	orderstatus.OrderId = orderid
 	orderstatus.OrderStatus = status
@@ -303,7 +310,7 @@ func (Ecommerce *Ecommerce) UpdateStock(productId, quantity int) (err error) {
 	return nil
 }
 
-func (Ecommerce *Ecommerce) CreateOrderStatus(orderStatus TblEcomOrderStatuses) (err error) {
+func (Ecommerce *Ecommerce) CreateOrderStatus(orderStatus TblEcomOrderStatus) (err error) {
 
 	if AuthErr := AuthandPermission(Ecommerce); AuthErr != nil {
 

@@ -84,36 +84,36 @@ type TblEcomProductPricings struct {
 }
 
 type TblEcomProductOrders struct {
-	Id              int                    `gorm:"primaryKey;auto_increment;type:serial"`
-	Uuid            string                 `gorm:"type:character varying"`
-	CustomerId      int                    `gorm:"type:integer"`
-	OrderStatus     int                    `gorm:"type:integer"`
-	ShippingAddress string                 `gorm:"type:character varying"`
-	IsDeleted       int                    `gorm:"type:integer"`
-	Username        string                 `gorm:"-:migration;<-:false"`
-	Email           string                 `gorm:"-:migration;<-:false"`
-	MobileNo        string                 `gorm:"-:migration;<-:false"`
-	StreetAddress   string                 `gorm:"-:migration;<-:false"`
-	City            string                 `gorm:"-:migration;<-:false"`
-	State           string                 `gorm:"-:migration;<-:false"`
-	Country         string                 `gorm:"-:migration;<-:false"`
-	ZipCode         string                 `gorm:"-:migration;<-:false"`
-	CreatedOn       time.Time              `gorm:"type:timestamp without time zone;DEFAULT:NULL"`
-	ModifiedOn      time.Time              `gorm:"type:timestamp without time zone;DEFAULT:NULL"`
-	ModifiedDate    string                 `gorm:"-:migration"`
-	CreatedDate     string                 `gorm:"-:migration"`
-	Price           int                    `gorm:"type:integer"`
-	Tax             int                    `gorm:"type:integer"`
-	TotalCost       int                    `gorm:"type:integer"`
-	FirstName       string                 `gorm:"-:migration;<-:false"`
-	LastName        string                 `gorm:"-:migration;<-:false"`
-	NameString      string                 `gorm:"-:migration;<-:false"`
-	Orders          []TblEcomOrderStatuses `gorm:"foreignKey:OrderId;references:Id"`
-	StatusValue     string                 `gorm:"-:migration;<-:false"`
-	StatusPriority  int                    `gorm:"-:migration;<-:false"`
-	StatusColor     string                 `gorm:"-:migration;<-:false"`
-	DeletedOn       time.Time              `gorm:"type:timestamp without time zone;DEFAULT:NULL"`
-	DeletedBy       int                    `gorm:"type:integer;DEFAULT:NULL"`
+	Id              int                  `gorm:"primaryKey;auto_increment;type:serial"`
+	Uuid            string               `gorm:"type:character varying"`
+	CustomerId      int                  `gorm:"type:integer"`
+	OrderStatus     int                  `gorm:"type:integer"`
+	ShippingAddress string               `gorm:"type:character varying"`
+	IsDeleted       int                  `gorm:"type:integer"`
+	Username        string               `gorm:"-:migration;<-:false"`
+	Email           string               `gorm:"-:migration;<-:false"`
+	MobileNo        string               `gorm:"-:migration;<-:false"`
+	StreetAddress   string               `gorm:"-:migration;<-:false"`
+	City            string               `gorm:"-:migration;<-:false"`
+	State           string               `gorm:"-:migration;<-:false"`
+	Country         string               `gorm:"-:migration;<-:false"`
+	ZipCode         string               `gorm:"-:migration;<-:false"`
+	CreatedOn       time.Time            `gorm:"type:timestamp without time zone;DEFAULT:NULL"`
+	ModifiedOn      time.Time            `gorm:"type:timestamp without time zone;DEFAULT:NULL"`
+	ModifiedDate    string               `gorm:"-:migration"`
+	CreatedDate     string               `gorm:"-:migration"`
+	Price           int                  `gorm:"type:integer"`
+	Tax             int                  `gorm:"type:integer"`
+	TotalCost       int                  `gorm:"type:integer"`
+	FirstName       string               `gorm:"-:migration;<-:false"`
+	LastName        string               `gorm:"-:migration;<-:false"`
+	NameString      string               `gorm:"-:migration;<-:false"`
+	Orders          []TblEcomOrderStatus `gorm:"foreignKey:OrderId;references:Id"`
+	StatusValue     string               `gorm:"-:migration;<-:false"`
+	StatusPriority  int                  `gorm:"-:migration;<-:false"`
+	StatusColor     string               `gorm:"-:migration;<-:false"`
+	DeletedOn       time.Time            `gorm:"type:timestamp without time zone;DEFAULT:NULL"`
+	DeletedBy       int                  `gorm:"type:integer;DEFAULT:NULL"`
 }
 
 type TblEcomProductOrderDetails struct {
@@ -124,7 +124,7 @@ type TblEcomProductOrderDetails struct {
 	Price      int `gorm:"type:integer"`
 }
 
-type TblEcomOrderStatuses struct {
+type TblEcomOrderStatus struct {
 	Id          int       `gorm:"primaryKey;auto_increment;type:serial"`
 	OrderId     int       `gorm:"type:integer"`
 	OrderStatus int       `gorm:"type:integer"`
@@ -199,7 +199,7 @@ type TblEcomSettings struct {
 // MigrateTable creates this package related tables in your database
 func MigrateTables(db *gorm.DB) {
 
-	db.AutoMigrate(&TblEcomCustomers{}, &TblEcomOrderStatuses{}, &TblEcomProductOrderDetails{}, &TblEcomProductOrders{}, &TblEcomProductPricings{}, &TblEcomProducts{}, TblEcomCurrency{},
+	db.AutoMigrate(&TblEcomCustomers{}, &TblEcomOrderStatus{}, &TblEcomProductOrderDetails{}, &TblEcomProductOrders{}, &TblEcomProductPricings{}, &TblEcomProducts{}, TblEcomCurrency{},
 		TblEcomStatus{}, TblEcomPayment{}, TblEcomSettings{})
 
 	db.Exec(`CREATE INDEX IF NOT EXISTS email_unique

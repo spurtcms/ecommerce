@@ -714,11 +714,8 @@ func (ecommerce *Ecommerce) CheckStatusPriority(id int, priority int) (flgs bool
 	}
 	var status TblEcomStatus
 
-	status.Id = id
+	flg, err := Ecommercemodel.CheckStatusPriority(id, priority, status, ecommerce.DB)
 
-	status.Priority = priority
-
-	flg, err := Ecommercemodel.CheckStatusPriority(status, ecommerce.DB)
 	if err != nil {
 		log.Println(err)
 		return false, err
