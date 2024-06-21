@@ -402,7 +402,7 @@ func (ecommerceModel EcommerceModel) OrderList(offset int, limit int, filter Fil
 
 	if filter.Keyword != "" {
 
-		query = query.Where("LOWER(TRIM(tbl_ecom_customers.username)) ILIKE LOWER(TRIM(?))"+" OR tbl_ecom_product_orders.uuid =?"+" OR LOWER(TRIM(tbl_ecom_order_statuses.order_status::text)) ILIKE LOWER(TRIM(?))", "%"+filter.Keyword+"%", filter.Keyword, "%"+filter.Keyword+"%")
+		query = query.Where("LOWER(TRIM(tbl_ecom_customers.username)) ILIKE LOWER(TRIM(?))"+" OR tbl_ecom_product_orders.uuid =?"+" OR LOWER(TRIM(tbl_ecom_statuses.status::text)) ILIKE LOWER(TRIM(?))", "%"+filter.Keyword+"%", filter.Keyword, "%"+filter.Keyword+"%")
 
 	}
 
@@ -418,9 +418,9 @@ func (ecommerceModel EcommerceModel) OrderList(offset int, limit int, filter Fil
 
 	}
 
-	if filter.Status != "" {
+	if filter.OrderStatus != 0 {
 
-		query = query.Where("tbl_ecom_product_orders.status = ?", filter.Status)
+		query = query.Where("tbl_ecom_product_orders.order_status = ?", filter.OrderStatus)
 
 	}
 
@@ -788,7 +788,7 @@ func (ecommerceModel EcommerceModel) GetCustomerDetails(id int, DB *gorm.DB) (cu
 // Get order details pass customer id
 func (ecommerceModel EcommerceModel) GetOrderDetailsbyCustomerId(limit, offset int, customerid int, DB *gorm.DB) (order []TblEcomProductOrders, totalorder int64, err error) {
 
-	query := DB.Table("tbl_ecom_product_orders").Select("tbl_ecom_statuses.status as status_value,tbl_ecom_statuses.color_code as status_color").Joins("inner join tbl_ecom_customers on tbl_ecom_product_orders.customer_id = tbl_ecom_customers.id").Joins("inner join tbl_ecom_statuses on tbl_ecom_product_orders.order_status = tbl_ecom_statuses.id").Where("tbl_ecom_product_orders.is_deleted = 0 and customer_id=?", customerid).Find(&order)
+	query := DB.Table("tbl_ecom_product_orders").Select("tbl_ecom_product_orders.*,tbl_ecom_statuses.status as status_value,tbl_ecom_statuses.color_code as status_color").Joins("inner join tbl_ecom_customers on tbl_ecom_product_orders.customer_id = tbl_ecom_customers.id").Joins("inner join tbl_ecom_statuses on tbl_ecom_product_orders.order_status = tbl_ecom_statuses.id").Where("tbl_ecom_product_orders.is_deleted = 0 and tbl_ecom_product_orders.customer_id=?", customerid).Find(&order)
 
 	if limit != 0 {
 

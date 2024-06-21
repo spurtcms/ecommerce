@@ -53,7 +53,7 @@ func (ecommerce *Ecommerce) CustomerList(limit, offset int, filter Filter) (cust
 		return []TblEcomCustomers{}, 0, AuthErr
 	}
 
-	customerlist, _, _ := Ecommercemodel.CustomersList(offset,limit, filter, ecommerce.DB)
+	customerlist, _, _ := Ecommercemodel.CustomersList(offset, limit, filter, ecommerce.DB)
 
 	_, totalcount, _ := Ecommercemodel.CustomersList(0, 0, filter, ecommerce.DB)
 
@@ -599,26 +599,7 @@ func (ecommerce *Ecommerce) CustomerInfo(limit, offset, customerid int) (custome
 		return TblEcomCustomers{}, []TblEcomProductOrders{}, 0, err2
 	}
 
-	var finalorderlist []TblEcomProductOrders
-
-	for _, orders := range orders {
-
-		orders.CreatedDate = orders.CreatedOn.In(TZONE).Format("02 Jan 2006 03:04 PM")
-
-		if !orders.ModifiedOn.IsZero() {
-
-			orders.ModifiedDate = orders.ModifiedOn.In(TZONE).Format("02 Jan 2006 03:04 PM")
-
-		} else {
-
-			orders.ModifiedDate = orders.CreatedOn.In(TZONE).Format("02 Jan 2006 03:04 PM")
-
-		}
-
-		finalorderlist = append(finalorderlist, orders)
-	}
-
-	return customer, finalorderlist, count, nil
+	return customer, orders, count, nil
 }
 
 // Password Hasing
