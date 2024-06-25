@@ -98,6 +98,8 @@ func (ecommerce *Ecommerce) CreateProduct(Pc CreateProductReq) error {
 
 	product.Sku = Pc.Sku
 
+	product.Slug = Pc.Slug
+
 	product.ProductName = Pc.ProductName
 
 	product.ProductVimeoPath = Pc.ProductVimeoPath
@@ -224,6 +226,8 @@ func (ecommerce *Ecommerce) UpdateProduct(Pc CreateProductReq, removeoff []int) 
 	product.Totalcost = Pc.Totalcost
 
 	product.Tax = Pc.Tax
+
+	product.Slug = Pc.Slug
 
 	product.IsActive = Pc.IsActive
 

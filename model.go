@@ -63,6 +63,7 @@ type CreateProductReq struct {
 	Stock              int
 	IsActive           int
 	PricingId          int
+	Slug               string
 }
 
 type CreateSettingReq struct {
@@ -660,7 +661,7 @@ func (ecommerceModel EcommerceModel) UpdateProducts(product TblEcomProducts, DB 
 
 	query := DB.Table("tbl_ecom_products").Where("id=?", product.Id)
 
-	if err := query.UpdateColumns(map[string]interface{}{"categories_id": product.CategoriesId, "stock": product.Stock, "product_name": product.ProductName, "product_description": product.ProductDescription, "product_image_path": product.ProductImagePath, "product_vimeo_path": product.ProductVimeoPath, "sku": product.Sku, "product_youtube_path": product.ProductYoutubePath, "product_price": product.ProductPrice, "tax": product.Tax, "totalcost": product.Totalcost, "modified_on": product.ModifiedOn, "is_active": product.IsActive, "modified_by": product.ModifiedBy}).Error; err != nil {
+	if err := query.UpdateColumns(map[string]interface{}{"categories_id": product.CategoriesId, "stock": product.Stock,"slug":product.Slug, "product_name": product.ProductName, "product_description": product.ProductDescription, "product_image_path": product.ProductImagePath, "product_vimeo_path": product.ProductVimeoPath, "sku": product.Sku, "product_youtube_path": product.ProductYoutubePath, "product_price": product.ProductPrice, "tax": product.Tax, "totalcost": product.Totalcost, "modified_on": product.ModifiedOn, "is_active": product.IsActive, "modified_by": product.ModifiedBy}).Error; err != nil {
 
 		return err
 	}
