@@ -39,7 +39,7 @@ type TblEcomProducts struct {
 	Id                 int `gorm:"primaryKey;auto_increment;type:serial"`
 	CategoriesId       string
 	ProductName        string
-	Slug               string
+	ProductSlug               string
 	ProductDescription string
 	ProductImagePath   string
 	ProductYoutubePath string
