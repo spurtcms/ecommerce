@@ -199,7 +199,7 @@ func (ecommerce *Ecommerce) EditProduct(productid int) (products TblEcomProducts
 
 		return TblEcomProducts{}, []TblEcomProductPricings{}, []TblEcomProductPricings{}, err
 	}
-	fmt.Println("product", product)
+
 	return product, discount, special, nil
 
 }

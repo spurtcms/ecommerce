@@ -766,9 +766,7 @@ func (ecommerceModel EcommerceModel) MultiSelectCustomerIsactive(customer TblEco
 
 func (ecommerceModel EcommerceModel) GetOrderDetailsbyuuid(uuid string, DB *gorm.DB) (order TblEcomProductOrders, err error) {
 
-	if err := DB.Preload("Orders", func(DB *gorm.DB) *gorm.DB {
-		return DB.Order("id asc")
-	}).Model(TblEcomProductOrders{}).Select("tbl_ecom_customers.*,tbl_ecom_product_orders.*").Joins("left join tbl_ecom_customers on tbl_ecom_product_orders.customer_id = tbl_ecom_customers.id").Where("tbl_ecom_product_orders.is_deleted = 0 and uuid=?", uuid).First(&order).Error; err != nil {
+	if err := DB.Model(TblEcomProductOrders{}).Select("tbl_ecom_customers.*,tbl_ecom_product_orders.*,tbl_ecom_statuses.status as status_value,tbl_ecom_statuses.color_code as status_color,tbl_ecom_statuses.priority as status_priority").Joins("left join tbl_ecom_customers on tbl_ecom_product_orders.customer_id = tbl_ecom_customers.id").Joins("inner join tbl_ecom_statuses on tbl_ecom_product_orders.order_status = tbl_ecom_statuses.id").Where("tbl_ecom_product_orders.is_deleted = 0 and uuid=?", uuid).First(&order).Error; err != nil {
 
 		return TblEcomProductOrders{}, err
 	}

@@ -98,12 +98,12 @@ func (ecommerce *Ecommerce) OrderInfo(id string) (orderlists TblEcomProductOrder
 
 		}
 		if i < len(productinfo) {
-			fmt.Println("productinfo[i].Quantity", productinfo[i].Quantity)
+			
 			quantity := productinfo[i].Quantity
 			price := productinfo[i].Price
 			quantityPrice := quantity * price
 
-			fmt.Println("quantityPrice", quantityPrice, price)
+			
 			productList = append(productList, tblEcomProducts{
 
 				ProductImagePath:   val.ProductImagePath,

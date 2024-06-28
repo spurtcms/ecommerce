@@ -438,18 +438,18 @@ func (ecommerce *Ecommerce) CheckDuplicateValue(memberid int, email string, user
 }
 
 // To Get Customer order info details
-func (ecommerce *Ecommerce) CustomerOrderInfo(uuid string) (productorder []TblEcomProducts, order TblEcomProductOrders, address ShippingAddress, laststatus string, err error) {
+func (ecommerce *Ecommerce) CustomerOrderInfo(uuid string) (productorder []TblEcomProducts, order TblEcomProductOrders, address ShippingAddress, statusdetails [] TblEcomOrderStatus, err error) {
 
 	if AuthErr := AuthandPermission(ecommerce); AuthErr != nil {
 
-		return []TblEcomProducts{}, TblEcomProductOrders{}, ShippingAddress{}, "", AuthErr
+		return []TblEcomProducts{}, TblEcomProductOrders{}, ShippingAddress{}, []TblEcomOrderStatus{}, AuthErr
 	}
 	cusinfo, err := Ecommercemodel.GetOrderDetailsbyuuid(uuid, ecommerce.DB)
 
 	log.Println("cusinfo", cusinfo)
 
 	if err != nil {
-		return []TblEcomProducts{}, TblEcomProductOrders{}, ShippingAddress{}, "", err
+		return []TblEcomProducts{}, TblEcomProductOrders{}, ShippingAddress{},[]TblEcomOrderStatus{}, err
 	}
 
 	var first = cusinfo.FirstName
@@ -473,24 +473,19 @@ func (ecommerce *Ecommerce) CustomerOrderInfo(uuid string) (productorder []TblEc
 
 	orderid := cusinfo.Id
 
-	var lstatus string
 
-	// var Orderstatus []TblEcomOrderStatuses
+	// To get order stauts is particular id
+	statusdetails, err6 := Ecommercemodel.OrderStatusDetails(uuid, ecommerce.DB)
 
-	// for _, val := range cusinfo.Orders {
-
-	// 	val.CreatedDate = val.CreatedOn.In(TZONE).Format("02 Jan 2006 03:04 PM")
-
-	// 	Orderstatus = append(Orderstatus, val)
-	// 	// lstatus = val.OrderStatus
-
-	// }
+	if err6 != nil {
+		log.Println(err6)
+	}
 
 	productinfo, err1 := Ecommercemodel.GetProductdetailsByOrderId(orderid, ecommerce.DB)
 
 	if err1 != nil {
 
-		return []TblEcomProducts{}, TblEcomProductOrders{}, ShippingAddress{}, "", err1
+		return []TblEcomProducts{}, TblEcomProductOrders{}, ShippingAddress{}, []TblEcomOrderStatus{}, err1
 	}
 
 	var product_id []int
@@ -504,7 +499,7 @@ func (ecommerce *Ecommerce) CustomerOrderInfo(uuid string) (productorder []TblEc
 	productdetails, err2 := Ecommercemodel.GetProductdetailsByProductId(product_id, ecommerce.DB)
 
 	if err2 != nil {
-		return []TblEcomProducts{}, TblEcomProductOrders{}, ShippingAddress{}, "", err2
+		return []TblEcomProducts{}, TblEcomProductOrders{}, ShippingAddress{}, []TblEcomOrderStatus{}, err2
 
 	}
 	var productList []TblEcomProducts
@@ -552,7 +547,7 @@ func (ecommerce *Ecommerce) CustomerOrderInfo(uuid string) (productorder []TblEc
 		return
 	}
 
-	return productList, cusinfo, shippingAddress, lstatus, nil
+	return productList, cusinfo, shippingAddress, statusdetails, nil
 
 }
 

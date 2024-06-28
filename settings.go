@@ -1,7 +1,6 @@
 package ecommerce
 
 import (
-	"fmt"
 	"log"
 	"time"
 )
@@ -678,8 +677,6 @@ func (ecommerce *Ecommerce) CheckStatusName(id int, name string) (flgs bool, err
 	flg, err := Ecommercemodel.CheckStatusName(id, name, status, ecommerce.DB)
 
 	if err != nil {
-
-		fmt.Println(err)
 
 		return false, err
 	}

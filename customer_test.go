@@ -325,7 +325,7 @@ func TestMultiSelectCustomerDelete(t *testing.T) {
 			panic(err)
 		}
 
-	fmt.Println("flg",flg)
+		fmt.Println("flg", flg)
 
 	} else {
 
