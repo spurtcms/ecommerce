@@ -15,7 +15,10 @@ var (
 	TZONE, _        = time.LoadLocation(os.Getenv("TIME_ZONE"))
 )
 
-type EcommerceModel struct{}
+type EcommerceModel struct {
+	DataAccess int
+	UserId     int
+}
 
 var Ecommercemodel EcommerceModel
 

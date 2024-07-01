@@ -47,6 +47,10 @@ func (ecommerce *Ecommerce) ProductsList(offset int, limit int, filter Filter) (
 		return []TblEcomProducts{}, 0, AuthErr
 	}
 
+	Ecommercemodel.DataAccess = ecommerce.DataAccess
+
+	Ecommercemodel.UserId = ecommerce.UserId
+
 	productlist, _, err := Ecommercemodel.ProductList(offset, limit, filter, ecommerce.DB)
 
 	_, count, _ := Ecommercemodel.ProductList(0, 0, filter, ecommerce.DB)

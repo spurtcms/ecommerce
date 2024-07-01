@@ -327,6 +327,11 @@ func (ecommerceModel EcommerceModel) CustomersList(offset int, limit int, filter
 
 	}
 
+	if ecommerceModel.DataAccess == 1 {
+
+		query = query.Where("tbl_ecom_customers.created_by=?", ecommerceModel.UserId)
+	}
+
 	if limit != 0 {
 
 		query.Offset(offset).Limit(limit).Order("id desc").Find(&customer)
@@ -422,6 +427,12 @@ func (ecommerceModel EcommerceModel) OrderList(offset int, limit int, filter Fil
 	if filter.OrderStatus != 0 {
 
 		query = query.Where("tbl_ecom_product_orders.order_status = ?", filter.OrderStatus)
+
+	}
+
+	if ecommerceModel.DataAccess == 1 {
+
+		query = query.Where("tbl_ecom_product_orders.created_by = ?", ecommerceModel.UserId)
 
 	}
 
@@ -541,6 +552,11 @@ func (ecommerceModel EcommerceModel) ProductList(offset int, limit int, filter F
 	query := DB.Model(&TblEcomProducts{}).
 		Table("tbl_ecom_products AS p").
 		Select("p.*", "COALESCE((SELECT price FROM tbl_ecom_product_pricings WHERE product_id = p.id AND type = 'special' AND is_deleted=0 AND (end_date > CURRENT_DATE OR end_date IS NULL) AND (start_date <= CURRENT_DATE OR start_date IS NULL) ORDER BY CASE WHEN start_date <= CURRENT_DATE THEN 1 WHEN priority = 1 THEN 2 ELSE 3 END, priority LIMIT 1), (SELECT price FROM tbl_ecom_product_pricings WHERE product_id = p.id AND type = 'discount' AND is_deleted=0 AND (end_date > CURRENT_DATE OR end_date IS NULL) AND (start_date <= CURRENT_DATE OR start_date IS NULL) ORDER BY CASE WHEN start_date <= CURRENT_DATE THEN 1 WHEN priority = 1 THEN 2 ELSE 3 END, priority LIMIT 1), p.totalcost) AS price").Where("is_deleted = 0").Limit(1)
+
+	if ecommerceModel.DataAccess == 1 {
+
+		query = query.Where("p.created_by = ?", ecommerceModel.UserId)
+	}
 
 	if filter.Status == "InActive" {
 
@@ -1141,6 +1157,11 @@ func (ecommerce EcommerceModel) PaymentLists(offset, limit int, DB *gorm.DB) (pa
 
 	query := DB.Table("tbl_ecom_payments").Where("is_deleted = 0").Order("id desc")
 
+	if ecommerce.DataAccess == 1 {
+
+		query = query.Where("tbl_ecom_payments.created_by = ?", ecommerce.UserId)
+	}
+
 	if limit != 0 {
 		query.Limit(limit).Offset(offset).Find(&pay)
 		return pay, nil
@@ -1153,6 +1174,11 @@ func (ecommerce EcommerceModel) PaymentLists(offset, limit int, DB *gorm.DB) (pa
 func (ecommerce EcommerceModel) CurrencyLists(offset, limit int, DB *gorm.DB) (money []TblEcomCurrency, err error) {
 
 	query := DB.Table("tbl_ecom_currencies").Where("is_deleted = 0").Order("id desc")
+
+	if ecommerce.DataAccess == 1 {
+
+		query = query.Where("tbl_ecom_currencies.created_by = ?", ecommerce.UserId)
+	}
 
 	if limit != 0 {
 
@@ -1167,6 +1193,11 @@ func (ecommerce EcommerceModel) CurrencyLists(offset, limit int, DB *gorm.DB) (m
 func (ecommerce EcommerceModel) StatusLists(offset, limit int, DB *gorm.DB) (status []TblEcomStatus, err error) {
 
 	query := DB.Table("tbl_ecom_statuses").Where("is_deleted =0").Order("priority")
+
+	if ecommerce.DataAccess == 1 {
+
+		query = query.Where("tbl_ecom_statuses.created_by = ?", ecommerce.UserId)
+	}
 
 	if limit != 0 {
 

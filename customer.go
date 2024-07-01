@@ -53,9 +53,13 @@ func (ecommerce *Ecommerce) CustomerList(limit, offset int, filter Filter) (cust
 		return []TblEcomCustomers{}, 0, AuthErr
 	}
 
+	Ecommercemodel.DataAccess = ecommerce.DataAccess
+	
+	Ecommercemodel.UserId = ecommerce.UserId
+
 	customerlist, _, _ := Ecommercemodel.CustomersList(offset, limit, filter, ecommerce.DB)
 
-	_, totalcount, _ := Ecommercemodel.CustomersList(0, 0, filter, ecommerce.DB)
+	_, totalcount, _ := Ecommercemodel.CustomersList(0, 0, filter,ecommerce.DB)
 
 	var finalcustomerlist []TblEcomCustomers
 
@@ -438,7 +442,7 @@ func (ecommerce *Ecommerce) CheckDuplicateValue(memberid int, email string, user
 }
 
 // To Get Customer order info details
-func (ecommerce *Ecommerce) CustomerOrderInfo(uuid string) (productorder []TblEcomProducts, order TblEcomProductOrders, address ShippingAddress, statusdetails [] TblEcomOrderStatus, err error) {
+func (ecommerce *Ecommerce) CustomerOrderInfo(uuid string) (productorder []TblEcomProducts, order TblEcomProductOrders, address ShippingAddress, statusdetails []TblEcomOrderStatus, err error) {
 
 	if AuthErr := AuthandPermission(ecommerce); AuthErr != nil {
 
@@ -449,7 +453,7 @@ func (ecommerce *Ecommerce) CustomerOrderInfo(uuid string) (productorder []TblEc
 	log.Println("cusinfo", cusinfo)
 
 	if err != nil {
-		return []TblEcomProducts{}, TblEcomProductOrders{}, ShippingAddress{},[]TblEcomOrderStatus{}, err
+		return []TblEcomProducts{}, TblEcomProductOrders{}, ShippingAddress{}, []TblEcomOrderStatus{}, err
 	}
 
 	var first = cusinfo.FirstName
@@ -472,8 +476,6 @@ func (ecommerce *Ecommerce) CustomerOrderInfo(uuid string) (productorder []TblEc
 	cusinfo.CreatedDate = cusinfo.CreatedOn.In(TZONE).Format("02 Jan 2006 03:04 PM")
 
 	orderid := cusinfo.Id
-
-
 	// To get order stauts is particular id
 	statusdetails, err6 := Ecommercemodel.OrderStatusDetails(uuid, ecommerce.DB)
 

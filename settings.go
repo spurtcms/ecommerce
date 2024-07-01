@@ -29,6 +29,11 @@ func (ecommerce *Ecommerce) PaymentList(offset, limit int) (paymentlists []TblEc
 
 		return []TblEcomPayment{}, AuthErr
 	}
+
+	Ecommercemodel.DataAccess = ecommerce.DataAccess
+
+	Ecommercemodel.UserId = ecommerce.UserId
+
 	paymentlist, err := Ecommercemodel.PaymentLists(offset, limit, ecommerce.DB)
 
 	if err != nil {
@@ -45,6 +50,11 @@ func (ecommerce *Ecommerce) StatusList(offset, limit int) (statuslists []TblEcom
 
 		return []TblEcomStatus{}, AuthErr
 	}
+
+	Ecommercemodel.DataAccess = ecommerce.DataAccess
+
+	Ecommercemodel.UserId = ecommerce.UserId
+
 	statuslist, err := Ecommercemodel.StatusLists(offset, limit, ecommerce.DB)
 
 	if err != nil {
@@ -61,6 +71,11 @@ func (ecommerce *Ecommerce) CurrencyList(offset, limit int) (currencylists []Tbl
 
 		return []TblEcomCurrency{}, AuthErr
 	}
+
+	Ecommercemodel.DataAccess = ecommerce.DataAccess
+
+	Ecommercemodel.UserId = ecommerce.UserId
+
 	currencylist, err := Ecommercemodel.CurrencyLists(offset, limit, ecommerce.DB)
 
 	if err != nil {
