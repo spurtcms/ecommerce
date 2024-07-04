@@ -46,22 +46,22 @@ func (ecommerce *Ecommerce) DBconf() *member.Member {
 
 // Customers list
 
-func (ecommerce *Ecommerce) CustomerList(limit, offset int, filter Filter) (customer []TblEcomCustomers, count int64, err error) {
+func (ecommerce *Ecommerce) CustomerList(limit, offset int, filter Filter) (customer []TblEcomCustomer, count int64, err error) {
 
 	if AuthErr := AuthandPermission(ecommerce); AuthErr != nil {
 
-		return []TblEcomCustomers{}, 0, AuthErr
+		return []TblEcomCustomer{}, 0, AuthErr
 	}
 
 	Ecommercemodel.DataAccess = ecommerce.DataAccess
-	
+
 	Ecommercemodel.UserId = ecommerce.UserId
 
 	customerlist, _, _ := Ecommercemodel.CustomersList(offset, limit, filter, ecommerce.DB)
 
-	_, totalcount, _ := Ecommercemodel.CustomersList(0, 0, filter,ecommerce.DB)
+	_, totalcount, _ := Ecommercemodel.CustomersList(0, 0, filter, ecommerce.DB)
 
-	var finalcustomerlist []TblEcomCustomers
+	var finalcustomerlist []TblEcomCustomer
 
 	for _, customer := range customerlist {
 
@@ -181,7 +181,7 @@ func (ecommerce *Ecommerce) CreateCustomer(Cc CreateCustomerReq) error {
 		return AuthErr
 	}
 
-	var ccustomer TblEcomCustomers
+	var ccustomer TblEcomCustomer
 
 	ccustomer.MemberId = Cc.MemberId
 
@@ -234,17 +234,17 @@ func (ecommerce *Ecommerce) CreateCustomer(Cc CreateCustomerReq) error {
 
 // Edit Customer
 
-func (ecommerce *Ecommerce) EditCustomer(id int) (customers TblEcomCustomers, err error) {
+func (ecommerce *Ecommerce) EditCustomer(id int) (customers TblEcomCustomer, err error) {
 
 	if AuthErr := AuthandPermission(ecommerce); AuthErr != nil {
 
-		return TblEcomCustomers{}, AuthErr
+		return TblEcomCustomer{}, AuthErr
 	}
 
 	customer, err := Ecommercemodel.CustomerEdit(id, ecommerce.DB)
 
 	if err != nil {
-		return TblEcomCustomers{}, err
+		return TblEcomCustomer{}, err
 	}
 	var first = customer.FirstName
 
@@ -276,7 +276,7 @@ func (ecommerce *Ecommerce) UpdateCustomer(Cc CreateCustomerReq) error {
 		return AuthErr
 	}
 
-	var updatecustomer TblEcomCustomers
+	var updatecustomer TblEcomCustomer
 
 	updatecustomer.MemberId = Cc.MemberId
 
@@ -337,7 +337,7 @@ func (ecommerce *Ecommerce) DeleteCustomer(id int, deletedby int) error {
 		return AuthErr
 	}
 
-	var customer TblEcomCustomers
+	var customer TblEcomCustomer
 
 	customer.DeletedBy = deletedby
 
@@ -363,7 +363,7 @@ func (ecommerce *Ecommerce) MultiSelectCustomerDelete(id []int, deletedby int) (
 		return false, AuthErr
 	}
 
-	var customer TblEcomCustomers
+	var customer TblEcomCustomer
 
 	customer.IsDeleted = 1
 
@@ -388,7 +388,7 @@ func (ecommerce *Ecommerce) MultiSelectCustomersStatus(customerid []int, status 
 		return AuthErr
 	}
 
-	var customer TblEcomCustomers
+	var customer TblEcomCustomer
 
 	customer.IsActive = status
 
@@ -442,18 +442,18 @@ func (ecommerce *Ecommerce) CheckDuplicateValue(memberid int, email string, user
 }
 
 // To Get Customer order info details
-func (ecommerce *Ecommerce) CustomerOrderInfo(uuid string) (productorder []TblEcomProducts, order TblEcomProductOrders, address ShippingAddress, statusdetails []TblEcomOrderStatus, err error) {
+func (ecommerce *Ecommerce) CustomerOrderInfo(uuid string) (productorder []TblEcomProduct, order TblEcomProductOrder, address ShippingAddress, statusdetails []TblEcomOrderStatus, err error) {
 
 	if AuthErr := AuthandPermission(ecommerce); AuthErr != nil {
 
-		return []TblEcomProducts{}, TblEcomProductOrders{}, ShippingAddress{}, []TblEcomOrderStatus{}, AuthErr
+		return []TblEcomProduct{}, TblEcomProductOrder{}, ShippingAddress{}, []TblEcomOrderStatus{}, AuthErr
 	}
 	cusinfo, err := Ecommercemodel.GetOrderDetailsbyuuid(uuid, ecommerce.DB)
 
 	log.Println("cusinfo", cusinfo)
 
 	if err != nil {
-		return []TblEcomProducts{}, TblEcomProductOrders{}, ShippingAddress{}, []TblEcomOrderStatus{}, err
+		return []TblEcomProduct{}, TblEcomProductOrder{}, ShippingAddress{}, []TblEcomOrderStatus{}, err
 	}
 
 	var first = cusinfo.FirstName
@@ -487,7 +487,7 @@ func (ecommerce *Ecommerce) CustomerOrderInfo(uuid string) (productorder []TblEc
 
 	if err1 != nil {
 
-		return []TblEcomProducts{}, TblEcomProductOrders{}, ShippingAddress{}, []TblEcomOrderStatus{}, err1
+		return []TblEcomProduct{}, TblEcomProductOrder{}, ShippingAddress{}, []TblEcomOrderStatus{}, err1
 	}
 
 	var product_id []int
@@ -501,10 +501,10 @@ func (ecommerce *Ecommerce) CustomerOrderInfo(uuid string) (productorder []TblEc
 	productdetails, err2 := Ecommercemodel.GetProductdetailsByProductId(product_id, ecommerce.DB)
 
 	if err2 != nil {
-		return []TblEcomProducts{}, TblEcomProductOrders{}, ShippingAddress{}, []TblEcomOrderStatus{}, err2
+		return []TblEcomProduct{}, TblEcomProductOrder{}, ShippingAddress{}, []TblEcomOrderStatus{}, err2
 
 	}
-	var productList []TblEcomProducts
+	var productList []TblEcomProduct
 
 	for i, val := range productdetails {
 
@@ -519,7 +519,7 @@ func (ecommerce *Ecommerce) CustomerOrderInfo(uuid string) (productorder []TblEc
 			quantity := productinfo[i].Quantity
 			price := productinfo[i].Price
 			quantityPrice := quantity * price
-			productList = append(productList, TblEcomProducts{
+			productList = append(productList, TblEcomProduct{
 
 				ProductImagePath:   val.ProductImagePath,
 				ProductDescription: val.ProductDescription,
@@ -530,7 +530,7 @@ func (ecommerce *Ecommerce) CustomerOrderInfo(uuid string) (productorder []TblEc
 			})
 		} else {
 
-			productList = append(productList, TblEcomProducts{
+			productList = append(productList, TblEcomProduct{
 				ProductImagePath:   val.ProductImagePath,
 				ProductDescription: val.ProductDescription,
 				ProductName:        val.ProductName,
@@ -554,17 +554,17 @@ func (ecommerce *Ecommerce) CustomerOrderInfo(uuid string) (productorder []TblEc
 }
 
 // To get customer details
-func (ecommerce *Ecommerce) CustomerInfo(limit, offset, customerid int) (customers TblEcomCustomers, products []TblEcomProductOrders, totalcount int64, err error) {
+func (ecommerce *Ecommerce) CustomerInfo(limit, offset, customerid int) (customers TblEcomCustomer, products []TblEcomProductOrder, totalcount int64, err error) {
 
 	if AuthErr := AuthandPermission(ecommerce); AuthErr != nil {
 
-		return TblEcomCustomers{}, []TblEcomProductOrders{}, 0, AuthErr
+		return TblEcomCustomer{}, []TblEcomProductOrder{}, 0, AuthErr
 	}
 
 	customer, err := Ecommercemodel.GetCustomerDetails(customerid, ecommerce.DB)
 
 	if err != nil {
-		return TblEcomCustomers{}, []TblEcomProductOrders{}, 0, err
+		return TblEcomCustomer{}, []TblEcomProductOrder{}, 0, err
 	}
 
 	var first = customer.FirstName
@@ -589,11 +589,11 @@ func (ecommerce *Ecommerce) CustomerInfo(limit, offset, customerid int) (custome
 	_, count, err2 := Ecommercemodel.GetOrderDetailsbyCustomerId(0, 0, customerid, ecommerce.DB)
 
 	if err1 != nil {
-		return TblEcomCustomers{}, []TblEcomProductOrders{}, 0, err1
+		return TblEcomCustomer{}, []TblEcomProductOrder{}, 0, err1
 	}
 
 	if err2 != nil {
-		return TblEcomCustomers{}, []TblEcomProductOrders{}, 0, err2
+		return TblEcomCustomer{}, []TblEcomProductOrder{}, 0, err2
 	}
 
 	return customer, orders, count, nil
@@ -614,16 +614,16 @@ func (ecommerce *Ecommerce) HashingPassword(pass string) string {
 }
 
 // Get Customer details
-func (Ecommerce *Ecommerce) GetCustomer(memberId int) (customer TblEcomCustomers, err error) {
+func (Ecommerce *Ecommerce) GetCustomer(memberId int) (customer TblEcomCustomer, err error) {
 
 	if AuthErr := AuthandPermission(Ecommerce); AuthErr != nil {
 
-		return TblEcomCustomers{}, AuthErr
+		return TblEcomCustomer{}, AuthErr
 	}
 
 	customer, err = Ecommercemodel.GetCustomer(memberId, Ecommerce.DB)
 	if err != nil {
-		return TblEcomCustomers{}, err
+		return TblEcomCustomer{}, err
 	}
 
 	return customer, nil

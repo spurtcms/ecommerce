@@ -6,7 +6,7 @@ import (
 	"gorm.io/gorm"
 )
 
-type TblEcomCustomers struct {
+type TblEcomCustomer struct {
 	Id               int       `gorm:"primaryKey;auto_increment;type:serial"`
 	MemberId         int       `gorm:"type:integer"`
 	FirstName        string    `gorm:"type:character varying"`
@@ -35,11 +35,11 @@ type TblEcomCustomers struct {
 	ShippingAddress  string    `gorm:"-:migration;<-:false"`
 }
 
-type TblEcomProducts struct {
+type TblEcomProduct struct {
 	Id                 int `gorm:"primaryKey;auto_increment;type:serial"`
 	CategoriesId       string
 	ProductName        string
-	ProductSlug               string
+	ProductSlug        string
 	ProductDescription string
 	ProductImagePath   string
 	ProductYoutubePath string
@@ -69,7 +69,7 @@ type TblEcomProducts struct {
 	Imgpath            []string  `gorm:"-"`
 }
 
-type TblEcomProductPricings struct {
+type TblEcomProductPricing struct {
 	Id        int `gorm:"primaryKey;auto_increment;type:serial"`
 	ProductId int
 	Priority  int
@@ -84,7 +84,7 @@ type TblEcomProductPricings struct {
 	DeletedBy int       `gorm:"type:integer;DEFAULT:NULL"`
 }
 
-type TblEcomProductOrders struct {
+type TblEcomProductOrder struct {
 	Id              int                  `gorm:"primaryKey;auto_increment;type:serial"`
 	Uuid            string               `gorm:"type:character varying"`
 	CustomerId      int                  `gorm:"type:integer"`
@@ -117,7 +117,7 @@ type TblEcomProductOrders struct {
 	DeletedBy       int                  `gorm:"type:integer;DEFAULT:NULL"`
 }
 
-type TblEcomProductOrderDetails struct {
+type TblEcomProductOrderDetail struct {
 	Id         int `gorm:"primaryKey;auto_increment;type:serial"`
 	Order_id   int `gorm:"type:integer"`
 	Product_id int `gorm:"type:integer"`
@@ -200,7 +200,7 @@ type TblEcomSettings struct {
 // MigrateTable creates this package related tables in your database
 func MigrateTables(db *gorm.DB) {
 
-	db.AutoMigrate(&TblEcomCustomers{}, &TblEcomOrderStatus{}, &TblEcomProductOrderDetails{}, &TblEcomProductOrders{}, &TblEcomProductPricings{}, &TblEcomProducts{}, TblEcomCurrency{},
+	db.AutoMigrate(&TblEcomCustomer{}, &TblEcomOrderStatus{}, &TblEcomProductOrderDetail{}, &TblEcomProductOrder{}, &TblEcomProductPricing{}, &TblEcomProduct{}, TblEcomCurrency{},
 		TblEcomStatus{}, TblEcomPayment{}, TblEcomSettings{})
 
 	db.Exec(`CREATE INDEX IF NOT EXISTS email_unique

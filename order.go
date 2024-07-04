@@ -10,11 +10,11 @@ import (
 )
 
 // pass limit , offset get orderslist
-func (ecommerce *Ecommerce) OrdersList(offset int, limit int, filter Filter) (order []TblEcomProductOrders, count int64, err error) {
+func (ecommerce *Ecommerce) OrdersList(offset int, limit int, filter Filter) (order []TblEcomProductOrder, count int64, err error) {
 
 	if AuthErr := AuthandPermission(ecommerce); AuthErr != nil {
 
-		return []TblEcomProductOrders{}, 0, AuthErr
+		return []TblEcomProductOrder{}, 0, AuthErr
 	}
 	orders, _, err := Ecommercemodel.OrderList(offset, limit, filter, ecommerce.DB)
 
@@ -30,11 +30,11 @@ func (ecommerce *Ecommerce) OrdersList(offset int, limit int, filter Filter) (or
 
 // pass Order id  get particular Order details
 
-func (ecommerce *Ecommerce) OrderInfo(id string) (orderlists TblEcomProductOrders, product []tblEcomProducts, Address OrderShippingAddress, count int, status []TblEcomOrderStatus, err error) {
+func (ecommerce *Ecommerce) OrderInfo(id string) (orderlists TblEcomProductOrder, product []TblEcomProduct, Address OrderShippingAddress, count int, status []TblEcomOrderStatus, err error) {
 
 	if AuthErr := AuthandPermission(ecommerce); AuthErr != nil {
 
-		return TblEcomProductOrders{}, []tblEcomProducts{}, OrderShippingAddress{}, 0, []TblEcomOrderStatus{}, AuthErr
+		return TblEcomProductOrder{}, []TblEcomProduct{}, OrderShippingAddress{}, 0, []TblEcomOrderStatus{}, AuthErr
 	}
 
 	orderlist, err := Ecommercemodel.OrderEdit(id, ecommerce.DB)
@@ -86,7 +86,7 @@ func (ecommerce *Ecommerce) OrderInfo(id string) (orderlists TblEcomProductOrder
 		log.Println(err6)
 	}
 
-	var productList []tblEcomProducts
+	var productList []TblEcomProduct
 
 	for i, val := range productdetails {
 
@@ -98,13 +98,12 @@ func (ecommerce *Ecommerce) OrderInfo(id string) (orderlists TblEcomProductOrder
 
 		}
 		if i < len(productinfo) {
-			
+
 			quantity := productinfo[i].Quantity
 			price := productinfo[i].Price
 			quantityPrice := quantity * price
 
-			
-			productList = append(productList, tblEcomProducts{
+			productList = append(productList, TblEcomProduct{
 
 				ProductImagePath:   val.ProductImagePath,
 				ProductDescription: val.ProductDescription,
@@ -115,7 +114,7 @@ func (ecommerce *Ecommerce) OrderInfo(id string) (orderlists TblEcomProductOrder
 			})
 		} else {
 
-			productList = append(productList, tblEcomProducts{
+			productList = append(productList, TblEcomProduct{
 				ProductImagePath:   val.ProductImagePath,
 				ProductDescription: val.ProductDescription,
 				ProductName:        val.ProductName,
@@ -138,7 +137,7 @@ func (ecommerce *Ecommerce) UpdateOrderStatus(orderid, status int) error {
 		return AuthErr
 	}
 
-	var order TblEcomProductOrders
+	var order TblEcomProductOrder
 
 	order.Id = orderid
 
@@ -176,7 +175,7 @@ func (ecommerce *Ecommerce) DeleteOrder(id int, deletedby int) error {
 		return AuthErr
 	}
 
-	var order TblEcomProductOrders
+	var order TblEcomProductOrder
 
 	order.Id = id
 
@@ -212,7 +211,7 @@ func (ecommerce *Ecommerce) MultiSelectOrdersDelete(orderids []int, deletedby in
 
 	}
 
-	var order TblEcomProductOrders
+	var order TblEcomProductOrder
 
 	order.ModifiedOn, _ = time.Parse("2006-01-02 15:04:05", time.Now().UTC().Format("2006-01-02 15:04:05"))
 

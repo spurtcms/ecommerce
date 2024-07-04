@@ -188,14 +188,21 @@ func (ecommerce *Ecommerce) CreateCurrency(Cc CreateCurrencyReq) error {
 	if currency.CurrencyDefault != 0 {
 
 		money, err := Ecommercemodel.FindDefault(ecommerce.DB)
+
 		if err != nil {
 
 			log.Println(err)
 		}
 
-		if money.CurrencyName != "" {
+		if money.CurrencyName == "" {
 
-			err1 := Ecommercemodel.ChangeDefaultValue(currency, ecommerce.DB)
+			err := Ecommercemodel.CurrencyCreate(currency, ecommerce.DB)
+			if err != nil {
+				log.Println(err)
+			}
+		} else if money.CurrencyName != "" {
+
+			err1 := Ecommercemodel.ChangeDefaultValue(money.Id, ecommerce.DB)
 
 			if err1 != nil {
 
@@ -254,7 +261,7 @@ func (ecommerce *Ecommerce) UpdateCurrency(Cc CreateCurrencyReq) error {
 
 		if money.CurrencyName != "" {
 
-			err1 := Ecommercemodel.ChangeDefaultValue(currency, ecommerce.DB)
+			err1 := Ecommercemodel.ChangeDefaultValue(money.Id, ecommerce.DB)
 
 			if err1 != nil {
 

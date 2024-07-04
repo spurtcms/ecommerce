@@ -89,12 +89,14 @@ func TestCreateProduct(t *testing.T) {
 		// layout := "2006-01-02T15:04"
 		// time.Parse(layout, offer.Startdate)
 
-		err := ecommerce.CreateProduct(CreateProductReq{CategoriesId: "1", ProductDescription: "nice product", ProductName: "Mobile", Sku: "welcome", ProductPrice: 12000, Tax: 1000, Totalcost: 13000, CreatedBy: 1, Type: "discount", Price: 2000, Priority: 1})
+		create, err := ecommerce.CreateProduct(CreateProductReq{CategoriesId: "1", ProductDescription: "nice product", ProductName: "Mobile", Sku: "welcome", ProductPrice: 12000, Tax: 1000, Totalcost: 13000, CreatedBy: 1, Type: "discount", Price: 2000, Priority: 1})
 
 		if err != nil {
 
 			panic(err)
 		}
+
+		fmt.Println(create)
 
 	} else {
 
