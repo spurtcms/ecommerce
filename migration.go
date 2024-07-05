@@ -123,6 +123,7 @@ type TblEcomProductOrderDetail struct {
 	Product_id int `gorm:"type:integer"`
 	Quantity   int `gorm:"type:integer"`
 	Price      int `gorm:"type:integer"`
+	Tax        int `gorm:"type:int"`
 }
 
 type TblEcomOrderStatus struct {
