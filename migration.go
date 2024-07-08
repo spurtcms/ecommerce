@@ -198,11 +198,28 @@ type TblEcomSettings struct {
 	ModifiedBy      int       `gorm:"DEFAULT:NULL"`
 }
 
+type TblEcomOrderPayment struct {
+	Id          int    `gorm:"primaryKey;auto_increment;type:serial"`
+	OrderId     int    `gorm:"type:integer"`
+	PaymentMode string `gorm:"type:character varying"`
+}
+
 // MigrateTable creates this package related tables in your database
 func MigrateTables(db *gorm.DB) {
 
-	db.AutoMigrate(&TblEcomCustomer{}, &TblEcomOrderStatus{}, &TblEcomProductOrderDetail{}, &TblEcomProductOrder{}, &TblEcomProductPricing{}, &TblEcomProduct{}, TblEcomCurrency{},
-		TblEcomStatus{}, TblEcomPayment{}, TblEcomSettings{})
+	db.AutoMigrate(
+		&TblEcomCustomer{},
+		&TblEcomOrderStatus{},
+		&TblEcomProductOrderDetail{},
+		&TblEcomProductOrder{},
+		&TblEcomProductPricing{},
+		&TblEcomProduct{},
+		&TblEcomCurrency{},
+		&TblEcomStatus{},
+		&TblEcomPayment{},
+		&TblEcomSettings{},
+		TblEcomOrderPayment{},
+	)
 
 	db.Exec(`CREATE INDEX IF NOT EXISTS email_unique
     ON public.tbl_ecom_customers USING btree

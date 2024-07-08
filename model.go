@@ -305,7 +305,7 @@ func (ecommerceModel EcommerceModel) CustomersList(offset int, limit int, filter
 
 		} else {
 
-			query = query.Where("(LOWER(TRIM(tbl_ecom_customers.first_name)) ILIKE LOWER(TRIM(?)) OR LOWER(TRIM(tbl_ecom_customers.email)) ILIKE LOWER(TRIM(?)))", "%"+filter.Keyword+"%", "%"+filter.Keyword+"%")
+			query = query.Where("(LOWER(TRIM(tbl_ecom_customers.first_name)) LIKE LOWER(TRIM(?)) OR LOWER(TRIM(tbl_ecom_customers.email)) LIKE LOWER(TRIM(?)))", "%"+filter.Keyword+"%", "%"+filter.Keyword+"%")
 
 		}
 	}
@@ -323,7 +323,7 @@ func (ecommerceModel EcommerceModel) CustomersList(offset int, limit int, filter
 
 	if filter.FirstName != "" {
 
-		query = query.Where("LOWER(TRIM(first_name)) ILIKE LOWER(TRIM(?))", "%"+filter.FirstName+"%")
+		query = query.Where("LOWER(TRIM(first_name)) LIKE LOWER(TRIM(?))", "%"+filter.FirstName+"%")
 
 	}
 
@@ -408,19 +408,19 @@ func (ecommerceModel EcommerceModel) OrderList(offset int, limit int, filter Fil
 
 	if filter.Keyword != "" {
 
-		query = query.Where("LOWER(TRIM(tbl_ecom_customers.username)) ILIKE LOWER(TRIM(?))"+" OR tbl_ecom_product_orders.uuid =?"+" OR LOWER(TRIM(tbl_ecom_statuses.status::text)) ILIKE LOWER(TRIM(?))", "%"+filter.Keyword+"%", filter.Keyword, "%"+filter.Keyword+"%")
+		query = query.Where("LOWER(TRIM(tbl_ecom_customers.username)) LIKE LOWER(TRIM(?))"+" OR tbl_ecom_product_orders.uuid =?"+" OR LOWER(TRIM(tbl_ecom_statuses.status::text)) LIKE LOWER(TRIM(?))", "%"+filter.Keyword+"%", filter.Keyword, "%"+filter.Keyword+"%")
 
 	}
 
 	if filter.Customername != "" {
 
-		query = query.Where("LOWER(TRIM(tbl_ecom_customers.username)) ILIKE LOWER(TRIM(?))", "%"+filter.Customername+"%")
+		query = query.Where("LOWER(TRIM(tbl_ecom_customers.username)) LIKE LOWER(TRIM(?))", "%"+filter.Customername+"%")
 
 	}
 
 	if filter.Orderid != "" {
 
-		query = query.Where("LOWER(TRIM(tbl_ecom_product_orders.uuid)) ILIKE LOWER(TRIM(?))", "%"+filter.Orderid+"%")
+		query = query.Where("LOWER(TRIM(tbl_ecom_product_orders.uuid)) LIKE LOWER(TRIM(?))", "%"+filter.Orderid+"%")
 
 	}
 
@@ -585,7 +585,7 @@ func (ecommerceModel EcommerceModel) ProductList(offset int, limit int, filter F
 
 		} else {
 
-			query = query.Where("LOWER(TRIM(p.product_name)) ILIKE LOWER(TRIM(?)) OR LOWER(TRIM(p.product_description)) ILIKE LOWER(TRIM(?)) ", "%"+filter.Keyword+"%", "%"+filter.Keyword+"%")
+			query = query.Where("LOWER(TRIM(p.product_name)) LIKE LOWER(TRIM(?)) OR LOWER(TRIM(p.product_description)) LIKE LOWER(TRIM(?)) ", "%"+filter.Keyword+"%", "%"+filter.Keyword+"%")
 
 		}
 
@@ -613,7 +613,7 @@ func (ecommerceModel EcommerceModel) ProductList(offset int, limit int, filter F
 
 	if filter.ProductName != "" {
 
-		query = query.Where("LOWER(TRIM(p.product_name)) ILIKE LOWER(TRIM(?))", "%"+filter.ProductName+"%")
+		query = query.Where("LOWER(TRIM(p.product_name)) LIKE LOWER(TRIM(?))", "%"+filter.ProductName+"%")
 
 	}
 
@@ -975,7 +975,7 @@ func (ecommerce EcommerceModel) GetProductOrdersList(filter ProductFilter, sort 
 
 	if filter.SearchKeyword != "" {
 
-		query = query.Where("LOWER(TRIM(p.product_name)) ILIKE LOWER(TRIM(?))", "%"+filter.SearchKeyword+"%")
+		query = query.Where("LOWER(TRIM(p.product_name)) LIKE LOWER(TRIM(?))", "%"+filter.SearchKeyword+"%")
 	}
 
 	if filter.StartingDate != "" && filter.EndingDate != "" {

@@ -236,7 +236,7 @@ func (Ecommerce *Ecommerce) GetOrderStatusList() (orderStatus []OrderStatusNames
 		return []OrderStatusNames{}, AuthErr
 	}
 
-	orderStatus, err = EcommerceModel.GetOrderStatusList(EcommerceModel{}, Ecommerce.DB)
+	orderStatus, err = Ecommercemodel.GetOrderStatusList(Ecommerce.DB)
 	if err != nil {
 
 		return []OrderStatusNames{}, err
@@ -252,7 +252,7 @@ func (Ecommerce *Ecommerce) PlaceOrder(orderPlaced EcommerceOrder) (err error) {
 		return AuthErr
 	}
 
-	err = EcommerceModel.PlaceOrder(EcommerceModel{}, orderPlaced, Ecommerce.DB)
+	err = Ecommercemodel.PlaceOrder(orderPlaced, Ecommerce.DB)
 	if err != nil {
 
 		return err
@@ -268,7 +268,7 @@ func (Ecommerce *Ecommerce) GetOrderByOrderId(orderId string) (order EcommerceOr
 		return EcommerceOrder{}, AuthErr
 	}
 
-	order, err = EcommerceModel.GetOrderByOrderId(EcommerceModel{}, orderId, Ecommerce.DB)
+	order, err = Ecommercemodel.GetOrderByOrderId(orderId, Ecommerce.DB)
 	if err != nil {
 
 		return EcommerceOrder{}, err
@@ -284,7 +284,7 @@ func (Ecommerce *Ecommerce) CreateOrderDetails(orderDetails OrderProduct) (err e
 		return AuthErr
 	}
 
-	err = EcommerceModel.CreateOrderDetails(EcommerceModel{}, orderDetails, Ecommerce.DB)
+	err = Ecommercemodel.CreateOrderDetails(orderDetails, Ecommerce.DB)
 	if err != nil {
 
 		return err
@@ -300,7 +300,7 @@ func (Ecommerce *Ecommerce) UpdateStock(productId, quantity int) (err error) {
 		return AuthErr
 	}
 
-	err = EcommerceModel.UpdateStock(EcommerceModel{}, productId, quantity, Ecommerce.DB)
+	err = Ecommercemodel.UpdateStock(productId, quantity, Ecommerce.DB)
 	if err != nil {
 
 		return err
@@ -316,7 +316,7 @@ func (Ecommerce *Ecommerce) CreateOrderStatus(orderStatus TblEcomOrderStatus) (e
 		return AuthErr
 	}
 
-	err = EcommerceModel.CreateOrderStatus(Ecommercemodel, orderStatus, Ecommerce.DB)
+	err = Ecommercemodel.CreateOrderStatus(orderStatus, Ecommerce.DB)
 	if err != nil {
 
 		return err
@@ -332,7 +332,7 @@ func (Ecommerce *Ecommerce) CreateOrderPayment(orderPayment OrderPayment) (err e
 		return AuthErr
 	}
 
-	err = EcommerceModel.CreateOrderPayment(EcommerceModel{}, orderPayment, Ecommerce.DB)
+	err = Ecommercemodel.CreateOrderPayment(orderPayment, Ecommerce.DB)
 	if err != nil {
 
 		return err
@@ -348,7 +348,7 @@ func (Ecommerce *Ecommerce) DeleteFromCartAfterOrder(orderedproductIds []int, cu
 		return AuthErr
 	}
 
-	err = EcommerceModel.DeleteFromCartAfterOrder(EcommerceModel{}, orderedproductIds, customerId, Ecommerce.DB)
+	err = Ecommercemodel.DeleteFromCartAfterOrder(orderedproductIds, customerId, Ecommerce.DB)
 	if err != nil {
 
 		return err
