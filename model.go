@@ -363,8 +363,6 @@ func (ecommerceModel EcommerceModel) CustomerEdit(id int, DB *gorm.DB) (customer
 
 	if err := DB.Model(TblEcomCustomer{}).Select("tbl_ecom_customers.*, count( tbl_ecom_product_orders.customer_id)").Joins("left join tbl_ecom_product_orders on tbl_ecom_customers.id = tbl_ecom_product_orders.customer_id").Group("tbl_ecom_customers.id, tbl_ecom_product_orders.customer_id").Where(" tbl_ecom_customers.is_deleted = 0 AND tbl_ecom_customers.id=?", id).First(&customer).Error; err != nil {
 
-		// if err := db.Table("tbl_ecom_customers").Where("is_deleted = 0 and id=?", id).First(&customer).Error; err != nil {
-
 		return TblEcomCustomer{}, err
 	}
 	return customer, nil
@@ -1408,18 +1406,17 @@ func (ecommerce EcommerceModel) StatusGet(id int, DB *gorm.DB) (status TblEcomSt
 
 func (ecommerce EcommerceModel) CheckCurrencyName(id int, name string, currency TblEcomCurrency, DB *gorm.DB) (bool, error) {
 
-	if id == 0 {
+	query := DB.Table("tbl_ecom_currencies").Where("LOWER(TRIM(currency_name))=LOWER(TRIM(?)) and is_deleted=0", name)
 
-		if err := DB.Table("tbl_ecom_currencies").Where("LOWER(TRIM(currency_name))=LOWER(TRIM(?)) and is_deleted=0", name).First(&currency).Error; err != nil {
+	if id != 0 {
 
-			return false, err
-		}
-	} else {
+		query = query.Where("LOWER(TRIM(currency_name))=LOWER(TRIM(?)) and id not in (?) and is_deleted=0", name, id)
 
-		if err := DB.Table("tbl_ecom_currencies").Where("LOWER(TRIM(currency_name))=LOWER(TRIM(?)) and id not in (?) and is_deleted=0", name, id).First(&currency).Error; err != nil {
+	}
 
-			return false, err
-		}
+	if err := query.First(&currency).Error; err != nil {
+
+		return false, err
 	}
 
 	return true, nil
@@ -1429,18 +1426,16 @@ func (ecommerce EcommerceModel) CheckCurrencyName(id int, name string, currency 
 
 func (ecommerce EcommerceModel) CheckCurrencyType(id int, ctype string, currency TblEcomCurrency, DB *gorm.DB) (bool, error) {
 
-	if id == 0 {
+	query := DB.Table("tbl_ecom_currencies").Where("LOWER(TRIM(currency_type))=LOWER(TRIM(?)) and is_deleted=0", ctype)
 
-		if err := DB.Table("tbl_ecom_currencies").Where("LOWER(TRIM(currency_type))=LOWER(TRIM(?)) and is_deleted=0", ctype).First(&currency).Error; err != nil {
+	if id != 0 {
 
-			return false, err
-		}
-	} else {
+		query = query.Where("LOWER(TRIM(currency_type))=LOWER(TRIM(?)) and id not in (?) and is_deleted=0", ctype, id)
 
-		if err := DB.Table("tbl_ecom_currencies").Where("LOWER(TRIM(currency_type))=LOWER(TRIM(?)) and id not in (?) and is_deleted=0", ctype, id).First(&currency).Error; err != nil {
+	}
 
-			return false, err
-		}
+	if err := query.First(&currency).Error; err != nil {
+		return false, err
 	}
 
 	return true, nil
@@ -1450,18 +1445,16 @@ func (ecommerce EcommerceModel) CheckCurrencyType(id int, ctype string, currency
 
 func (ecommerce EcommerceModel) CheckCurrencySymbol(id int, currencysymbol string, currency TblEcomCurrency, DB *gorm.DB) (bool, error) {
 
-	if id == 0 {
+	query := DB.Table("tbl_ecom_currencies").Where("LOWER(TRIM(currency_symbol))=LOWER(TRIM(?)) and is_deleted=0", currencysymbol)
 
-		if err := DB.Table("tbl_ecom_currencies").Where("LOWER(TRIM(currency_symbol))=LOWER(TRIM(?)) and is_deleted=0", currencysymbol).First(&currency).Error; err != nil {
+	if id != 0 {
 
-			return false, err
-		}
-	} else {
+		query = query.Where("LOWER(TRIM(currency_symbol))=LOWER(TRIM(?)) and id not in (?) and is_deleted=0", currencysymbol, id)
 
-		if err := DB.Table("tbl_ecom_currencies").Where("LOWER(TRIM(currency_symbol))=LOWER(TRIM(?)) and id not in (?) and is_deleted=0", currencysymbol, id).First(&currency).Error; err != nil {
+	}
+	if err := query.First(&currency).Error; err != nil {
 
-			return false, err
-		}
+		return false, err
 	}
 
 	return true, nil
@@ -1495,18 +1488,15 @@ func (ecommerce EcommerceModel) GetProductdetailsById(productId int, productSlug
 
 func (ecommerce EcommerceModel) CheckStatusName(id int, name string, status TblEcomStatus, DB *gorm.DB) (bool, error) {
 
-	if id == 0 {
+	query := DB.Table("tbl_ecom_statuses").Where("LOWER(TRIM(status))=LOWER(TRIM(?)) and is_deleted=0", name)
 
-		if err := DB.Table("tbl_ecom_statuses").Where("LOWER(TRIM(status))=LOWER(TRIM(?)) and is_deleted=0", name).First(&status).Error; err != nil {
+	if id != 0 {
 
-			return false, err
-		}
-	} else {
+		query = query.Where("LOWER(TRIM(status))=LOWER(TRIM(?)) and id not in (?) and is_deleted=0", name, id)
+	}
+	if err := query.First(&status).Error; err != nil {
 
-		if err := DB.Table("tbl_ecom_statuses").Where("LOWER(TRIM(status))=LOWER(TRIM(?)) and id not in (?) and is_deleted=0", name, id).First(&status).Error; err != nil {
-
-			return false, err
-		}
+		return false, err
 	}
 
 	return true, nil
@@ -1516,18 +1506,16 @@ func (ecommerce EcommerceModel) CheckStatusName(id int, name string, status TblE
 
 func (ecommerce EcommerceModel) CheckPaymentName(id int, name string, payment TblEcomPayment, DB *gorm.DB) (bool, error) {
 
-	if id == 0 {
+	query := DB.Table("tbl_ecom_payments").Where("LOWER(TRIM(payment_name))=LOWER(TRIM(?)) and is_deleted=0", name)
 
-		if err := DB.Table("tbl_ecom_payments").Where("LOWER(TRIM(payment_name))=LOWER(TRIM(?)) and is_deleted=0", name).First(&payment).Error; err != nil {
+	if id != 0 {
 
-			return false, err
-		}
-	} else {
+		query = query.Where("LOWER(TRIM(payment_name))=LOWER(TRIM(?)) and id not in (?) and is_deleted=0", name, id)
+	}
 
-		if err := DB.Table("tbl_ecom_payments").Where("LOWER(TRIM(payment_name))=LOWER(TRIM(?)) and id not in (?) and is_deleted=0", name, id).First(&payment).Error; err != nil {
+	if err := query.First(&payment).Error; err != nil {
 
-			return false, err
-		}
+		return false, err
 	}
 
 	return true, nil
@@ -1537,18 +1525,17 @@ func (ecommerce EcommerceModel) CheckPaymentName(id int, name string, payment Tb
 
 func (ecommerce EcommerceModel) CheckStatusPriority(id int, priority int, status TblEcomStatus, DB *gorm.DB) (bool, error) {
 
-	if id == 0 {
+	query := DB.Table("tbl_ecom_statuses").Where("priority = ? and is_deleted=0", priority)
 
-		if err := DB.Table("tbl_ecom_statuses").Where("priority = ? and is_deleted=0", priority).First(&status).Error; err != nil {
+	if id != 0 {
 
-			return false, err
-		}
-	} else {
+		query = query.Where("priority = ? and id not in (?) and is_deleted=0", priority, id)
 
-		if err := DB.Table("tbl_ecom_statuses").Where("priority = ? and id not in (?) and is_deleted=0", priority, id).First(&status).Error; err != nil {
+	}
 
-			return false, err
-		}
+	if err := query.First(&status).Error; err != nil {
+
+		return false, err
 	}
 
 	return true, nil
