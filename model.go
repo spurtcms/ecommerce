@@ -263,14 +263,17 @@ type EcommerceProduct struct {
 }
 
 type OrderShippingAddress struct {
-	Name    string `json:"name"`
-	Area    string `json:"area"`
-	Number  string `json:"number"`
-	Email   string `json:"email"`
-	HouseNo string `json:"houseno"`
-	City    string `json:"city"`
-	Country string `json:"country"`
-	States  string `json:"states"`
+	FirstName     string `json:"firstname"`
+	UserName      string `json:"username"`
+	StreetAddress string `json:"streetaddress"`
+	MobileNo      string `json:"mobileno"`
+	Email         string `json:"email"`
+	ZipCode       string `json:"zipcode"`
+	City          string `json:"city"`
+	Country       string `json:"country"`
+	State         string `json:"state"`
+	ProfileImage  string `json:"profileimage"`
+	IsActive      int    `json:"isactive"`
 }
 
 // pass limit , offset get customerlist
