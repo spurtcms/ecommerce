@@ -28,7 +28,7 @@ func TestProductsList(t *testing.T) {
 
 	Auth.VerifyToken(token, SecretKey)
 
-	permisison, _ := Auth.IsGranted("Catalogue", auth.CRUD)
+	permisison, _ := Auth.IsGranted("Catalogue", auth.CRUD, TenantId)
 
 	ecommerce := EcommerceSetup(Config{
 		DB:               db,
@@ -39,7 +39,7 @@ func TestProductsList(t *testing.T) {
 
 	if permisison {
 
-		product, count, err := ecommerce.ProductsList(10, 0, Filter{})
+		product, count, err := ecommerce.ProductsList(10, 0, Filter{}, TenantId)
 
 		if err != nil {
 
@@ -75,7 +75,7 @@ func TestCreateProduct(t *testing.T) {
 
 	Auth.VerifyToken(token, SecretKey)
 
-	permisison, _ := Auth.IsGranted("Catalogue", auth.CRUD)
+	permisison, _ := Auth.IsGranted("Catalogue", auth.CRUD, TenantId)
 
 	ecommerce := EcommerceSetup(Config{
 		DB:               db,
@@ -126,7 +126,7 @@ func TestEditProduct(t *testing.T) {
 
 	Auth.VerifyToken(token, SecretKey)
 
-	permisison, _ := Auth.IsGranted("Catalogue", auth.CRUD)
+	permisison, _ := Auth.IsGranted("Catalogue", auth.CRUD, TenantId)
 
 	ecommerce := EcommerceSetup(Config{
 		DB:               db,
@@ -137,7 +137,7 @@ func TestEditProduct(t *testing.T) {
 
 	if permisison {
 
-		product, price, discount, err := ecommerce.EditProduct(1)
+		product, price, discount, err := ecommerce.EditProduct(1, TenantId)
 
 		if err != nil {
 
@@ -173,7 +173,7 @@ func TestUpdateProduct(t *testing.T) {
 
 	Auth.VerifyToken(token, SecretKey)
 
-	permisison, _ := Auth.IsGranted("Catalogue", auth.CRUD)
+	permisison, _ := Auth.IsGranted("Catalogue", auth.CRUD, TenantId)
 
 	ecommerce := EcommerceSetup(Config{
 		DB:               db,
@@ -186,7 +186,7 @@ func TestUpdateProduct(t *testing.T) {
 
 	if permisison {
 
-		err := ecommerce.UpdateProduct(CreateProductReq{CategoriesId: "1", ProductDescription: "Bad product", ProductName: "Mobile", Sku: "welcome", ProductPrice: 12000, Tax: 1000, Totalcost: 13000, CreatedBy: 1, Type: "discount", Price: 2000, Priority: 1, ModifiedBy: 1}, offerid)
+		err := ecommerce.UpdateProduct(CreateProductReq{CategoriesId: "1", ProductDescription: "Bad product", ProductName: "Mobile", Sku: "welcome", ProductPrice: 12000, Tax: 1000, Totalcost: 13000, CreatedBy: 1, Type: "discount", Price: 2000, Priority: 1, ModifiedBy: 1}, offerid, 1)
 
 		if err != nil {
 
@@ -221,7 +221,7 @@ func TestDeleteProduct(t *testing.T) {
 
 	Auth.VerifyToken(token, SecretKey)
 
-	permisison, _ := Auth.IsGranted("Catalogue", auth.CRUD)
+	permisison, _ := Auth.IsGranted("Catalogue", auth.CRUD, TenantId)
 
 	ecommerce := EcommerceSetup(Config{
 		DB:               db,
@@ -236,7 +236,7 @@ func TestDeleteProduct(t *testing.T) {
 
 	if permisison {
 
-		err := ecommerce.DeleteProduct(productid, id)
+		err := ecommerce.DeleteProduct(productid, id, TenantId)
 
 		if err != nil {
 
@@ -271,7 +271,7 @@ func TestCheckSkuName(t *testing.T) {
 
 	Auth.VerifyToken(token, SecretKey)
 
-	permisison, _ := Auth.IsGranted("Catalogue", auth.CRUD)
+	permisison, _ := Auth.IsGranted("Catalogue", auth.CRUD, TenantId)
 
 	ecommerce := EcommerceSetup(Config{
 		DB:               db,
@@ -282,7 +282,7 @@ func TestCheckSkuName(t *testing.T) {
 
 	if permisison {
 
-		flg, err := ecommerce.CheckSkuName("welcome", 10)
+		flg, err := ecommerce.CheckSkuName("welcome", 10, TenantId)
 
 		if err != nil {
 
@@ -318,7 +318,7 @@ func TestSelectProductsChangeStatus(t *testing.T) {
 
 	Auth.VerifyToken(token, SecretKey)
 
-	permisison, _ := Auth.IsGranted("Catalogue", auth.CRUD)
+	permisison, _ := Auth.IsGranted("Catalogue", auth.CRUD, TenantId)
 
 	ecommerce := EcommerceSetup(Config{
 		DB:               db,
@@ -331,7 +331,7 @@ func TestSelectProductsChangeStatus(t *testing.T) {
 
 	if permisison {
 
-		err := ecommerce.SelectProductsChangeStatus(1, productid)
+		err := ecommerce.SelectProductsChangeStatus(1, productid, TenantId)
 
 		if err != nil {
 

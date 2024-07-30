@@ -28,7 +28,7 @@ func TestOrdersList(t *testing.T) {
 
 	Auth.VerifyToken(token, SecretKey)
 
-	permisison, _ := Auth.IsGranted("Orders", auth.CRUD)
+	permisison, _ := Auth.IsGranted("Orders", auth.CRUD, TenantId)
 
 	ecommerce := EcommerceSetup(Config{
 		DB:               db,
@@ -39,7 +39,7 @@ func TestOrdersList(t *testing.T) {
 
 	if permisison {
 
-		order, count, err := ecommerce.OrdersList(10, 0, Filter{})
+		order, count, err := ecommerce.OrdersList(10, 0, Filter{}, 1)
 
 		if err != nil {
 
@@ -76,7 +76,7 @@ func TestOrderInfo(t *testing.T) {
 
 	Auth.VerifyToken(token, SecretKey)
 
-	permisison, _ := Auth.IsGranted("Orders", auth.CRUD)
+	permisison, _ := Auth.IsGranted("Orders", auth.CRUD, TenantId)
 
 	ecommerce := EcommerceSetup(Config{
 		DB:               db,
@@ -89,7 +89,7 @@ func TestOrderInfo(t *testing.T) {
 
 		id := "SP03052024"
 
-		orderstatus, product, address, count, status, err := ecommerce.OrderInfo(id)
+		orderstatus, product, address, count, status, err := ecommerce.OrderInfo(id, 1)
 
 		if err != nil {
 
@@ -124,7 +124,7 @@ func TestUpdateOrderStatus(t *testing.T) {
 
 	Auth.VerifyToken(token, SecretKey)
 
-	permisison, _ := Auth.IsGranted("Orders", auth.CRUD)
+	permisison, _ := Auth.IsGranted("Orders", auth.CRUD, TenantId)
 
 	ecommerce := EcommerceSetup(Config{
 		DB:               db,
@@ -135,7 +135,7 @@ func TestUpdateOrderStatus(t *testing.T) {
 
 	if permisison {
 
-		err := ecommerce.UpdateOrderStatus(1, 1)
+		err := ecommerce.UpdateOrderStatus(1, 1, 1)
 
 		if err != nil {
 
@@ -169,7 +169,7 @@ func TestDeleteOrder(t *testing.T) {
 
 	Auth.VerifyToken(token, SecretKey)
 
-	permisison, _ := Auth.IsGranted("Orders", auth.CRUD)
+	permisison, _ := Auth.IsGranted("Orders", auth.CRUD, TenantId)
 
 	ecommerce := EcommerceSetup(Config{
 		DB:               db,
@@ -180,7 +180,7 @@ func TestDeleteOrder(t *testing.T) {
 
 	if permisison {
 
-		err := ecommerce.DeleteOrder(1, 1)
+		err := ecommerce.DeleteOrder(1, 1, 1)
 
 		if err != nil {
 
@@ -214,7 +214,7 @@ func TestMultiSelectOrdersDelete(t *testing.T) {
 
 	Auth.VerifyToken(token, SecretKey)
 
-	permisison, _ := Auth.IsGranted("Orders", auth.CRUD)
+	permisison, _ := Auth.IsGranted("Orders", auth.CRUD, TenantId)
 
 	ecommerce := EcommerceSetup(Config{
 		DB:               db,
@@ -227,7 +227,7 @@ func TestMultiSelectOrdersDelete(t *testing.T) {
 
 	if permisison {
 
-		err := ecommerce.MultiSelectOrdersDelete(orderid, 1)
+		err := ecommerce.MultiSelectOrdersDelete(orderid, 1, 1)
 
 		if err != nil {
 

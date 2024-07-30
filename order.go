@@ -9,20 +9,34 @@ import (
 	"time"
 )
 
+type OrderShippingAddress struct {
+	FirstName     string `json:"firstname"`
+	UserName      string `json:"username"`
+	StreetAddress string `json:"streetaddress"`
+	MobileNo      string `json:"mobileno"`
+	Email         string `json:"email"`
+	ZipCode       string `json:"zipcode"`
+	City          string `json:"city"`
+	Country       string `json:"country"`
+	State         string `json:"state"`
+	ProfileImage  string `json:"profileimage"`
+	IsActive      int    `json:"isactive"`
+}
+
 // pass limit , offset get orderslist
-func (ecommerce *Ecommerce) OrdersList(offset int, limit int, filter Filter) (order []TblEcomProductOrder, count int64, err error) {
+func (ecommerce *Ecommerce) OrdersList(offset int, limit int, filter Filter, tenantid int) (order []TblEcomProductOrder, count int64, err error) {
 
 	if AuthErr := AuthandPermission(ecommerce); AuthErr != nil {
 
 		return []TblEcomProductOrder{}, 0, AuthErr
 	}
-	orders, _, err := Ecommercemodel.OrderList(offset, limit, filter, ecommerce.DB)
+	orders, _, err := Ecommercemodel.OrderList(offset, limit, filter, ecommerce.DB, tenantid)
 
 	if err != nil {
 		log.Println(err)
 	}
 
-	_, totalcount, _ := Ecommercemodel.OrderList(0, 0, filter, ecommerce.DB)
+	_, totalcount, _ := Ecommercemodel.OrderList(0, 0, filter, ecommerce.DB, tenantid)
 
 	return orders, totalcount, nil
 
@@ -30,14 +44,14 @@ func (ecommerce *Ecommerce) OrdersList(offset int, limit int, filter Filter) (or
 
 // pass Order id  get particular Order details
 
-func (ecommerce *Ecommerce) OrderInfo(id string) (orderlists TblEcomProductOrder, product []TblEcomProduct, Address OrderShippingAddress, count int, status []TblEcomOrderStatus, err error) {
+func (ecommerce *Ecommerce) OrderInfo(id string, tenantid int) (orderlists TblEcomProductOrder, product []TblEcomProduct, Address OrderShippingAddress, count int, status []TblEcomOrderStatus, err error) {
 
 	if AuthErr := AuthandPermission(ecommerce); AuthErr != nil {
 
 		return TblEcomProductOrder{}, []TblEcomProduct{}, OrderShippingAddress{}, 0, []TblEcomOrderStatus{}, AuthErr
 	}
 
-	orderlist, err := Ecommercemodel.OrderEdit(id, ecommerce.DB)
+	orderlist, err := Ecommercemodel.OrderEdit(id, ecommerce.DB, tenantid)
 
 	if err != nil {
 		log.Println(err)
@@ -55,7 +69,7 @@ func (ecommerce *Ecommerce) OrderInfo(id string) (orderlists TblEcomProductOrder
 
 	var length int
 
-	productinfo, err1 := Ecommercemodel.GetProductdetailsByOrderId(orid, ecommerce.DB)
+	productinfo, err1 := Ecommercemodel.GetProductdetailsByOrderId(orid, ecommerce.DB, tenantid)
 
 	length = len(productinfo)
 
@@ -72,7 +86,7 @@ func (ecommerce *Ecommerce) OrderInfo(id string) (orderlists TblEcomProductOrder
 
 	}
 
-	productdetails, err2 := Ecommercemodel.GetProductdetailsByProductId(product_id, ecommerce.DB)
+	productdetails, err2 := Ecommercemodel.GetProductdetailsByProductId(product_id, ecommerce.DB, tenantid)
 
 	if err2 != nil {
 
@@ -80,7 +94,7 @@ func (ecommerce *Ecommerce) OrderInfo(id string) (orderlists TblEcomProductOrder
 	}
 
 	// To get order stauts is particular id
-	statusdetails, err6 := Ecommercemodel.OrderStatusDetails(id, ecommerce.DB)
+	statusdetails, err6 := Ecommercemodel.OrderStatusDetails(id, ecommerce.DB, tenantid)
 
 	if err6 != nil {
 		log.Println(err6)
@@ -130,7 +144,7 @@ func (ecommerce *Ecommerce) OrderInfo(id string) (orderlists TblEcomProductOrder
 }
 
 // Update Order status
-func (ecommerce *Ecommerce) UpdateOrderStatus(orderid, status int) error {
+func (ecommerce *Ecommerce) UpdateOrderStatus(orderid, status int, tenantid int) error {
 
 	if AuthErr := AuthandPermission(ecommerce); AuthErr != nil {
 
@@ -145,7 +159,7 @@ func (ecommerce *Ecommerce) UpdateOrderStatus(orderid, status int) error {
 
 	order.ModifiedOn, _ = time.Parse("2006-01-02 15:04:05", time.Now().UTC().Format("2006-01-02 15:04:05"))
 
-	err := Ecommercemodel.OrderStatusUpdate(order, ecommerce.DB)
+	err := Ecommercemodel.OrderStatusUpdate(order, ecommerce.DB, tenantid)
 
 	if err != nil {
 		return err
@@ -168,7 +182,7 @@ func (ecommerce *Ecommerce) UpdateOrderStatus(orderid, status int) error {
 
 // pass Order id soft delete the particular record
 
-func (ecommerce *Ecommerce) DeleteOrder(id int, deletedby int) error {
+func (ecommerce *Ecommerce) DeleteOrder(id int, deletedby int, tenantid int) error {
 
 	if AuthErr := AuthandPermission(ecommerce); AuthErr != nil {
 
@@ -183,7 +197,7 @@ func (ecommerce *Ecommerce) DeleteOrder(id int, deletedby int) error {
 
 	order.DeletedOn, _ = time.Parse("2006-01-02 15:04:05", time.Now().UTC().Format("2006-01-02 15:04:05"))
 
-	err := Ecommercemodel.OrderDelete(order, ecommerce.DB)
+	err := Ecommercemodel.OrderDelete(order, ecommerce.DB, tenantid)
 
 	if err != nil {
 		return err
@@ -194,7 +208,7 @@ func (ecommerce *Ecommerce) DeleteOrder(id int, deletedby int) error {
 }
 
 // multi delete order
-func (ecommerce *Ecommerce) MultiSelectOrdersDelete(orderids []int, deletedby int) error {
+func (ecommerce *Ecommerce) MultiSelectOrdersDelete(orderids []int, deletedby int, tenantid int) error {
 
 	if AuthErr := AuthandPermission(ecommerce); AuthErr != nil {
 
@@ -217,7 +231,7 @@ func (ecommerce *Ecommerce) MultiSelectOrdersDelete(orderids []int, deletedby in
 
 	order.DeletedBy = deletedby
 
-	err1 := Ecommercemodel.MultiSelectDeleteOrder(order, orderidint, ecommerce.DB)
+	err1 := Ecommercemodel.MultiSelectDeleteOrder(order, orderidint, ecommerce.DB, tenantid)
 
 	if err1 != nil {
 
@@ -229,14 +243,14 @@ func (ecommerce *Ecommerce) MultiSelectOrdersDelete(orderids []int, deletedby in
 }
 
 // Get Order status list
-func (Ecommerce *Ecommerce) GetOrderStatusList() (orderStatus []OrderStatusNames, err error) {
+func (Ecommerce *Ecommerce) GetOrderStatusList(tenantid int) (orderStatus []OrderStatusNames, err error) {
 
 	if AuthErr := AuthandPermission(Ecommerce); AuthErr != nil {
 
 		return []OrderStatusNames{}, AuthErr
 	}
 
-	orderStatus, err = Ecommercemodel.GetOrderStatusList(Ecommerce.DB)
+	orderStatus, err = Ecommercemodel.GetOrderStatusList(Ecommerce.DB, tenantid)
 	if err != nil {
 
 		return []OrderStatusNames{}, err
@@ -261,14 +275,14 @@ func (Ecommerce *Ecommerce) PlaceOrder(orderPlaced EcommerceOrder) (err error) {
 	return nil
 }
 
-func (Ecommerce *Ecommerce) GetOrderByOrderId(orderId string) (order EcommerceOrder, err error) {
+func (Ecommerce *Ecommerce) GetOrderByOrderId(orderId string, tenantid int) (order EcommerceOrder, err error) {
 
 	if AuthErr := AuthandPermission(Ecommerce); AuthErr != nil {
 
 		return EcommerceOrder{}, AuthErr
 	}
 
-	order, err = Ecommercemodel.GetOrderByOrderId(orderId, Ecommerce.DB)
+	order, err = Ecommercemodel.GetOrderByOrderId(orderId, Ecommerce.DB, tenantid)
 	if err != nil {
 
 		return EcommerceOrder{}, err
@@ -293,14 +307,14 @@ func (Ecommerce *Ecommerce) CreateOrderDetails(orderDetails OrderProduct) (err e
 	return nil
 }
 
-func (Ecommerce *Ecommerce) UpdateStock(productId, quantity int) (err error) {
+func (Ecommerce *Ecommerce) UpdateStock(productId, quantity int, tenantid int) (err error) {
 
 	if AuthErr := AuthandPermission(Ecommerce); AuthErr != nil {
 
 		return AuthErr
 	}
 
-	err = Ecommercemodel.UpdateStock(productId, quantity, Ecommerce.DB)
+	err = Ecommercemodel.UpdateStock(productId, quantity, Ecommerce.DB, tenantid)
 	if err != nil {
 
 		return err
@@ -341,14 +355,14 @@ func (Ecommerce *Ecommerce) CreateOrderPayment(orderPayment OrderPayment) (err e
 	return nil
 }
 
-func (Ecommerce *Ecommerce) DeleteFromCartAfterOrder(orderedproductIds []int, customerId int) (err error) {
+func (Ecommerce *Ecommerce) DeleteFromCartAfterOrder(orderedproductIds []int, customerId int, tenantid int) (err error) {
 
 	if AuthErr := AuthandPermission(Ecommerce); AuthErr != nil {
 
 		return AuthErr
 	}
 
-	err = Ecommercemodel.DeleteFromCartAfterOrder(orderedproductIds, customerId, Ecommerce.DB)
+	err = Ecommercemodel.DeleteFromCartAfterOrder(orderedproductIds, customerId, Ecommerce.DB, tenantid)
 	if err != nil {
 
 		return err

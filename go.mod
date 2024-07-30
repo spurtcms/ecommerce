@@ -3,7 +3,7 @@ module github.com/spurtcms/ecommerce
 go 1.20
 
 require (
-	github.com/spurtcms/auth v0.0.0-20240426140149-9722eae2938c
+	github.com/spurtcms/auth v0.0.12
 	github.com/spurtcms/member v0.0.5
 	github.com/spurtcms/team-roles v0.0.0-20240430065325-536ea33aaa3a
 	golang.org/x/crypto v0.21.0

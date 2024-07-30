@@ -23,7 +23,7 @@ func (ecommerce *Ecommerce) StoreList() (storlis TblEcomSettings, err error) {
 
 // Payment list
 
-func (ecommerce *Ecommerce) PaymentList(offset, limit int) (paymentlists []TblEcomPayment, err error) {
+func (ecommerce *Ecommerce) PaymentList(offset, limit int, tenantid int) (paymentlists []TblEcomPayment, err error) {
 
 	if AuthErr := AuthandPermission(ecommerce); AuthErr != nil {
 
@@ -34,7 +34,7 @@ func (ecommerce *Ecommerce) PaymentList(offset, limit int) (paymentlists []TblEc
 
 	Ecommercemodel.UserId = ecommerce.UserId
 
-	paymentlist, err := Ecommercemodel.PaymentLists(offset, limit, ecommerce.DB)
+	paymentlist, err := Ecommercemodel.PaymentLists(offset, limit, ecommerce.DB, tenantid)
 
 	if err != nil {
 		log.Println(err)
@@ -44,7 +44,7 @@ func (ecommerce *Ecommerce) PaymentList(offset, limit int) (paymentlists []TblEc
 }
 
 // Status List
-func (ecommerce *Ecommerce) StatusList(offset, limit int) (statuslists []TblEcomStatus, err error) {
+func (ecommerce *Ecommerce) StatusList(offset, limit int, tenantid int) (statuslists []TblEcomStatus, err error) {
 
 	if AuthErr := AuthandPermission(ecommerce); AuthErr != nil {
 
@@ -55,7 +55,7 @@ func (ecommerce *Ecommerce) StatusList(offset, limit int) (statuslists []TblEcom
 
 	Ecommercemodel.UserId = ecommerce.UserId
 
-	statuslist, err := Ecommercemodel.StatusLists(offset, limit, ecommerce.DB)
+	statuslist, err := Ecommercemodel.StatusLists(offset, limit, ecommerce.DB, tenantid)
 
 	if err != nil {
 		log.Println(err)
@@ -65,7 +65,7 @@ func (ecommerce *Ecommerce) StatusList(offset, limit int) (statuslists []TblEcom
 }
 
 // Status List
-func (ecommerce *Ecommerce) CurrencyList(offset, limit int) (currencylists []TblEcomCurrency, err error) {
+func (ecommerce *Ecommerce) CurrencyList(offset, limit int, tenantid int) (currencylists []TblEcomCurrency, err error) {
 
 	if AuthErr := AuthandPermission(ecommerce); AuthErr != nil {
 
@@ -76,7 +76,7 @@ func (ecommerce *Ecommerce) CurrencyList(offset, limit int) (currencylists []Tbl
 
 	Ecommercemodel.UserId = ecommerce.UserId
 
-	currencylist, err := Ecommercemodel.CurrencyLists(offset, limit, ecommerce.DB)
+	currencylist, err := Ecommercemodel.CurrencyLists(offset, limit, ecommerce.DB, tenantid)
 
 	if err != nil {
 		log.Println(err)
@@ -113,6 +113,8 @@ func (ecommerce *Ecommerce) CreateSettings(Ss CreateSettingReq) error {
 
 	setting.CreatedOn, _ = time.Parse("2006-01-02 15:04:05", time.Now().UTC().Format("2006-01-02 15:04:05"))
 
+	setting.TenantId = Ss.TenantId
+
 	err := Ecommercemodel.CreateSetting(setting, ecommerce.DB)
 
 	if err != nil {
@@ -123,7 +125,7 @@ func (ecommerce *Ecommerce) CreateSettings(Ss CreateSettingReq) error {
 }
 
 // Create Setting
-func (ecommerce *Ecommerce) UpdateSettings(Ss CreateSettingReq) error {
+func (ecommerce *Ecommerce) UpdateSettings(Ss CreateSettingReq, tenantid int) error {
 
 	if AuthErr := AuthandPermission(ecommerce); AuthErr != nil {
 
@@ -152,7 +154,7 @@ func (ecommerce *Ecommerce) UpdateSettings(Ss CreateSettingReq) error {
 
 	setting.ModifiedOn, _ = time.Parse("2006-01-02 15:04:05", time.Now().UTC().Format("2006-01-02 15:04:05"))
 
-	err := Ecommercemodel.UpdateSetting(setting, ecommerce.DB)
+	err := Ecommercemodel.UpdateSetting(setting, ecommerce.DB, tenantid)
 
 	if err != nil {
 		log.Println(err)
@@ -162,7 +164,7 @@ func (ecommerce *Ecommerce) UpdateSettings(Ss CreateSettingReq) error {
 }
 
 // Create Currency
-func (ecommerce *Ecommerce) CreateCurrency(Cc CreateCurrencyReq) error {
+func (ecommerce *Ecommerce) CreateCurrency(Cc CreateCurrencyReq, tenantid int) error {
 
 	if AuthErr := AuthandPermission(ecommerce); AuthErr != nil {
 
@@ -183,6 +185,8 @@ func (ecommerce *Ecommerce) CreateCurrency(Cc CreateCurrencyReq) error {
 
 	currency.IsActive = Cc.IsActive
 
+	currency.TenantId = Cc.TenantId
+
 	currency.CreatedOn, _ = time.Parse("2006-01-02 15:04:05", time.Now().UTC().Format("2006-01-02 15:04:05"))
 
 	if currency.CurrencyDefault != 0 {
@@ -202,7 +206,7 @@ func (ecommerce *Ecommerce) CreateCurrency(Cc CreateCurrencyReq) error {
 			}
 		} else if money.CurrencyName != "" {
 
-			err1 := Ecommercemodel.ChangeDefaultValue(money.Id, ecommerce.DB)
+			err1 := Ecommercemodel.ChangeDefaultValue(money.Id, ecommerce.DB, tenantid)
 
 			if err1 != nil {
 
@@ -228,7 +232,7 @@ func (ecommerce *Ecommerce) CreateCurrency(Cc CreateCurrencyReq) error {
 }
 
 // Update Currency
-func (ecommerce *Ecommerce) UpdateCurrency(Cc CreateCurrencyReq) error {
+func (ecommerce *Ecommerce) UpdateCurrency(Cc CreateCurrencyReq, tenantid int) error {
 
 	if AuthErr := AuthandPermission(ecommerce); AuthErr != nil {
 
@@ -261,14 +265,14 @@ func (ecommerce *Ecommerce) UpdateCurrency(Cc CreateCurrencyReq) error {
 
 		if money.CurrencyName != "" {
 
-			err1 := Ecommercemodel.ChangeDefaultValue(money.Id, ecommerce.DB)
+			err1 := Ecommercemodel.ChangeDefaultValue(money.Id, ecommerce.DB, tenantid)
 
 			if err1 != nil {
 
 				log.Println(err1)
 			}
 
-			err := Ecommercemodel.UpdateCurrency(currency, ecommerce.DB)
+			err := Ecommercemodel.UpdateCurrency(currency, ecommerce.DB, tenantid)
 
 			if err != nil {
 				log.Println(err)
@@ -277,7 +281,7 @@ func (ecommerce *Ecommerce) UpdateCurrency(Cc CreateCurrencyReq) error {
 
 	} else {
 
-		err := Ecommercemodel.UpdateCurrency(currency, ecommerce.DB)
+		err := Ecommercemodel.UpdateCurrency(currency, ecommerce.DB, tenantid)
 		if err != nil {
 			log.Println(err)
 		}
@@ -288,7 +292,7 @@ func (ecommerce *Ecommerce) UpdateCurrency(Cc CreateCurrencyReq) error {
 
 //Delete Currency
 
-func (ecommerce *Ecommerce) DeleteCurrency(id int, userid int) error {
+func (ecommerce *Ecommerce) DeleteCurrency(id int, userid int, tenantid int) error {
 
 	if AuthErr := AuthandPermission(ecommerce); AuthErr != nil {
 
@@ -304,7 +308,7 @@ func (ecommerce *Ecommerce) DeleteCurrency(id int, userid int) error {
 
 	money.DeletedOn, _ = time.Parse("2006-01-02 15:04:05", time.Now().UTC().Format("2006-01-02 15:04:05"))
 
-	err := Ecommercemodel.CurrencyDelete(money, ecommerce.DB)
+	err := Ecommercemodel.CurrencyDelete(money, ecommerce.DB, tenantid)
 
 	if err != nil {
 		log.Println(err)
@@ -315,7 +319,7 @@ func (ecommerce *Ecommerce) DeleteCurrency(id int, userid int) error {
 
 // Currency IsActive
 
-func (ecommerce *Ecommerce) CurrencyIsActive(Cc CreateCurrencyReq) (flgs bool, err error) {
+func (ecommerce *Ecommerce) CurrencyIsActive(Cc CreateCurrencyReq, tenantid int) (flgs bool, err error) {
 
 	if AuthErr := AuthandPermission(ecommerce); AuthErr != nil {
 
@@ -331,7 +335,7 @@ func (ecommerce *Ecommerce) CurrencyIsActive(Cc CreateCurrencyReq) (flgs bool, e
 
 	money.ModifiedOn, _ = time.Parse("2006-01-02 15:04:05", time.Now().UTC().Format("2006-01-02 15:04:05"))
 
-	flg, err := Ecommercemodel.InActiveCurrency(money, ecommerce.DB)
+	flg, err := Ecommercemodel.InActiveCurrency(money, ecommerce.DB, tenantid)
 
 	if err != nil {
 		log.Println(err)
@@ -364,6 +368,8 @@ func (ecommerce *Ecommerce) StatusCreate(Cs CreateStatusReq) error {
 
 	status.CreatedOn, _ = time.Parse("2006-01-02 15:04:05", time.Now().UTC().Format("2006-01-02 15:04:05"))
 
+	status.TenantId = Cs.TenantId
+
 	err := Ecommercemodel.CreateStatus(status, ecommerce.DB)
 
 	if err != nil {
@@ -374,7 +380,7 @@ func (ecommerce *Ecommerce) StatusCreate(Cs CreateStatusReq) error {
 }
 
 // Update Status
-func (ecommerce *Ecommerce) StatusUpdate(Cs CreateStatusReq) error {
+func (ecommerce *Ecommerce) StatusUpdate(Cs CreateStatusReq, tenantid int) error {
 
 	if AuthErr := AuthandPermission(ecommerce); AuthErr != nil {
 
@@ -396,7 +402,7 @@ func (ecommerce *Ecommerce) StatusUpdate(Cs CreateStatusReq) error {
 
 	status.ModifiedOn, _ = time.Parse("2006-01-02 15:04:05", time.Now().UTC().Format("2006-01-02 15:04:05"))
 
-	err := Ecommercemodel.UpdateStatus(status, ecommerce.DB)
+	err := Ecommercemodel.UpdateStatus(status, ecommerce.DB, tenantid)
 
 	if err != nil {
 		log.Println(err)
@@ -406,7 +412,7 @@ func (ecommerce *Ecommerce) StatusUpdate(Cs CreateStatusReq) error {
 }
 
 // Delete Status
-func (ecommerce *Ecommerce) StatusDelete(id int, userid int) error {
+func (ecommerce *Ecommerce) StatusDelete(id int, userid int, tenantid int) error {
 
 	if AuthErr := AuthandPermission(ecommerce); AuthErr != nil {
 
@@ -423,7 +429,7 @@ func (ecommerce *Ecommerce) StatusDelete(id int, userid int) error {
 
 	status.DeletedOn, _ = time.Parse("2006-01-02 15:04:05", time.Now().UTC().Format("2006-01-02 15:04:05"))
 
-	err := Ecommercemodel.DeleteStatus(status, ecommerce.DB)
+	err := Ecommercemodel.DeleteStatus(status, ecommerce.DB, tenantid)
 
 	if err != nil {
 		log.Println(err)
@@ -433,7 +439,7 @@ func (ecommerce *Ecommerce) StatusDelete(id int, userid int) error {
 }
 
 // Status IsActive
-func (ecommerce *Ecommerce) StatusIsActive(Cs CreateStatusReq) (flgs bool, err error) {
+func (ecommerce *Ecommerce) StatusIsActive(Cs CreateStatusReq, tenantid int) (flgs bool, err error) {
 
 	if AuthErr := AuthandPermission(ecommerce); AuthErr != nil {
 
@@ -450,7 +456,7 @@ func (ecommerce *Ecommerce) StatusIsActive(Cs CreateStatusReq) (flgs bool, err e
 
 	status.ModifiedOn, _ = time.Parse("2006-01-02 15:04:05", time.Now().UTC().Format("2006-01-02 15:04:05"))
 
-	flg, err := Ecommercemodel.OrderStatusIsActive(status, ecommerce.DB)
+	flg, err := Ecommercemodel.OrderStatusIsActive(status, ecommerce.DB, tenantid)
 
 	if err != nil {
 		log.Println(err)
@@ -482,6 +488,8 @@ func (ecommerce *Ecommerce) CreatePayment(Cp CreatePaymentReq) error {
 
 	pay.CreatedOn, _ = time.Parse("2006-01-02 15:04:05", time.Now().UTC().Format("2006-01-02 15:04:05"))
 
+	pay.TenantId = Cp.TenantId
+
 	err := Ecommercemodel.PaymentCreate(pay, ecommerce.DB)
 
 	if err != nil {
@@ -492,7 +500,7 @@ func (ecommerce *Ecommerce) CreatePayment(Cp CreatePaymentReq) error {
 }
 
 // Update Payment
-func (ecommerce *Ecommerce) UpdatePayment(Cp CreatePaymentReq) error {
+func (ecommerce *Ecommerce) UpdatePayment(Cp CreatePaymentReq, tenantid int) error {
 
 	if AuthErr := AuthandPermission(ecommerce); AuthErr != nil {
 
@@ -513,7 +521,7 @@ func (ecommerce *Ecommerce) UpdatePayment(Cp CreatePaymentReq) error {
 
 	pay.ModifiedOn, _ = time.Parse("2006-01-02 15:04:05", time.Now().UTC().Format("2006-01-02 15:04:05"))
 
-	err := Ecommercemodel.UpdatePayment(pay, ecommerce.DB)
+	err := Ecommercemodel.UpdatePayment(pay, ecommerce.DB, tenantid)
 
 	if err != nil {
 		log.Println(err)
@@ -523,7 +531,7 @@ func (ecommerce *Ecommerce) UpdatePayment(Cp CreatePaymentReq) error {
 }
 
 // Delete Payment
-func (ecommerce *Ecommerce) DeletePayment(id int, userid int) error {
+func (ecommerce *Ecommerce) DeletePayment(id int, userid int, tenantid int) error {
 
 	if AuthErr := AuthandPermission(ecommerce); AuthErr != nil {
 
@@ -540,7 +548,7 @@ func (ecommerce *Ecommerce) DeletePayment(id int, userid int) error {
 
 	pay.DeletedBy = userid
 
-	err := Ecommercemodel.DeletePayment(pay, ecommerce.DB)
+	err := Ecommercemodel.DeletePayment(pay, ecommerce.DB, tenantid)
 
 	if err != nil {
 		log.Println(err)
@@ -550,7 +558,7 @@ func (ecommerce *Ecommerce) DeletePayment(id int, userid int) error {
 }
 
 // Payment isactive
-func (ecommerce *Ecommerce) PaymentIsActive(Cp CreatePaymentReq) (flgs bool, err error) {
+func (ecommerce *Ecommerce) PaymentIsActive(Cp CreatePaymentReq, tenantid int) (flgs bool, err error) {
 
 	if AuthErr := AuthandPermission(ecommerce); AuthErr != nil {
 
@@ -566,7 +574,7 @@ func (ecommerce *Ecommerce) PaymentIsActive(Cp CreatePaymentReq) (flgs bool, err
 
 	pay.ModifiedOn, _ = time.Parse("2006-01-02 15:04:05", time.Now().UTC().Format("2006-01-02 15:04:05"))
 
-	flg, err := Ecommercemodel.PaymentIsActive(pay, ecommerce.DB)
+	flg, err := Ecommercemodel.PaymentIsActive(pay, ecommerce.DB, tenantid)
 
 	if err != nil {
 		log.Println(err)
@@ -578,14 +586,14 @@ func (ecommerce *Ecommerce) PaymentIsActive(Cp CreatePaymentReq) (flgs bool, err
 
 // Edit Currency
 
-func (ecommerce *Ecommerce) EditCurrency(id int) (currencys TblEcomCurrency, err error) {
+func (ecommerce *Ecommerce) EditCurrency(id int, tenantid int) (currencys TblEcomCurrency, err error) {
 
 	if AuthErr := AuthandPermission(ecommerce); AuthErr != nil {
 
 		return TblEcomCurrency{}, AuthErr
 	}
 
-	currency, err := Ecommercemodel.CurrencyGet(id, ecommerce.DB)
+	currency, err := Ecommercemodel.CurrencyGet(id, ecommerce.DB, tenantid)
 
 	if err != nil {
 		log.Println(err)
@@ -595,13 +603,13 @@ func (ecommerce *Ecommerce) EditCurrency(id int) (currencys TblEcomCurrency, err
 }
 
 // Edit Payment
-func (ecommerce *Ecommerce) EditPayment(id int) (payments TblEcomPayment, err error) {
+func (ecommerce *Ecommerce) EditPayment(id int, tenantid int) (payments TblEcomPayment, err error) {
 
 	if AuthErr := AuthandPermission(ecommerce); AuthErr != nil {
 
 		return TblEcomPayment{}, AuthErr
 	}
-	payment, err := Ecommercemodel.PaymentGet(id, ecommerce.DB)
+	payment, err := Ecommercemodel.PaymentGet(id, ecommerce.DB, tenantid)
 
 	if err != nil {
 		log.Println(err)
@@ -611,13 +619,13 @@ func (ecommerce *Ecommerce) EditPayment(id int) (payments TblEcomPayment, err er
 }
 
 // Edit Status
-func (ecommerce *Ecommerce) EditStatus(id int) (statuss TblEcomStatus, err error) {
+func (ecommerce *Ecommerce) EditStatus(id int, tenantid int) (statuss TblEcomStatus, err error) {
 
 	if AuthErr := AuthandPermission(ecommerce); AuthErr != nil {
 
 		return TblEcomStatus{}, AuthErr
 	}
-	status, err := Ecommercemodel.StatusGet(id, ecommerce.DB)
+	status, err := Ecommercemodel.StatusGet(id, ecommerce.DB, tenantid)
 
 	if err != nil {
 		log.Println(err)
@@ -628,7 +636,7 @@ func (ecommerce *Ecommerce) EditStatus(id int) (statuss TblEcomStatus, err error
 
 // Check Currency Name
 
-func (ecommerce *Ecommerce) CheckCurrencyName(id int, name string) (flgs bool, err error) {
+func (ecommerce *Ecommerce) CheckCurrencyName(id int, name string, tenantid int) (flgs bool, err error) {
 
 	if AuthErr := AuthandPermission(ecommerce); AuthErr != nil {
 
@@ -637,7 +645,7 @@ func (ecommerce *Ecommerce) CheckCurrencyName(id int, name string) (flgs bool, e
 
 	var currency TblEcomCurrency
 
-	flg, err := Ecommercemodel.CheckCurrencyName(id, name, currency, ecommerce.DB)
+	flg, err := Ecommercemodel.CheckCurrencyName(id, name, currency, ecommerce.DB, tenantid)
 
 	if err != nil {
 		log.Println(err)
@@ -648,7 +656,7 @@ func (ecommerce *Ecommerce) CheckCurrencyName(id int, name string) (flgs bool, e
 }
 
 // CheckCurrencyType
-func (ecommerce *Ecommerce) CheckCurrencyType(id int, currencytype string) (flgs bool, err error) {
+func (ecommerce *Ecommerce) CheckCurrencyType(id int, currencytype string, tenantid int) (flgs bool, err error) {
 
 	if AuthErr := AuthandPermission(ecommerce); AuthErr != nil {
 
@@ -656,7 +664,7 @@ func (ecommerce *Ecommerce) CheckCurrencyType(id int, currencytype string) (flgs
 	}
 	var currency TblEcomCurrency
 
-	flg, err := Ecommercemodel.CheckCurrencyType(id, currencytype, currency, ecommerce.DB)
+	flg, err := Ecommercemodel.CheckCurrencyType(id, currencytype, currency, ecommerce.DB, tenantid)
 
 	if err != nil {
 		log.Println(err)
@@ -668,7 +676,7 @@ func (ecommerce *Ecommerce) CheckCurrencyType(id int, currencytype string) (flgs
 
 // Check Currecy symbol
 
-func (ecommerce *Ecommerce) CheckCurrencySymbol(id int, csymbol string) (flgs bool, err error) {
+func (ecommerce *Ecommerce) CheckCurrencySymbol(id int, csymbol string, tenantid int) (flgs bool, err error) {
 
 	if AuthErr := AuthandPermission(ecommerce); AuthErr != nil {
 
@@ -676,7 +684,7 @@ func (ecommerce *Ecommerce) CheckCurrencySymbol(id int, csymbol string) (flgs bo
 	}
 	var currency TblEcomCurrency
 
-	flg, err := Ecommercemodel.CheckCurrencySymbol(id, csymbol, currency, ecommerce.DB)
+	flg, err := Ecommercemodel.CheckCurrencySymbol(id, csymbol, currency, ecommerce.DB, tenantid)
 
 	if err != nil {
 		log.Println(err)
@@ -688,7 +696,7 @@ func (ecommerce *Ecommerce) CheckCurrencySymbol(id int, csymbol string) (flgs bo
 
 // Check Status Name
 
-func (ecommerce *Ecommerce) CheckStatusName(id int, name string) (flgs bool, err error) {
+func (ecommerce *Ecommerce) CheckStatusName(id int, name string, tenantid int) (flgs bool, err error) {
 
 	if AuthErr := AuthandPermission(ecommerce); AuthErr != nil {
 
@@ -696,7 +704,7 @@ func (ecommerce *Ecommerce) CheckStatusName(id int, name string) (flgs bool, err
 	}
 	var status TblEcomStatus
 
-	flg, err := Ecommercemodel.CheckStatusName(id, name, status, ecommerce.DB)
+	flg, err := Ecommercemodel.CheckStatusName(id, name, status, ecommerce.DB, tenantid)
 
 	if err != nil {
 
@@ -706,7 +714,7 @@ func (ecommerce *Ecommerce) CheckStatusName(id int, name string) (flgs bool, err
 	return flg, nil
 }
 
-func (ecommerce *Ecommerce) CheckPaymentName(id int, name string) (flgs bool, err error) {
+func (ecommerce *Ecommerce) CheckPaymentName(id int, name string, tenantid int) (flgs bool, err error) {
 
 	if AuthErr := AuthandPermission(ecommerce); AuthErr != nil {
 
@@ -714,7 +722,7 @@ func (ecommerce *Ecommerce) CheckPaymentName(id int, name string) (flgs bool, er
 	}
 	var payment TblEcomPayment
 
-	flg, err := Ecommercemodel.CheckPaymentName(id, name, payment, ecommerce.DB)
+	flg, err := Ecommercemodel.CheckPaymentName(id, name, payment, ecommerce.DB, tenantid)
 
 	if err != nil {
 		log.Println(err)
@@ -725,7 +733,7 @@ func (ecommerce *Ecommerce) CheckPaymentName(id int, name string) (flgs bool, er
 	return flg, nil
 }
 
-func (ecommerce *Ecommerce) CheckStatusPriority(id int, priority int) (flgs bool, err error) {
+func (ecommerce *Ecommerce) CheckStatusPriority(id int, priority int, tenantid int) (flgs bool, err error) {
 
 	if AuthErr := AuthandPermission(ecommerce); AuthErr != nil {
 
@@ -733,7 +741,7 @@ func (ecommerce *Ecommerce) CheckStatusPriority(id int, priority int) (flgs bool
 	}
 	var status TblEcomStatus
 
-	flg, err := Ecommercemodel.CheckStatusPriority(id, priority, status, ecommerce.DB)
+	flg, err := Ecommercemodel.CheckStatusPriority(id, priority, status, ecommerce.DB, tenantid)
 
 	if err != nil {
 		log.Println(err)

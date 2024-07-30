@@ -63,7 +63,7 @@ func TestCustomerList(t *testing.T) {
 
 	Auth.VerifyToken(token, SecretKey)
 
-	permisison, _ := Auth.IsGranted("Customer", auth.CRUD)
+	permisison, _ := Auth.IsGranted("Customer", auth.CRUD, TenantId)
 
 	ecommerce := EcommerceSetup(Config{
 		DB:               db,
@@ -74,7 +74,7 @@ func TestCustomerList(t *testing.T) {
 
 	if permisison {
 
-		customer, count, err := ecommerce.CustomerList(10, 0, Filter{})
+		customer, count, err := ecommerce.CustomerList(10, 0, Filter{}, 1)
 
 		if err != nil {
 
@@ -111,7 +111,7 @@ func TestCreateCustomer(t *testing.T) {
 
 	Auth.VerifyToken(token, SecretKey)
 
-	permisison, _ := Auth.IsGranted("Customer", auth.CRUD)
+	permisison, _ := Auth.IsGranted("Customer", auth.CRUD, TenantId)
 
 	ecommerce := EcommerceSetup(Config{
 		DB:               db,
@@ -158,7 +158,7 @@ func TestEditCustomer(t *testing.T) {
 
 	Auth.VerifyToken(token, SecretKey)
 
-	permisison, _ := Auth.IsGranted("Customer", auth.CRUD)
+	permisison, _ := Auth.IsGranted("Customer", auth.CRUD, TenantId)
 
 	ecommerce := EcommerceSetup(Config{
 		DB:               db,
@@ -171,7 +171,7 @@ func TestEditCustomer(t *testing.T) {
 
 	if permisison {
 
-		customer, err := ecommerce.EditCustomer(id)
+		customer, err := ecommerce.EditCustomer(id, 1)
 
 		if err != nil {
 
@@ -209,7 +209,7 @@ func TestUpdateCustomer(t *testing.T) {
 
 	Auth.VerifyToken(token, SecretKey)
 
-	permisison, _ := Auth.IsGranted("Customer", auth.CRUD)
+	permisison, _ := Auth.IsGranted("Customer", auth.CRUD, TenantId)
 
 	ecommerce := EcommerceSetup(Config{
 		DB:               db,
@@ -255,7 +255,7 @@ func TestDeleteCustomer(t *testing.T) {
 
 	Auth.VerifyToken(token, SecretKey)
 
-	permisison, _ := Auth.IsGranted("Customer", auth.CRUD)
+	permisison, _ := Auth.IsGranted("Customer", auth.CRUD, TenantId)
 
 	ecommerce := EcommerceSetup(Config{
 		DB:               db,
@@ -269,7 +269,7 @@ func TestDeleteCustomer(t *testing.T) {
 
 	if permisison {
 
-		err := ecommerce.DeleteCustomer(id, deletedby)
+		err := ecommerce.DeleteCustomer(id, deletedby, 1)
 
 		if err != nil {
 
@@ -304,7 +304,7 @@ func TestMultiSelectCustomerDelete(t *testing.T) {
 
 	Auth.VerifyToken(token, SecretKey)
 
-	permisison, _ := Auth.IsGranted("Customer", auth.CRUD)
+	permisison, _ := Auth.IsGranted("Customer", auth.CRUD, TenantId)
 
 	ecommerce := EcommerceSetup(Config{
 		DB:               db,
@@ -318,7 +318,7 @@ func TestMultiSelectCustomerDelete(t *testing.T) {
 
 	if permisison {
 
-		flg, err := ecommerce.MultiSelectCustomerDelete(id, deletedby)
+		flg, err := ecommerce.MultiSelectCustomerDelete(id, deletedby, 1)
 
 		if err != nil {
 
@@ -355,7 +355,7 @@ func TestMultiSelectCustomersStatus(t *testing.T) {
 
 	Auth.VerifyToken(token, SecretKey)
 
-	permisison, _ := Auth.IsGranted("Customer", auth.CRUD)
+	permisison, _ := Auth.IsGranted("Customer", auth.CRUD, TenantId)
 
 	ecommerce := EcommerceSetup(Config{
 		DB:               db,
@@ -370,7 +370,7 @@ func TestMultiSelectCustomersStatus(t *testing.T) {
 
 	if permisison {
 
-		err := ecommerce.MultiSelectCustomersStatus(id, status)
+		err := ecommerce.MultiSelectCustomersStatus(id, status, 1)
 
 		if err != nil {
 
@@ -405,7 +405,7 @@ func TestCheckDuplicateValue(t *testing.T) {
 
 	Auth.VerifyToken(token, SecretKey)
 
-	permisison, _ := Auth.IsGranted("Customer", auth.CRUD)
+	permisison, _ := Auth.IsGranted("Customer", auth.CRUD, TenantId)
 
 	ecommerce := EcommerceSetup(Config{
 		DB:               db,
@@ -420,7 +420,7 @@ func TestCheckDuplicateValue(t *testing.T) {
 
 	if permisison {
 
-		flg, err := ecommerce.CheckDuplicateValue(id, name, email, mobileno)
+		flg, err := ecommerce.CheckDuplicateValue(id, name, email, mobileno, 1)
 
 		if err != nil {
 
@@ -456,7 +456,7 @@ func TestCustomerOrderInfo(t *testing.T) {
 
 	Auth.VerifyToken(token, SecretKey)
 
-	permisison, _ := Auth.IsGranted("Customer", auth.CRUD)
+	permisison, _ := Auth.IsGranted("Customer", auth.CRUD, TenantId)
 
 	ecommerce := EcommerceSetup(Config{
 		DB:               db,
@@ -468,7 +468,7 @@ func TestCustomerOrderInfo(t *testing.T) {
 
 	if permisison {
 
-		product, cusinfo, address, status, err := ecommerce.CustomerOrderInfo(id)
+		product, cusinfo, address, status, err := ecommerce.CustomerOrderInfo(id, 1)
 
 		if err != nil {
 
@@ -505,7 +505,7 @@ func TestCustomerInfo(t *testing.T) {
 
 	Auth.VerifyToken(token, SecretKey)
 
-	permisison, _ := Auth.IsGranted("Customer", auth.CRUD)
+	permisison, _ := Auth.IsGranted("Customer", auth.CRUD, TenantId)
 
 	ecommerce := EcommerceSetup(Config{
 		DB:               db,
@@ -516,7 +516,7 @@ func TestCustomerInfo(t *testing.T) {
 
 	if permisison {
 
-		customer, product, ordercount, err := ecommerce.CustomerInfo(10, 0, 1)
+		customer, product, ordercount, err := ecommerce.CustomerInfo(10, 0, 1, 1)
 
 		if err != nil {
 

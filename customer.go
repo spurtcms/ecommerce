@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/spurtcms/ecommerce/migration"
 	"github.com/spurtcms/member"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -22,10 +23,119 @@ type ShippingAddress struct {
 	States  string `json:"states"`
 }
 
+type TblEcomCustomer struct {
+	Id               int       `gorm:"primaryKey;auto_increment;type:serial"`
+	MemberId         int       `gorm:"type:integer"`
+	FirstName        string    `gorm:"type:character varying"`
+	LastName         string    `gorm:"type:character varying"`
+	Email            string    `gorm:"type:character varying"`
+	MobileNo         string    `gorm:"type:character varying"`
+	Username         string    `gorm:"type:character varying"`
+	Password         string    `gorm:"type:character varying"`
+	StreetAddress    string    `gorm:"type:character varying"`
+	City             string    `gorm:"type:character varying"`
+	State            string    `gorm:"type:character varying"`
+	Country          string    `gorm:"type:character varying"`
+	ZipCode          string    `gorm:"type:character varying"`
+	IsActive         int       `gorm:"type:integer"`
+	CreatedOn        time.Time `gorm:"type:timestamp without time zone;DEFAULT:NULL"`
+	CreatedBy        int       `gorm:"type:integer"`
+	ModifiedOn       time.Time `gorm:"type:timestamp without time zone;DEFAULT:NULL"`
+	ModifiedBy       int       `gorm:"DEFAULT:NULL"`
+	IsDeleted        int       `gorm:"type:integer"`
+	DeletedOn        time.Time `gorm:"type:timestamp without time zone;DEFAULT:NULL"`
+	DeletedBy        int       `gorm:"type:integer;DEFAULT:NULL"`
+	Count            int       `gorm:"-:migration;<-:false"`
+	ProfileImage     string    `gorm:"type:character varying"`
+	ProfileImagePath string    `gorm:"type:character varying"`
+	NameString       string    `gorm:"-:migration;<-:false"`
+	ShippingAddress  string    `gorm:"-:migration;<-:false"`
+	TenantId         int       `gorm:"type:integer"`
+}
+
+type TblEcomProduct struct {
+	Id                 int `gorm:"primaryKey;auto_increment;type:serial"`
+	CategoriesId       string
+	ProductName        string
+	ProductSlug        string
+	ProductDescription string
+	ProductImagePath   string
+	ProductYoutubePath string
+	ProductVimeoPath   string
+	Sku                string
+	ProductPrice       int
+	Tax                int
+	Totalcost          int
+	Priority           int       `gorm:"-:migration;<-:false"`
+	Price              int       `gorm:"-:migration;<-:false"`
+	StartDate          time.Time `gorm:"-:migration;<-:false"`
+	EndDate            time.Time `gorm:"-:migration;<-:false"`
+	Type               string    `gorm:"-:migration;<-:false"`
+	Quantity           int       `gorm:"-:migration;<-:false"`
+	Order_id           int       `gorm:"-:migration;<-:false"`
+	Product_id         int       `gorm:"-:migration;<-:false"`
+	Quantityprice      int       `gorm:"-:migration;<-:false"`
+	IsActive           int
+	Stock              int
+	CreatedOn          time.Time `gorm:"type:timestamp without time zone;DEFAULT:NULL"`
+	CreatedBy          int       `gorm:"DEFAULT:NULL"`
+	ModifiedOn         time.Time `gorm:"type:timestamp without time zone;DEFAULT:NULL"`
+	ModifiedBy         int       `gorm:"DEFAULT:NULL"`
+	IsDeleted          int       `gorm:"DEFAULT:0"`
+	DeletedOn          time.Time `gorm:"type:timestamp without time zone;DEFAULT:NULL"`
+	DeletedBy          int       `gorm:"type:integer;DEFAULT:NULL"`
+	Imgpath            []string  `gorm:"-"`
+	TenantId           int       `gorm:"type:integer"`
+}
+
+type TblEcomProductOrder struct {
+	Id              int                  `gorm:"primaryKey;auto_increment;type:serial"`
+	Uuid            string               `gorm:"type:character varying"`
+	CustomerId      int                  `gorm:"type:integer"`
+	OrderStatus     int                  `gorm:"type:integer"`
+	ShippingAddress string               `gorm:"type:character varying"`
+	IsDeleted       int                  `gorm:"type:integer"`
+	Username        string               `gorm:"-:migration;<-:false"`
+	Email           string               `gorm:"-:migration;<-:false"`
+	MobileNo        string               `gorm:"-:migration;<-:false"`
+	StreetAddress   string               `gorm:"-:migration;<-:false"`
+	City            string               `gorm:"-:migration;<-:false"`
+	State           string               `gorm:"-:migration;<-:false"`
+	Country         string               `gorm:"-:migration;<-:false"`
+	ZipCode         string               `gorm:"-:migration;<-:false"`
+	CreatedOn       time.Time            `gorm:"type:timestamp without time zone;DEFAULT:NULL"`
+	ModifiedOn      time.Time            `gorm:"type:timestamp without time zone;DEFAULT:NULL"`
+	ModifiedDate    string               `gorm:"-:migration"`
+	CreatedDate     string               `gorm:"-:migration"`
+	Price           int                  `gorm:"type:integer"`
+	Tax             int                  `gorm:"type:integer"`
+	TotalCost       int                  `gorm:"type:integer"`
+	FirstName       string               `gorm:"-:migration;<-:false"`
+	LastName        string               `gorm:"-:migration;<-:false"`
+	NameString      string               `gorm:"-:migration;<-:false"`
+	Orders          []TblEcomOrderStatus `gorm:"foreignKey:OrderId;references:Id"`
+	StatusValue     string               `gorm:"-:migration;<-:false"`
+	StatusPriority  int                  `gorm:"-:migration;<-:false"`
+	StatusColor     string               `gorm:"-:migration;<-:false"`
+	DeletedOn       time.Time            `gorm:"type:timestamp without time zone;DEFAULT:NULL"`
+	DeletedBy       int                  `gorm:"type:integer;DEFAULT:NULL"`
+	TenantId        int                  `gorm:"type:integer"`
+}
+
+type TblEcomOrderStatus struct {
+	Id          int       `gorm:"primaryKey;auto_increment;type:serial"`
+	OrderId     int       `gorm:"type:integer"`
+	OrderStatus int       `gorm:"type:integer"`
+	CreatedBy   int       `gorm:"type:integer"`
+	CreatedOn   time.Time `gorm:"type:timestamp without time zone;DEFAULT:NULL"`
+	CreatedDate string    `gorm:"-:migration;<-:false"`
+	TenantId    int       `gorm:"type:integer"`
+}
+
 // EcommerceSetup used initialize Ecommerce configruation
 func EcommerceSetup(config Config) *Ecommerce {
 
-	// MigrateTables(config.DB)
+	migration.AutoMigration(config.DB, config.DataBaseType)
 
 	return &Ecommerce{
 		AuthEnable:       config.AuthEnable,
@@ -46,7 +156,7 @@ func (ecommerce *Ecommerce) DBconf() *member.Member {
 
 // Customers list
 
-func (ecommerce *Ecommerce) CustomerList(limit, offset int, filter Filter) (customer []TblEcomCustomer, count int64, err error) {
+func (ecommerce *Ecommerce) CustomerList(limit, offset int, filter Filter, tenantid int) (customer []TblEcomCustomer, count int64, err error) {
 
 	if AuthErr := AuthandPermission(ecommerce); AuthErr != nil {
 
@@ -57,9 +167,9 @@ func (ecommerce *Ecommerce) CustomerList(limit, offset int, filter Filter) (cust
 
 	Ecommercemodel.UserId = ecommerce.UserId
 
-	customerlist, _, _ := Ecommercemodel.CustomersList(offset, limit, filter, ecommerce.DB)
+	customerlist, _, _ := Ecommercemodel.CustomersList(offset, limit, filter, ecommerce.DB, tenantid)
 
-	_, totalcount, _ := Ecommercemodel.CustomersList(0, 0, filter, ecommerce.DB)
+	_, totalcount, _ := Ecommercemodel.CustomersList(0, 0, filter, ecommerce.DB, tenantid)
 
 	var finalcustomerlist []TblEcomCustomer
 
@@ -122,6 +232,8 @@ func (ecommerce *Ecommerce) CreateMember(Cc CreateCustomerReq) (ccmember member.
 		Password: Cc.Password,
 
 		CreatedBy: Cc.CreatedBy,
+
+		TenantId: Cc.TenantId,
 	})
 
 	if err != nil {
@@ -162,6 +274,8 @@ func (ecommerce *Ecommerce) UpdateMember(Cc CreateCustomerReq, memberid int) err
 		Password: Cc.Password,
 
 		ModifiedBy: Cc.CreatedBy,
+
+		TenantId: Cc.TenantId,
 	}, memberid)
 
 	if err != nil {
@@ -222,6 +336,8 @@ func (ecommerce *Ecommerce) CreateCustomer(Cc CreateCustomerReq) error {
 
 	ccustomer.CreatedOn, _ = time.Parse("2006-01-02 15:04:05", time.Now().UTC().Format("2006-01-02 15:04:05"))
 
+	ccustomer.TenantId = Cc.TenantId
+
 	err1 := Ecommercemodel.CustomerCreate(ccustomer, ecommerce.DB)
 
 	if err1 != nil {
@@ -234,14 +350,14 @@ func (ecommerce *Ecommerce) CreateCustomer(Cc CreateCustomerReq) error {
 
 // Edit Customer
 
-func (ecommerce *Ecommerce) EditCustomer(id int) (customers TblEcomCustomer, err error) {
+func (ecommerce *Ecommerce) EditCustomer(id int, tenantid int) (customers TblEcomCustomer, err error) {
 
 	if AuthErr := AuthandPermission(ecommerce); AuthErr != nil {
 
 		return TblEcomCustomer{}, AuthErr
 	}
 
-	customer, err := Ecommercemodel.CustomerEdit(id, ecommerce.DB)
+	customer, err := Ecommercemodel.CustomerEdit(id, ecommerce.DB, tenantid)
 
 	if err != nil {
 		return TblEcomCustomer{}, err
@@ -330,7 +446,7 @@ func (ecommerce *Ecommerce) UpdateCustomer(Cc CreateCustomerReq) error {
 
 // Delete Particular customer id
 
-func (ecommerce *Ecommerce) DeleteCustomer(id int, deletedby int) error {
+func (ecommerce *Ecommerce) DeleteCustomer(id int, deletedby int, tenantid int) error {
 
 	if AuthErr := AuthandPermission(ecommerce); AuthErr != nil {
 
@@ -345,7 +461,7 @@ func (ecommerce *Ecommerce) DeleteCustomer(id int, deletedby int) error {
 
 	customer.DeletedOn, _ = time.Parse("2006-01-02 15:04:05", time.Now().UTC().Format("2006-01-02 15:04:05"))
 
-	err1 := Ecommercemodel.CustomerDelete(customer, ecommerce.DB)
+	err1 := Ecommercemodel.CustomerDelete(customer, ecommerce.DB, tenantid)
 
 	if err1 != nil {
 		return err1
@@ -356,7 +472,7 @@ func (ecommerce *Ecommerce) DeleteCustomer(id int, deletedby int) error {
 }
 
 // multi customer delete
-func (ecommerce *Ecommerce) MultiSelectCustomerDelete(id []int, deletedby int) (flgs bool, err error) {
+func (ecommerce *Ecommerce) MultiSelectCustomerDelete(id []int, deletedby int, tenantid int) (flgs bool, err error) {
 
 	if AuthErr := AuthandPermission(ecommerce); AuthErr != nil {
 
@@ -371,7 +487,7 @@ func (ecommerce *Ecommerce) MultiSelectCustomerDelete(id []int, deletedby int) (
 
 	customer.DeletedOn, _ = time.Parse("2006-01-02 15:04:05", time.Now().UTC().Format("2006-01-02 15:04:05"))
 
-	flg, err1 := Ecommercemodel.MultiSelectDeleteCustomers(customer, id, ecommerce.DB)
+	flg, err1 := Ecommercemodel.MultiSelectDeleteCustomers(customer, id, ecommerce.DB, tenantid)
 
 	if err1 != nil {
 		return false, err1
@@ -381,7 +497,7 @@ func (ecommerce *Ecommerce) MultiSelectCustomerDelete(id []int, deletedby int) (
 }
 
 // multi customer status change
-func (ecommerce *Ecommerce) MultiSelectCustomersStatus(customerid []int, status int) error {
+func (ecommerce *Ecommerce) MultiSelectCustomersStatus(customerid []int, status int, tenantid int) error {
 
 	if AuthErr := AuthandPermission(ecommerce); AuthErr != nil {
 
@@ -394,7 +510,7 @@ func (ecommerce *Ecommerce) MultiSelectCustomersStatus(customerid []int, status 
 
 	customer.ModifiedOn, _ = time.Parse("2006-01-02 15:04:05", time.Now().UTC().Format("2006-01-02 15:04:05"))
 
-	err := Ecommercemodel.MultiSelectCustomerIsactive(customer, customerid, ecommerce.DB)
+	err := Ecommercemodel.MultiSelectCustomerIsactive(customer, customerid, ecommerce.DB, tenantid)
 
 	if err != nil {
 		return err
@@ -404,7 +520,7 @@ func (ecommerce *Ecommerce) MultiSelectCustomersStatus(customerid []int, status 
 }
 
 // To Check email , username, mobileno ia already exists
-func (ecommerce *Ecommerce) CheckDuplicateValue(memberid int, email string, username string, mobileno string) (bool, error) {
+func (ecommerce *Ecommerce) CheckDuplicateValue(memberid int, email string, username string, mobileno string, tenantid int) (bool, error) {
 
 	if AuthErr := AuthandPermission(ecommerce); AuthErr != nil {
 
@@ -413,11 +529,11 @@ func (ecommerce *Ecommerce) CheckDuplicateValue(memberid int, email string, user
 
 	db := ecommerce.DBconf()
 
-	flag, err := db.CheckEmailInMember(memberid, email)
+	flag, err := db.CheckEmailInMember(memberid, email, tenantid)
 
-	flag1, err1 := db.CheckNameInMember(memberid, email)
+	flag1, err1 := db.CheckNameInMember(memberid, email, tenantid)
 
-	flag2, err2 := db.CheckNumberInMember(memberid, mobileno)
+	flag2, err2 := db.CheckNumberInMember(memberid, mobileno, tenantid)
 
 	// flags := map[string]bool{
 	// 	"emailflag":  flag,
@@ -442,13 +558,13 @@ func (ecommerce *Ecommerce) CheckDuplicateValue(memberid int, email string, user
 }
 
 // To Get Customer order info details
-func (ecommerce *Ecommerce) CustomerOrderInfo(uuid string) (productorder []TblEcomProduct, order TblEcomProductOrder, address ShippingAddress, statusdetails []TblEcomOrderStatus, err error) {
+func (ecommerce *Ecommerce) CustomerOrderInfo(uuid string, tenantid int) (productorder []TblEcomProduct, order TblEcomProductOrder, address ShippingAddress, statusdetails []TblEcomOrderStatus, err error) {
 
 	if AuthErr := AuthandPermission(ecommerce); AuthErr != nil {
 
 		return []TblEcomProduct{}, TblEcomProductOrder{}, ShippingAddress{}, []TblEcomOrderStatus{}, AuthErr
 	}
-	cusinfo, err := Ecommercemodel.GetOrderDetailsbyuuid(uuid, ecommerce.DB)
+	cusinfo, err := Ecommercemodel.GetOrderDetailsbyuuid(uuid, ecommerce.DB, tenantid)
 
 	log.Println("cusinfo", cusinfo)
 
@@ -477,13 +593,13 @@ func (ecommerce *Ecommerce) CustomerOrderInfo(uuid string) (productorder []TblEc
 
 	orderid := cusinfo.Id
 	// To get order stauts is particular id
-	statusdetails, err6 := Ecommercemodel.OrderStatusDetails(uuid, ecommerce.DB)
+	statusdetails, err6 := Ecommercemodel.OrderStatusDetails(uuid, ecommerce.DB, tenantid)
 
 	if err6 != nil {
 		log.Println(err6)
 	}
 
-	productinfo, err1 := Ecommercemodel.GetProductdetailsByOrderId(orderid, ecommerce.DB)
+	productinfo, err1 := Ecommercemodel.GetProductdetailsByOrderId(orderid, ecommerce.DB, tenantid)
 
 	if err1 != nil {
 
@@ -498,7 +614,7 @@ func (ecommerce *Ecommerce) CustomerOrderInfo(uuid string) (productorder []TblEc
 
 	}
 
-	productdetails, err2 := Ecommercemodel.GetProductdetailsByProductId(product_id, ecommerce.DB)
+	productdetails, err2 := Ecommercemodel.GetProductdetailsByProductId(product_id, ecommerce.DB, tenantid)
 
 	if err2 != nil {
 		return []TblEcomProduct{}, TblEcomProductOrder{}, ShippingAddress{}, []TblEcomOrderStatus{}, err2
@@ -554,14 +670,14 @@ func (ecommerce *Ecommerce) CustomerOrderInfo(uuid string) (productorder []TblEc
 }
 
 // To get customer details
-func (ecommerce *Ecommerce) CustomerInfo(limit, offset, customerid int) (customers TblEcomCustomer, products []TblEcomProductOrder, totalcount int64, err error) {
+func (ecommerce *Ecommerce) CustomerInfo(limit, offset, customerid int, tenantid int) (customers TblEcomCustomer, products []TblEcomProductOrder, totalcount int64, err error) {
 
 	if AuthErr := AuthandPermission(ecommerce); AuthErr != nil {
 
 		return TblEcomCustomer{}, []TblEcomProductOrder{}, 0, AuthErr
 	}
 
-	customer, err := Ecommercemodel.GetCustomerDetails(customerid, ecommerce.DB)
+	customer, err := Ecommercemodel.GetCustomerDetails(customerid, ecommerce.DB, tenantid)
 
 	if err != nil {
 		return TblEcomCustomer{}, []TblEcomProductOrder{}, 0, err
@@ -584,9 +700,9 @@ func (ecommerce *Ecommerce) CustomerInfo(limit, offset, customerid int) (custome
 
 	customer.NameString = Name
 
-	orders, _, err1 := Ecommercemodel.GetOrderDetailsbyCustomerId(limit, offset, customerid, ecommerce.DB)
+	orders, _, err1 := Ecommercemodel.GetOrderDetailsbyCustomerId(limit, offset, customerid, ecommerce.DB, tenantid)
 
-	_, count, err2 := Ecommercemodel.GetOrderDetailsbyCustomerId(0, 0, customerid, ecommerce.DB)
+	_, count, err2 := Ecommercemodel.GetOrderDetailsbyCustomerId(0, 0, customerid, ecommerce.DB, tenantid)
 
 	if err1 != nil {
 		return TblEcomCustomer{}, []TblEcomProductOrder{}, 0, err1
@@ -614,14 +730,14 @@ func (ecommerce *Ecommerce) HashingPassword(pass string) string {
 }
 
 // Get Customer details
-func (Ecommerce *Ecommerce) GetCustomer(memberId int) (customer TblEcomCustomer, err error) {
+func (Ecommerce *Ecommerce) GetCustomer(memberId int, tenantid int) (customer TblEcomCustomer, err error) {
 
 	if AuthErr := AuthandPermission(Ecommerce); AuthErr != nil {
 
 		return TblEcomCustomer{}, AuthErr
 	}
 
-	customer, err = Ecommercemodel.GetCustomer(memberId, Ecommerce.DB)
+	customer, err = Ecommercemodel.GetCustomer(memberId, Ecommerce.DB, tenantid)
 	if err != nil {
 		return TblEcomCustomer{}, err
 	}
@@ -630,14 +746,14 @@ func (Ecommerce *Ecommerce) GetCustomer(memberId int) (customer TblEcomCustomer,
 }
 
 // Get Customer Details by Id
-func (Ecommerce *Ecommerce) GetCustomerDetailsById(memberId int) (customer CustomerDetails, err error) {
+func (Ecommerce *Ecommerce) GetCustomerDetailsById(memberId int, tenantid int) (customer CustomerDetails, err error) {
 
 	if AuthErr := AuthandPermission(Ecommerce); AuthErr != nil {
 
 		return CustomerDetails{}, AuthErr
 	}
 
-	customer, err = EcommerceModel.GetCustomerDetailsById(EcommerceModel{}, memberId, Ecommerce.DB)
+	customer, err = EcommerceModel.GetCustomerDetailsById(EcommerceModel{}, memberId, Ecommerce.DB, tenantid)
 	if err != nil {
 
 		return CustomerDetails{}, err
@@ -647,20 +763,20 @@ func (Ecommerce *Ecommerce) GetCustomerDetailsById(memberId int) (customer Custo
 }
 
 // Update member and customer details
-func (Ecommerce *Ecommerce) UpdateCustomerAndMemberDetails(memberId int, memberDetails map[string]interface{}, customerDetails map[string]interface{}) (err error) {
+func (Ecommerce *Ecommerce) UpdateCustomerAndMemberDetails(memberId int, memberDetails map[string]interface{}, customerDetails map[string]interface{}, tenantid int) (err error) {
 
 	if AuthErr := AuthandPermission(Ecommerce); AuthErr != nil {
 
 		return AuthErr
 	}
 
-	err = EcommerceModel.UpdateMemberDetails(EcommerceModel{}, memberId, memberDetails, Ecommerce.DB)
+	err = EcommerceModel.UpdateMemberDetails(EcommerceModel{}, memberId, memberDetails, Ecommerce.DB, tenantid)
 	if err != nil {
 
 		return err
 	}
 
-	err = EcommerceModel.UpdateCustomerDetails(EcommerceModel{}, memberId, customerDetails, Ecommerce.DB)
+	err = EcommerceModel.UpdateCustomerDetails(EcommerceModel{}, memberId, customerDetails, Ecommerce.DB, tenantid)
 	if err != nil {
 
 		return err

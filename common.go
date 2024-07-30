@@ -3,6 +3,7 @@ package ecommerce
 import (
 	"errors"
 	"os"
+	"strconv"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
@@ -13,6 +14,7 @@ var (
 	ErrorPermission = errors.New("permissions enabled not initialised")
 	ErrorEmpty      = errors.New("given some values is empty")
 	TZONE, _        = time.LoadLocation(os.Getenv("TIME_ZONE"))
+	TenantId, _     = strconv.Atoi(os.Getenv("Tenant_ID"))
 )
 
 type EcommerceModel struct {

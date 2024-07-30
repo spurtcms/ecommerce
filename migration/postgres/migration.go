@@ -1,4 +1,4 @@
-package ecommerce
+package postgres
 
 import (
 	"time"
@@ -33,6 +33,7 @@ type TblEcomCustomer struct {
 	ProfileImagePath string    `gorm:"type:character varying"`
 	NameString       string    `gorm:"-:migration;<-:false"`
 	ShippingAddress  string    `gorm:"-:migration;<-:false"`
+	TenantId         int       `gorm:"type:integer"`
 }
 
 type TblEcomProduct struct {
@@ -67,6 +68,7 @@ type TblEcomProduct struct {
 	DeletedOn          time.Time `gorm:"type:timestamp without time zone;DEFAULT:NULL"`
 	DeletedBy          int       `gorm:"type:integer;DEFAULT:NULL"`
 	Imgpath            []string  `gorm:"-"`
+	TenantId           int       `gorm:"type:integer"`
 }
 
 type TblEcomProductPricing struct {
@@ -82,6 +84,7 @@ type TblEcomProductPricing struct {
 	Enddate   string    `gorm:"-:migration;<-:false"`
 	DeletedOn time.Time `gorm:"type:timestamp without time zone;DEFAULT:NULL"`
 	DeletedBy int       `gorm:"type:integer;DEFAULT:NULL"`
+	TenantId  int       `gorm:"type:integer"`
 }
 
 type TblEcomProductOrder struct {
@@ -115,6 +118,7 @@ type TblEcomProductOrder struct {
 	StatusColor     string               `gorm:"-:migration;<-:false"`
 	DeletedOn       time.Time            `gorm:"type:timestamp without time zone;DEFAULT:NULL"`
 	DeletedBy       int                  `gorm:"type:integer;DEFAULT:NULL"`
+	TenantId        int                  `gorm:"type:integer"`
 }
 
 type TblEcomProductOrderDetail struct {
@@ -124,6 +128,7 @@ type TblEcomProductOrderDetail struct {
 	Quantity   int `gorm:"type:integer"`
 	Price      int `gorm:"type:integer"`
 	Tax        int `gorm:"type:int"`
+	TenantId   int `gorm:"type:integer"`
 }
 
 type TblEcomOrderStatus struct {
@@ -133,6 +138,7 @@ type TblEcomOrderStatus struct {
 	CreatedBy   int       `gorm:"type:integer"`
 	CreatedOn   time.Time `gorm:"type:timestamp without time zone;DEFAULT:NULL"`
 	CreatedDate string    `gorm:"-:migration;<-:false"`
+	TenantId    int       `gorm:"type:integer"`
 }
 
 type TblEcomCurrency struct {
@@ -150,6 +156,7 @@ type TblEcomCurrency struct {
 	DeletedOn       time.Time `gorm:"type:timestamp without time zone;DEFAULT:NULL"`
 	DeletedBy       int       `gorm:"type:integer"`
 	DateString      string    `gorm:"-"`
+	TenantId        int       `gorm:"type:integer"`
 }
 
 type TblEcomStatus struct {
@@ -166,6 +173,7 @@ type TblEcomStatus struct {
 	IsDeleted   int       `gorm:"type:integer"`
 	DeletedOn   time.Time `gorm:"type:timestamp without time zone;DEFAULT:NULL"`
 	DeletedBy   int       `gorm:"type:integer"`
+	TenantId    int       `gorm:"type:integer"`
 }
 
 type TblEcomPayment struct {
@@ -181,6 +189,7 @@ type TblEcomPayment struct {
 	IsDeleted    int       `gorm:"type:integer"`
 	DeletedOn    time.Time `gorm:"type:timestamp without time zone;DEFAULT:NULL"`
 	DeletedBy    int       `gorm:"type:integer"`
+	TenantId     int       `gorm:"type:integer"`
 }
 
 type TblEcomSettings struct {
@@ -196,16 +205,30 @@ type TblEcomSettings struct {
 	CreatedBy       int
 	ModifiedOn      time.Time `gorm:"type:timestamp without time zone;DEFAULT:NULL"`
 	ModifiedBy      int       `gorm:"DEFAULT:NULL"`
+	TenantId        int       `gorm:"type:integer"`
 }
 
 type TblEcomOrderPayment struct {
 	Id          int    `gorm:"primaryKey;auto_increment;type:serial"`
 	OrderId     int    `gorm:"type:integer"`
 	PaymentMode string `gorm:"type:character varying"`
+	TenantId    int    `gorm:"type:integer"`
+}
+
+type TblEcomCart struct {
+	Id         int       `gorm:"primaryKey;auto_increment;type:serial"`
+	ProductId  int       `gorm:"type:integer"`
+	CustomerId int       `gorm:"type:integer"`
+	Quantity   int       `gorm:"type:integer"`
+	CreatedOn  time.Time `gorm:"type:timestamp without time zone;DEFAULT:NULL"`
+	ModifiedOn time.Time `gorm:"type:timestamp without time zone;DEFAULT:NULL"`
+	IsDeleted  int       `gorm:"type:integer"`
+	DeletedOn  time.Time `gorm:"type:timestamp without time zone;DEFAULT:NULL"`
+	TenantId   int       `gorm:"type:integer"`
 }
 
 // MigrateTable creates this package related tables in your database
-func MigrateTables(db *gorm.DB) {
+func MigrationTables(db *gorm.DB) {
 
 	db.AutoMigrate(
 		&TblEcomCustomer{},
@@ -218,7 +241,8 @@ func MigrateTables(db *gorm.DB) {
 		&TblEcomStatus{},
 		&TblEcomPayment{},
 		&TblEcomSettings{},
-		TblEcomOrderPayment{},
+		&TblEcomOrderPayment{},
+		&TblEcomCart{},
 	)
 
 	db.Exec(`CREATE INDEX IF NOT EXISTS email_unique

@@ -25,6 +25,7 @@ type CreateCustomerReq struct {
 	ProfileImagePath string
 	CreatedBy        int
 	ModifiedBy       int
+	TenantId         int
 }
 
 type CreateOrderReq struct {
@@ -64,6 +65,7 @@ type CreateProductReq struct {
 	IsActive           int
 	PricingId          int
 	ProductSlug        string
+	TenantId           int
 }
 
 type CreateSettingReq struct {
@@ -77,6 +79,7 @@ type CreateSettingReq struct {
 	StockCheckout   int
 	CreatedBy       int
 	ModifiedBy      int
+	TenantId        int
 }
 
 type CreateCurrencyReq struct {
@@ -88,6 +91,7 @@ type CreateCurrencyReq struct {
 	CreatedBy       int
 	ModifiedBy      int
 	IsActive        int
+	TenantId        int
 }
 
 type CreateStatusReq struct {
@@ -99,6 +103,7 @@ type CreateStatusReq struct {
 	CreatedBy   int
 	ModifiedBy  int
 	IsActive    int
+	TenantId    int
 }
 
 type CustomerDetails struct {
@@ -126,6 +131,7 @@ type CustomerDetails struct {
 	ZipCode          string
 	StreetAddress    string
 	MemberID         int
+	TenantId         int
 }
 
 type CreatePaymentReq struct {
@@ -136,6 +142,7 @@ type CreatePaymentReq struct {
 	CreatedBy    int
 	ModifiedBy   int
 	IsActive     int
+	TenantId     int
 }
 
 type Filter struct {
@@ -161,6 +168,7 @@ type EcommerceCart struct {
 	ModifiedOn *time.Time
 	IsDeleted  int
 	DeletedOn  *time.Time
+	TenantId   int
 }
 
 type ProductFilter struct {
@@ -262,22 +270,110 @@ type EcommerceProduct struct {
 	ShippingDetails    string
 }
 
-type OrderShippingAddress struct {
-	FirstName     string `json:"firstname"`
-	UserName      string `json:"username"`
-	StreetAddress string `json:"streetaddress"`
-	MobileNo      string `json:"mobileno"`
-	Email         string `json:"email"`
-	ZipCode       string `json:"zipcode"`
-	City          string `json:"city"`
-	Country       string `json:"country"`
-	State         string `json:"state"`
-	ProfileImage  string `json:"profileimage"`
-	IsActive      int    `json:"isactive"`
+
+
+type TblEcomProductOrderDetail struct {
+	Id         int `gorm:"primaryKey;auto_increment;type:serial"`
+	Order_id   int `gorm:"type:integer"`
+	Product_id int `gorm:"type:integer"`
+	Quantity   int `gorm:"type:integer"`
+	Price      int `gorm:"type:integer"`
+	Tax        int `gorm:"type:int"`
+	TenantId   int `gorm:"type:integer"`
+}
+
+type TblEcomCurrency struct {
+	Id              int    `gorm:"primaryKey;auto_increment;type:serial"`
+	CurrencyName    string `gorm:"type:character varying"`
+	CurrencyType    string `gorm:"type:character varying"`
+	CurrencySymbol  string `gorm:"type:character varying"`
+	IsActive        int    `gorm:"type:integer"`
+	CurrencyDefault int    `gorm:"type:integer"`
+	CreatedOn       time.Time
+	CreatedBy       int
+	ModifiedOn      time.Time `gorm:"type:timestamp without time zone;DEFAULT:NULL"`
+	ModifiedBy      int       `gorm:"DEFAULT:NULL"`
+	IsDeleted       int       `gorm:"type:integer"`
+	DeletedOn       time.Time `gorm:"type:timestamp without time zone;DEFAULT:NULL"`
+	DeletedBy       int       `gorm:"type:integer"`
+	DateString      string    `gorm:"-"`
+	TenantId        int       `gorm:"type:integer"`
+}
+
+type TblEcomStatus struct {
+	Id          int    `gorm:"primaryKey;auto_increment;type:serial"`
+	Status      string `gorm:"type:character varying"`
+	Description string `gorm:"type:character varying"`
+	IsActive    int    `gorm:"type:integer"`
+	Priority    int    `gorm:"type:integer"`
+	ColorCode   string `gorm:"type:character varying"`
+	CreatedOn   time.Time
+	CreatedBy   int
+	ModifiedOn  time.Time `gorm:"type:timestamp without time zone;DEFAULT:NULL"`
+	ModifiedBy  int       `gorm:"DEFAULT:NULL"`
+	IsDeleted   int       `gorm:"type:integer"`
+	DeletedOn   time.Time `gorm:"type:timestamp without time zone;DEFAULT:NULL"`
+	DeletedBy   int       `gorm:"type:integer"`
+	TenantId    int       `gorm:"type:integer"`
+}
+
+type TblEcomPayment struct {
+	Id           int    `gorm:"primaryKey;auto_increment;type:serial"`
+	PaymentName  string `gorm:"type:character varying"`
+	Description  string `gorm:"type:character varying"`
+	PaymentImage string `gorm:"type:character varying"`
+	IsActive     int    `gorm:"type:integer"`
+	CreatedOn    time.Time
+	CreatedBy    int
+	ModifiedOn   time.Time `gorm:"type:timestamp without time zone;DEFAULT:NULL"`
+	ModifiedBy   int       `gorm:"DEFAULT:NULL"`
+	IsDeleted    int       `gorm:"type:integer"`
+	DeletedOn    time.Time `gorm:"type:timestamp without time zone;DEFAULT:NULL"`
+	DeletedBy    int       `gorm:"type:integer"`
+	TenantId     int       `gorm:"type:integer"`
+}
+
+type TblEcomSettings struct {
+	Id              int       `gorm:"primaryKey;auto_increment;type:serial"`
+	StoreName       string    `gorm:"type:character varying"`
+	DisplayStock    int       `gorm:"type:integer"`
+	StockWarning    int       `gorm:"type:integer"`
+	StockCheckout   int       `gorm:"type:integer"`
+	CurrencyDefault int       `gorm:"type:integer"`
+	PaymentDefault  int       `gorm:"type:integer"`
+	StatusDefault   int       `gorm:"type:integer"`
+	CreatedOn       time.Time `gorm:"type:timestamp without time zone;DEFAULT:NULL"`
+	CreatedBy       int
+	ModifiedOn      time.Time `gorm:"type:timestamp without time zone;DEFAULT:NULL"`
+	ModifiedBy      int       `gorm:"DEFAULT:NULL"`
+	TenantId        int       `gorm:"type:integer"`
+}
+
+type TblEcomOrderPayment struct {
+	Id          int    `gorm:"primaryKey;auto_increment;type:serial"`
+	OrderId     int    `gorm:"type:integer"`
+	PaymentMode string `gorm:"type:character varying"`
+	TenantId    int    `gorm:"type:integer"`
+}
+
+type TblEcomProductPricing struct {
+	Id        int `gorm:"primaryKey;auto_increment;type:serial"`
+	ProductId int
+	Priority  int
+	Price     int
+	StartDate time.Time `gorm:"type:timestamp without time zone;DEFAULT:NULL"`
+	EndDate   time.Time `gorm:"type:timestamp without time zone;DEFAULT:NULL"`
+	Type      string
+	IsDeleted int       `gorm:"DEFAULT:0"`
+	Startdate string    `gorm:"-:migration;<-:false"`
+	Enddate   string    `gorm:"-:migration;<-:false"`
+	DeletedOn time.Time `gorm:"type:timestamp without time zone;DEFAULT:NULL"`
+	DeletedBy int       `gorm:"type:integer;DEFAULT:NULL"`
+	TenantId  int       `gorm:"type:integer"`
 }
 
 // pass limit , offset get customerlist
-func (ecommerceModel EcommerceModel) CustomersList(offset int, limit int, filter Filter, DB *gorm.DB) (customer []TblEcomCustomer, totalcustomer int64, err error) {
+func (ecommerceModel EcommerceModel) CustomersList(offset int, limit int, filter Filter, DB *gorm.DB, tenantid int) (customer []TblEcomCustomer, totalcustomer int64, err error) {
 
 	if filter.IsActive == "InActive" {
 
@@ -298,7 +394,7 @@ func (ecommerceModel EcommerceModel) CustomersList(offset int, limit int, filter
 		filter.Keyword = "0"
 	}
 
-	query := DB.Table("tbl_ecom_customers").Select("tbl_ecom_customers.*,count( tbl_ecom_product_orders.customer_id)").Joins("left join tbl_ecom_product_orders on tbl_ecom_customers.id = tbl_ecom_product_orders.customer_id AND tbl_ecom_product_orders.is_deleted = 0").Where("tbl_ecom_customers.is_deleted=? ", 0).Group("tbl_ecom_customers.id, tbl_ecom_product_orders.customer_id").Order("tbl_ecom_customers.id desc")
+	query := DB.Table("tbl_ecom_customers").Select("tbl_ecom_customers.*,count( tbl_ecom_product_orders.customer_id)").Joins("left join tbl_ecom_product_orders on tbl_ecom_customers.id = tbl_ecom_product_orders.customer_id AND tbl_ecom_product_orders.is_deleted = 0").Where("tbl_ecom_customers.is_deleted=? and tbl_ecom_customers.tenant_id=?", 0, tenantid).Group("tbl_ecom_customers.id, tbl_ecom_product_orders.customer_id").Order("tbl_ecom_customers.id desc")
 
 	if filter.Keyword != "" {
 
@@ -362,9 +458,9 @@ func (ecommerceModel EcommerceModel) CustomerCreate(customer TblEcomCustomer, DB
 
 // pass customer id  get particular customer details
 
-func (ecommerceModel EcommerceModel) CustomerEdit(id int, DB *gorm.DB) (customer TblEcomCustomer, err error) {
+func (ecommerceModel EcommerceModel) CustomerEdit(id int, DB *gorm.DB, tenantid int) (customer TblEcomCustomer, err error) {
 
-	if err := DB.Model(TblEcomCustomer{}).Select("tbl_ecom_customers.*, count( tbl_ecom_product_orders.customer_id)").Joins("left join tbl_ecom_product_orders on tbl_ecom_customers.id = tbl_ecom_product_orders.customer_id").Group("tbl_ecom_customers.id, tbl_ecom_product_orders.customer_id").Where(" tbl_ecom_customers.is_deleted = 0 AND tbl_ecom_customers.id=?", id).First(&customer).Error; err != nil {
+	if err := DB.Model(TblEcomCustomer{}).Select("tbl_ecom_customers.*, count( tbl_ecom_product_orders.customer_id)").Joins("left join tbl_ecom_product_orders on tbl_ecom_customers.id = tbl_ecom_product_orders.customer_id").Group("tbl_ecom_customers.id, tbl_ecom_product_orders.customer_id").Where(" tbl_ecom_customers.is_deleted = 0 AND tbl_ecom_customers.id=? and tbl_ecom_customers.tenant_id=?", id, tenantid).First(&customer).Error; err != nil {
 
 		return TblEcomCustomer{}, err
 	}
@@ -391,9 +487,9 @@ func (ecommerceModel EcommerceModel) CustomerUpdate(customer TblEcomCustomer, DB
 
 // pass customer id soft delete the particular record
 
-func (ecommerceModel EcommerceModel) CustomerDelete(customer TblEcomCustomer, DB *gorm.DB) error {
+func (ecommerceModel EcommerceModel) CustomerDelete(customer TblEcomCustomer, DB *gorm.DB, tenantid int) error {
 
-	if err := DB.Model(TblEcomCustomer{}).Where("member_id=?", customer.MemberId).UpdateColumns(map[string]interface{}{"is_deleted": 1, "deleted_by": customer.DeletedBy, "deleted_on": customer.DeletedOn}).Error; err != nil {
+	if err := DB.Model(TblEcomCustomer{}).Where("member_id=? and tenant_id=?", customer.MemberId, tenantid).UpdateColumns(map[string]interface{}{"is_deleted": 1, "deleted_by": customer.DeletedBy, "deleted_on": customer.DeletedOn}).Error; err != nil {
 
 		return err
 	}
@@ -403,9 +499,9 @@ func (ecommerceModel EcommerceModel) CustomerDelete(customer TblEcomCustomer, DB
 }
 
 // Order list
-func (ecommerceModel EcommerceModel) OrderList(offset int, limit int, filter Filter, DB *gorm.DB) (tblorders []TblEcomProductOrder, ordercount int64, err error) {
+func (ecommerceModel EcommerceModel) OrderList(offset int, limit int, filter Filter, DB *gorm.DB, tenantid int) (tblorders []TblEcomProductOrder, ordercount int64, err error) {
 
-	query := DB.Table("tbl_ecom_product_orders").Select("tbl_ecom_statuses.status as status_value,tbl_ecom_statuses.color_code as status_color,tbl_ecom_product_orders.*,tbl_ecom_customers.username").Joins("inner join tbl_ecom_customers on tbl_ecom_product_orders.customer_id = tbl_ecom_customers.id").Joins("inner join tbl_ecom_statuses on tbl_ecom_product_orders.order_status = tbl_ecom_statuses.id").Where("tbl_ecom_product_orders.is_deleted = 0")
+	query := DB.Table("tbl_ecom_product_orders").Select("tbl_ecom_statuses.status as status_value,tbl_ecom_statuses.color_code as status_color,tbl_ecom_product_orders.*,tbl_ecom_customers.username").Joins("inner join tbl_ecom_customers on tbl_ecom_product_orders.customer_id = tbl_ecom_customers.id").Joins("inner join tbl_ecom_statuses on tbl_ecom_product_orders.order_status = tbl_ecom_statuses.id").Where("tbl_ecom_product_orders.is_deleted = 0 and tbl_ecom_product_orders.tenant_id=?", tenantid)
 
 	if filter.Keyword != "" {
 
@@ -451,9 +547,9 @@ func (ecommerceModel EcommerceModel) OrderList(offset int, limit int, filter Fil
 }
 
 // Delete the  order
-func (ecommerceModel EcommerceModel) OrderDelete(productorder TblEcomProductOrder, DB *gorm.DB) error {
+func (ecommerceModel EcommerceModel) OrderDelete(productorder TblEcomProductOrder, DB *gorm.DB, tenantid int) error {
 
-	if err := DB.Model(TblEcomProductOrder{}).Where("id=?", productorder.Id).UpdateColumns(map[string]interface{}{"is_deleted": 1, "deleted_by": productorder.DeletedBy, "deleted_on": productorder.DeletedOn}).Error; err != nil {
+	if err := DB.Model(TblEcomProductOrder{}).Where("id=? and tenant_id=?", productorder.Id, tenantid).UpdateColumns(map[string]interface{}{"is_deleted": 1, "deleted_by": productorder.DeletedBy, "deleted_on": productorder.DeletedOn}).Error; err != nil {
 
 		return err
 
@@ -464,9 +560,9 @@ func (ecommerceModel EcommerceModel) OrderDelete(productorder TblEcomProductOrde
 
 // Get product details by pass order id
 
-func (ecommerceModel EcommerceModel) GetProductdetailsByOrderId(orderid int, DB *gorm.DB) (orders []TblEcomProductOrderDetail, err error) {
+func (ecommerceModel EcommerceModel) GetProductdetailsByOrderId(orderid int, DB *gorm.DB, tenantid int) (orders []TblEcomProductOrderDetail, err error) {
 
-	if err := DB.Model(TblEcomProductOrderDetail{}).Where("order_id=?", orderid).Find(&orders).Error; err != nil {
+	if err := DB.Model(TblEcomProductOrderDetail{}).Where("order_id=? and tenant_id=?", orderid, tenantid).Find(&orders).Error; err != nil {
 
 		return []TblEcomProductOrderDetail{}, err
 	}
@@ -476,9 +572,9 @@ func (ecommerceModel EcommerceModel) GetProductdetailsByOrderId(orderid int, DB 
 
 // Get Product details pass produt id
 
-func (ecommerceModel EcommerceModel) GetProductdetailsByProductId(productid []int, DB *gorm.DB) (product []TblEcomProduct, err error) {
+func (ecommerceModel EcommerceModel) GetProductdetailsByProductId(productid []int, DB *gorm.DB, tenantid int) (product []TblEcomProduct, err error) {
 
-	if err := DB.Model(TblEcomProduct{}).Where("is_deleted=0 and id in (?)", productid).Find(&product).Error; err != nil {
+	if err := DB.Model(TblEcomProduct{}).Where("is_deleted=0 and id in (?)n and tenant_id=?", productid, tenantid).Find(&product).Error; err != nil {
 
 		return []TblEcomProduct{}, err
 	}
@@ -500,9 +596,9 @@ func (ecommerceModel EcommerceModel) CreateOrderStatus(status TblEcomOrderStatus
 
 // update order status in product table
 
-func (ecommerceModel EcommerceModel) OrderStatusUpdate(orderstatus TblEcomProductOrder, DB *gorm.DB) error {
+func (ecommerceModel EcommerceModel) OrderStatusUpdate(orderstatus TblEcomProductOrder, DB *gorm.DB, tenantid int) error {
 
-	if err := DB.Model(TblEcomProductOrder{}).Where("id=?", orderstatus.Id).Updates(TblEcomProductOrder{OrderStatus: orderstatus.OrderStatus, ModifiedOn: orderstatus.ModifiedOn}).Error; err != nil {
+	if err := DB.Model(TblEcomProductOrder{}).Where("id=? and tenant_id=?", orderstatus.Id, tenantid).Updates(TblEcomProductOrder{OrderStatus: orderstatus.OrderStatus, ModifiedOn: orderstatus.ModifiedOn}).Error; err != nil {
 
 		return err
 	}
@@ -512,9 +608,9 @@ func (ecommerceModel EcommerceModel) OrderStatusUpdate(orderstatus TblEcomProduc
 
 // edit the order details
 
-func (ecommerceModel EcommerceModel) OrderEdit(id string, DB *gorm.DB) (productord TblEcomProductOrder, err error) {
+func (ecommerceModel EcommerceModel) OrderEdit(id string, DB *gorm.DB, tenantid int) (productord TblEcomProductOrder, err error) {
 
-	if err := DB.Table("tbl_ecom_product_orders").Select("tbl_ecom_statuses.status as status_value,tbl_ecom_statuses.priority as status_priority,tbl_ecom_statuses.color_code as status_color,tbl_ecom_product_orders.*,tbl_ecom_customers.username,tbl_ecom_customers.mobile_no,tbl_ecom_customers.email,tbl_ecom_customers.street_address,tbl_ecom_customers.city,tbl_ecom_customers.state,tbl_ecom_customers.country,tbl_ecom_customers.zip_code").Joins("inner join tbl_ecom_customers on tbl_ecom_product_orders.customer_id = tbl_ecom_customers.id").Joins("inner join tbl_ecom_statuses on tbl_ecom_product_orders.order_status = tbl_ecom_statuses.id").Where("uuid=?", id).First(&productord).Error; err != nil {
+	if err := DB.Table("tbl_ecom_product_orders").Select("tbl_ecom_statuses.status as status_value,tbl_ecom_statuses.priority as status_priority,tbl_ecom_statuses.color_code as status_color,tbl_ecom_product_orders.*,tbl_ecom_customers.username,tbl_ecom_customers.mobile_no,tbl_ecom_customers.email,tbl_ecom_customers.street_address,tbl_ecom_customers.city,tbl_ecom_customers.state,tbl_ecom_customers.country,tbl_ecom_customers.zip_code").Joins("inner join tbl_ecom_customers on tbl_ecom_product_orders.customer_id = tbl_ecom_customers.id").Joins("inner join tbl_ecom_statuses on tbl_ecom_product_orders.order_status = tbl_ecom_statuses.id").Where("uuid=? and tenant_id=?", id, tenantid).First(&productord).Error; err != nil {
 
 		return TblEcomProductOrder{}, err
 	}
@@ -524,9 +620,9 @@ func (ecommerceModel EcommerceModel) OrderEdit(id string, DB *gorm.DB) (producto
 
 // Get order status details in particular
 
-func (ecommerceModel EcommerceModel) OrderStatusDetails(id string, DB *gorm.DB) (status []TblEcomOrderStatus, err error) {
+func (ecommerceModel EcommerceModel) OrderStatusDetails(id string, DB *gorm.DB, tenantid int) (status []TblEcomOrderStatus, err error) {
 
-	if err := DB.Table("tbl_ecom_order_statuses").Select("tbl_ecom_order_statuses.order_status,tbl_ecom_order_statuses.order_id,tbl_ecom_statuses.priority as status_priority,tbl_ecom_order_statuses.created_on").Joins("inner join tbl_ecom_product_orders on tbl_ecom_product_orders.id=tbl_ecom_order_statuses.order_id").Joins("inner join tbl_ecom_statuses on tbl_ecom_statuses.id = tbl_ecom_order_statuses.order_status").Where("tbl_ecom_product_orders.uuid=?", id).Find(&status).Error; err != nil {
+	if err := DB.Table("tbl_ecom_order_statuses").Select("tbl_ecom_order_statuses.order_status,tbl_ecom_order_statuses.order_id,tbl_ecom_statuses.priority as status_priority,tbl_ecom_order_statuses.created_on").Joins("inner join tbl_ecom_product_orders on tbl_ecom_product_orders.id=tbl_ecom_order_statuses.order_id").Joins("inner join tbl_ecom_statuses on tbl_ecom_statuses.id = tbl_ecom_order_statuses.order_status").Where("tbl_ecom_product_orders.uuid=? and tbl_ecom_product_orders.tenant_id=?", id, tenantid).Find(&status).Error; err != nil {
 
 		return []TblEcomOrderStatus{}, err
 	}
@@ -535,9 +631,9 @@ func (ecommerceModel EcommerceModel) OrderStatusDetails(id string, DB *gorm.DB) 
 }
 
 // MULTISELECT ORDER DELETE
-func (ecommerceModel EcommerceModel) MultiSelectDeleteOrder(order TblEcomProductOrder, id []int, DB *gorm.DB) error {
+func (ecommerceModel EcommerceModel) MultiSelectDeleteOrder(order TblEcomProductOrder, id []int, DB *gorm.DB, tenantid int) error {
 
-	if err := DB.Model(TblEcomProductOrder{}).Where("id in (?)", id).UpdateColumns(map[string]interface{}{"is_deleted": 1, "deleted_on": order.DeletedOn, "deleted_by": order.DeletedBy}).Error; err != nil {
+	if err := DB.Model(TblEcomProductOrder{}).Where("id in (?) and tenant_id=?", id, tenantid).UpdateColumns(map[string]interface{}{"is_deleted": 1, "deleted_on": order.DeletedOn, "deleted_by": order.DeletedBy}).Error; err != nil {
 
 		return err
 
@@ -548,15 +644,15 @@ func (ecommerceModel EcommerceModel) MultiSelectDeleteOrder(order TblEcomProduct
 
 // Product list
 
-func (ecommerceModel EcommerceModel) ProductList(offset int, limit int, filter Filter, DB *gorm.DB) (tblproducts []TblEcomProduct, productcount int64, err error) {
+func (ecommerceModel EcommerceModel) ProductList(offset int, limit int, filter Filter, DB *gorm.DB, tenantid int) (tblproducts []TblEcomProduct, productcount int64, err error) {
 
 	query := DB.Model(&TblEcomProduct{}).
 		Table("tbl_ecom_products AS p").
-		Select("p.*", "COALESCE((SELECT price FROM tbl_ecom_product_pricings WHERE product_id = p.id AND type = 'special' AND is_deleted=0 AND (end_date > CURRENT_DATE OR end_date IS NULL) AND (start_date <= CURRENT_DATE OR start_date IS NULL) ORDER BY CASE WHEN start_date <= CURRENT_DATE THEN 1 WHEN priority = 1 THEN 2 ELSE 3 END, priority LIMIT 1), (SELECT price FROM tbl_ecom_product_pricings WHERE product_id = p.id AND type = 'discount' AND is_deleted=0 AND (end_date > CURRENT_DATE OR end_date IS NULL) AND (start_date <= CURRENT_DATE OR start_date IS NULL) ORDER BY CASE WHEN start_date <= CURRENT_DATE THEN 1 WHEN priority = 1 THEN 2 ELSE 3 END, priority LIMIT 1), p.totalcost) AS price").Where("is_deleted = 0").Limit(1)
+		Select("p.*", "COALESCE((SELECT price FROM tbl_ecom_product_pricings WHERE product_id = p.id AND type = 'special' AND is_deleted=0 AND (end_date > CURRENT_DATE OR end_date IS NULL) AND (start_date <= CURRENT_DATE OR start_date IS NULL) ORDER BY CASE WHEN start_date <= CURRENT_DATE THEN 1 WHEN priority = 1 THEN 2 ELSE 3 END, priority LIMIT 1), (SELECT price FROM tbl_ecom_product_pricings WHERE product_id = p.id AND type = 'discount' AND is_deleted=0 AND (end_date > CURRENT_DATE OR end_date IS NULL) AND (start_date <= CURRENT_DATE OR start_date IS NULL) ORDER BY CASE WHEN start_date <= CURRENT_DATE THEN 1 WHEN priority = 1 THEN 2 ELSE 3 END, priority LIMIT 1), p.totalcost) AS price").Where("is_deleted = 0 and tenant_id=?", tenantid).Limit(1)
 
 	if ecommerceModel.DataAccess == 1 {
 
-		query = query.Where("p.created_by = ?", ecommerceModel.UserId)
+		query = query.Where("p.created_by = ? and p.tenant_id=?", ecommerceModel.UserId, tenantid)
 	}
 
 	if filter.Status == "InActive" {
@@ -586,7 +682,7 @@ func (ecommerceModel EcommerceModel) ProductList(offset int, limit int, filter F
 
 		} else {
 
-			query = query.Where("LOWER(TRIM(p.product_name)) LIKE LOWER(TRIM(?)) OR LOWER(TRIM(p.product_description)) LIKE LOWER(TRIM(?)) ", "%"+filter.Keyword+"%", "%"+filter.Keyword+"%")
+			query = query.Where("LOWER(TRIM(p.product_name)) LIKE LOWER(TRIM(?)) OR LOWER(TRIM(p.product_description)) LIKE LOWER(TRIM(?))", "%"+filter.Keyword+"%", "%"+filter.Keyword+"%")
 
 		}
 
@@ -653,9 +749,9 @@ func (ecommerceModel EcommerceModel) CreateProductPricing(pricing TblEcomProduct
 }
 
 // Get Product details pass product id
-func (ecommerceModel EcommerceModel) ProductDetailsByProductId(productid int, DB *gorm.DB) (product TblEcomProduct, err error) {
+func (ecommerceModel EcommerceModel) ProductDetailsByProductId(productid int, DB *gorm.DB, tenantid int) (product TblEcomProduct, err error) {
 
-	if err := DB.Table("tbl_ecom_products").Where("id=?", productid).First(&product).Error; err != nil {
+	if err := DB.Table("tbl_ecom_products").Where("id=? and tenant_id=?", productid, tenantid).First(&product).Error; err != nil {
 
 		return TblEcomProduct{}, err
 	}
@@ -663,9 +759,9 @@ func (ecommerceModel EcommerceModel) ProductDetailsByProductId(productid int, DB
 }
 
 // Get product price pass product id
-func (ecommerceModel EcommerceModel) ProductPricingByProductId(productid int, DB *gorm.DB) (pricings []TblEcomProductPricing, err error) {
+func (ecommerceModel EcommerceModel) ProductPricingByProductId(productid int, DB *gorm.DB, tenantid int) (pricings []TblEcomProductPricing, err error) {
 
-	if err := DB.Table("tbl_ecom_product_pricings").Where("tbl_ecom_product_pricings.product_id =? AND tbl_ecom_product_pricings.is_deleted = 0", productid).Find(&pricings).Error; err != nil {
+	if err := DB.Table("tbl_ecom_product_pricings").Where("tbl_ecom_product_pricings.product_id =? AND tbl_ecom_product_pricings.is_deleted = 0 and tbl_ecom_product_pricings.tenant_id=?", productid, tenantid).Find(&pricings).Error; err != nil {
 
 		return []TblEcomProductPricing{}, err
 	}
@@ -674,9 +770,9 @@ func (ecommerceModel EcommerceModel) ProductPricingByProductId(productid int, DB
 }
 
 // Update Product
-func (ecommerceModel EcommerceModel) UpdateProducts(product TblEcomProduct, DB *gorm.DB) error {
+func (ecommerceModel EcommerceModel) UpdateProducts(product TblEcomProduct, DB *gorm.DB, tenantid int) error {
 
-	query := DB.Table("tbl_ecom_products").Where("id=?", product.Id)
+	query := DB.Table("tbl_ecom_products").Where("id=? and tenant_id=?", product.Id, tenantid)
 
 	if err := query.UpdateColumns(map[string]interface{}{"categories_id": product.CategoriesId, "stock": product.Stock, "product_slug": product.ProductSlug, "product_name": product.ProductName, "product_description": product.ProductDescription, "product_image_path": product.ProductImagePath, "product_vimeo_path": product.ProductVimeoPath, "sku": product.Sku, "product_youtube_path": product.ProductYoutubePath, "product_price": product.ProductPrice, "tax": product.Tax, "totalcost": product.Totalcost, "modified_on": product.ModifiedOn, "is_active": product.IsActive, "modified_by": product.ModifiedBy}).Error; err != nil {
 
@@ -688,9 +784,9 @@ func (ecommerceModel EcommerceModel) UpdateProducts(product TblEcomProduct, DB *
 
 // Update product price
 
-func (ecommerceModel EcommerceModel) UpdateProductPricing(pricing TblEcomProductPricing, DB *gorm.DB) error {
+func (ecommerceModel EcommerceModel) UpdateProductPricing(pricing TblEcomProductPricing, DB *gorm.DB, tenantid int) error {
 
-	if err := DB.Table("tbl_ecom_product_pricings").Where("id=?", pricing.Id).UpdateColumns(map[string]interface{}{"product_id": pricing.ProductId, "priority": pricing.Priority, "price": pricing.Price, "start_date": pricing.StartDate, "end_date": pricing.EndDate, "type": pricing.Type}).Error; err != nil {
+	if err := DB.Table("tbl_ecom_product_pricings").Where("id=? and tenant_id=?", pricing.Id, tenantid).UpdateColumns(map[string]interface{}{"product_id": pricing.ProductId, "priority": pricing.Priority, "price": pricing.Price, "start_date": pricing.StartDate, "end_date": pricing.EndDate, "type": pricing.Type}).Error; err != nil {
 
 		return err
 	}
@@ -699,9 +795,9 @@ func (ecommerceModel EcommerceModel) UpdateProductPricing(pricing TblEcomProduct
 }
 
 // Delete offers
-func (ecommerceModel EcommerceModel) RemoveOffers(price TblEcomProductPricing, deloffers []int, DB *gorm.DB) error {
+func (ecommerceModel EcommerceModel) RemoveOffers(price TblEcomProductPricing, deloffers []int, DB *gorm.DB, tenantid int) error {
 
-	if err := DB.Model(TblEcomProductPricing{}).Where("id IN (?)", deloffers).UpdateColumns(map[string]interface{}{"is_deleted": 1, "deleted_by": price.DeletedBy, "deleted_on": price.DeletedOn}).Error; err != nil {
+	if err := DB.Model(TblEcomProductPricing{}).Where("id IN (?) and tenant_id=?", deloffers, tenantid).UpdateColumns(map[string]interface{}{"is_deleted": 1, "deleted_by": price.DeletedBy, "deleted_on": price.DeletedOn}).Error; err != nil {
 
 		return err
 	}
@@ -712,9 +808,9 @@ func (ecommerceModel EcommerceModel) RemoveOffers(price TblEcomProductPricing, d
 
 // Delete Selected Products
 
-func (ecommerceModel EcommerceModel) DeleteSelectedProducts(product TblEcomProduct, productIds []int, DB *gorm.DB) error {
+func (ecommerceModel EcommerceModel) DeleteSelectedProducts(product TblEcomProduct, productIds []int, DB *gorm.DB, tenantid int) error {
 
-	if err := DB.Model(TblEcomProduct{}).Where("id IN (?)", productIds).UpdateColumns(map[string]interface{}{"deleted_on": product.DeletedOn, "deleted_by": product.DeletedBy, "is_deleted": 1}).Error; err != nil {
+	if err := DB.Model(TblEcomProduct{}).Where("id IN (?) and tenant_id=?", productIds, tenantid).UpdateColumns(map[string]interface{}{"deleted_on": product.DeletedOn, "deleted_by": product.DeletedBy, "is_deleted": 1}).Error; err != nil {
 
 		return err
 	}
@@ -724,9 +820,9 @@ func (ecommerceModel EcommerceModel) DeleteSelectedProducts(product TblEcomProdu
 
 // Delete single Products
 
-func (ecommerceModel EcommerceModel) DeleteSingleProducts(product TblEcomProduct, DB *gorm.DB) error {
+func (ecommerceModel EcommerceModel) DeleteSingleProducts(product TblEcomProduct, DB *gorm.DB, tenantid int) error {
 
-	if err := DB.Model(TblEcomProduct{}).Where("id = ?", product.Id).UpdateColumns(map[string]interface{}{"deleted_on": product.DeletedOn, "deleted_by": product.DeletedBy, "is_deleted": 1}).Error; err != nil {
+	if err := DB.Model(TblEcomProduct{}).Where("id = ? and tenant_id=?", product.Id, tenantid).UpdateColumns(map[string]interface{}{"deleted_on": product.DeletedOn, "deleted_by": product.DeletedBy, "is_deleted": 1}).Error; err != nil {
 
 		return err
 	}
@@ -736,15 +832,15 @@ func (ecommerceModel EcommerceModel) DeleteSingleProducts(product TblEcomProduct
 
 // Check sku name already exists
 
-func (ecommerceModel EcommerceModel) SkuNameCheck(product TblEcomProduct, skuname string, productid int, DB *gorm.DB) (bool, error) {
+func (ecommerceModel EcommerceModel) SkuNameCheck(product TblEcomProduct, skuname string, productid int, DB *gorm.DB, tenantid int) (bool, error) {
 
 	if productid == 0 {
-		if err := DB.Model(TblEcomProduct{}).Where("LOWER(TRIM(sku))=LOWER(TRIM(?)) and is_deleted=0", skuname).First(&product).Error; err != nil {
+		if err := DB.Model(TblEcomProduct{}).Where("LOWER(TRIM(sku))=LOWER(TRIM(?)) and is_deleted=0 and tenant_id=?", skuname, tenantid).First(&product).Error; err != nil {
 
 			return false, err
 		}
 	} else {
-		if err := DB.Model(TblEcomProduct{}).Where("LOWER(TRIM(sku))=LOWER(TRIM(?)) and id not in (?) and is_deleted = 0 ", skuname, productid).First(&product).Error; err != nil {
+		if err := DB.Model(TblEcomProduct{}).Where("LOWER(TRIM(sku))=LOWER(TRIM(?)) and id not in (?) and is_deleted = 0 and tenant_id=?", skuname, productid, tenantid).First(&product).Error; err != nil {
 
 			return false, err
 		}
@@ -756,9 +852,9 @@ func (ecommerceModel EcommerceModel) SkuNameCheck(product TblEcomProduct, skunam
 
 // selected product status change
 
-func (ecommerceModel EcommerceModel) SelectProductsChangeStatus(productIds []int, product TblEcomProduct, DB *gorm.DB) error {
+func (ecommerceModel EcommerceModel) SelectProductsChangeStatus(productIds []int, product TblEcomProduct, DB *gorm.DB, tenantid int) error {
 
-	if err := DB.Model(TblEcomProduct{}).Where("id IN (?)", productIds).UpdateColumns(map[string]interface{}{"is_active": product.IsActive, "modified_on": product.ModifiedOn}).Error; err != nil {
+	if err := DB.Model(TblEcomProduct{}).Where("id IN (?) and tenant_id=?", productIds, tenantid).UpdateColumns(map[string]interface{}{"is_active": product.IsActive, "modified_on": product.ModifiedOn}).Error; err != nil {
 
 		return err
 	}
@@ -768,9 +864,9 @@ func (ecommerceModel EcommerceModel) SelectProductsChangeStatus(productIds []int
 
 // Change active state in multiple customer
 
-func (ecommerceModel EcommerceModel) MultiSelectCustomerIsactive(customer TblEcomCustomer, customerid []int, DB *gorm.DB) error {
+func (ecommerceModel EcommerceModel) MultiSelectCustomerIsactive(customer TblEcomCustomer, customerid []int, DB *gorm.DB, tenantid int) error {
 
-	if err := DB.Table("tbl_ecom_customers").Where("member_id in (?)", customerid).UpdateColumns(map[string]interface{}{"is_active": customer.IsActive, "modified_on": customer.ModifiedOn}).Error; err != nil {
+	if err := DB.Table("tbl_ecom_customers").Where("member_id in (?) and tenant_id=?", customerid, tenantid).UpdateColumns(map[string]interface{}{"is_active": customer.IsActive, "modified_on": customer.ModifiedOn}).Error; err != nil {
 
 		return err
 	}
@@ -781,9 +877,9 @@ func (ecommerceModel EcommerceModel) MultiSelectCustomerIsactive(customer TblEco
 
 // Get order details pass uuid
 
-func (ecommerceModel EcommerceModel) GetOrderDetailsbyuuid(uuid string, DB *gorm.DB) (order TblEcomProductOrder, err error) {
+func (ecommerceModel EcommerceModel) GetOrderDetailsbyuuid(uuid string, DB *gorm.DB, tenantid int) (order TblEcomProductOrder, err error) {
 
-	if err := DB.Model(TblEcomProductOrder{}).Select("tbl_ecom_customers.*,tbl_ecom_product_orders.*,tbl_ecom_statuses.status as status_value,tbl_ecom_statuses.color_code as status_color,tbl_ecom_statuses.priority as status_priority").Joins("left join tbl_ecom_customers on tbl_ecom_product_orders.customer_id = tbl_ecom_customers.id").Joins("inner join tbl_ecom_statuses on tbl_ecom_product_orders.order_status = tbl_ecom_statuses.id").Where("tbl_ecom_product_orders.is_deleted = 0 and uuid=?", uuid).First(&order).Error; err != nil {
+	if err := DB.Model(TblEcomProductOrder{}).Select("tbl_ecom_customers.*,tbl_ecom_product_orders.*,tbl_ecom_statuses.status as status_value,tbl_ecom_statuses.color_code as status_color,tbl_ecom_statuses.priority as status_priority").Joins("left join tbl_ecom_customers on tbl_ecom_product_orders.customer_id = tbl_ecom_customers.id").Joins("inner join tbl_ecom_statuses on tbl_ecom_product_orders.order_status = tbl_ecom_statuses.id").Where("tbl_ecom_product_orders.is_deleted = 0 and uuid=? and tbl_ecom_product_orders.tenant_id=?", uuid, tenantid).First(&order).Error; err != nil {
 
 		return TblEcomProductOrder{}, err
 	}
@@ -792,9 +888,9 @@ func (ecommerceModel EcommerceModel) GetOrderDetailsbyuuid(uuid string, DB *gorm
 }
 
 // Get Customer details pass customerid
-func (ecommerceModel EcommerceModel) GetCustomerDetails(id int, DB *gorm.DB) (customer TblEcomCustomer, err error) {
+func (ecommerceModel EcommerceModel) GetCustomerDetails(id int, DB *gorm.DB, tenantid int) (customer TblEcomCustomer, err error) {
 
-	if err := DB.Table("tbl_ecom_customers").Select("tbl_ecom_customers.*, count( tbl_ecom_product_orders.customer_id)").Joins("left join tbl_ecom_product_orders on tbl_ecom_customers.id = tbl_ecom_product_orders.customer_id").Group("tbl_ecom_customers.id, tbl_ecom_product_orders.customer_id").Where(" tbl_ecom_customers.is_deleted = 0 AND tbl_ecom_customers.id=?", id).First(&customer).Error; err != nil {
+	if err := DB.Table("tbl_ecom_customers").Select("tbl_ecom_customers.*, count( tbl_ecom_product_orders.customer_id)").Joins("left join tbl_ecom_product_orders on tbl_ecom_customers.id = tbl_ecom_product_orders.customer_id").Group("tbl_ecom_customers.id, tbl_ecom_product_orders.customer_id").Where(" tbl_ecom_customers.is_deleted = 0 AND tbl_ecom_customers.id=? and tbl_ecom_customers.tenant_id=?", id, tenantid).First(&customer).Error; err != nil {
 
 		return TblEcomCustomer{}, err
 	}
@@ -802,9 +898,9 @@ func (ecommerceModel EcommerceModel) GetCustomerDetails(id int, DB *gorm.DB) (cu
 }
 
 // Get order details pass customer id
-func (ecommerceModel EcommerceModel) GetOrderDetailsbyCustomerId(limit, offset int, customerid int, DB *gorm.DB) (order []TblEcomProductOrder, totalorder int64, err error) {
+func (ecommerceModel EcommerceModel) GetOrderDetailsbyCustomerId(limit, offset int, customerid int, DB *gorm.DB, tenantid int) (order []TblEcomProductOrder, totalorder int64, err error) {
 
-	query := DB.Table("tbl_ecom_product_orders").Select("tbl_ecom_product_orders.*,tbl_ecom_statuses.status as status_value,tbl_ecom_statuses.color_code as status_color").Joins("inner join tbl_ecom_customers on tbl_ecom_product_orders.customer_id = tbl_ecom_customers.id").Joins("inner join tbl_ecom_statuses on tbl_ecom_product_orders.order_status = tbl_ecom_statuses.id").Where("tbl_ecom_product_orders.is_deleted = 0 and tbl_ecom_product_orders.customer_id=?", customerid).Find(&order)
+	query := DB.Table("tbl_ecom_product_orders").Select("tbl_ecom_product_orders.*,tbl_ecom_statuses.status as status_value,tbl_ecom_statuses.color_code as status_color").Joins("inner join tbl_ecom_customers on tbl_ecom_product_orders.customer_id = tbl_ecom_customers.id").Joins("inner join tbl_ecom_statuses on tbl_ecom_product_orders.order_status = tbl_ecom_statuses.id").Where("tbl_ecom_product_orders.is_deleted = 0 and tbl_ecom_product_orders.customer_id=? and tbl_ecom_product_orders.tenant_id=?", customerid, tenantid).Find(&order)
 
 	if limit != 0 {
 
@@ -822,9 +918,9 @@ func (ecommerceModel EcommerceModel) GetOrderDetailsbyCustomerId(limit, offset i
 }
 
 // Multiple delete
-func (ecommerceModel EcommerceModel) MultiSelectDeleteCustomers(customer TblEcomCustomer, customerid []int, DB *gorm.DB) (flg bool, err error) {
+func (ecommerceModel EcommerceModel) MultiSelectDeleteCustomers(customer TblEcomCustomer, customerid []int, DB *gorm.DB, tenantid int) (flg bool, err error) {
 
-	if err := DB.Table("tbl_ecom_customers").Where("member_id in (?)", customerid).UpdateColumns(map[string]interface{}{"is_deleted": customer.IsDeleted, "deleted_by": customer.DeletedBy, "deleted_on": customer.DeletedOn}).Error; err != nil {
+	if err := DB.Table("tbl_ecom_customers").Where("member_id in (?) and tenant_id=?", customerid, tenantid).UpdateColumns(map[string]interface{}{"is_deleted": customer.IsDeleted, "deleted_by": customer.DeletedBy, "deleted_on": customer.DeletedOn}).Error; err != nil {
 
 		return false, err
 	}
@@ -834,11 +930,11 @@ func (ecommerceModel EcommerceModel) MultiSelectDeleteCustomers(customer TblEcom
 }
 
 // Get Product details
-func (ecommerceModel EcommerceModel) GetProduct(productId int, productSlug string, DB *gorm.DB) (product EcommerceProduct, err error) {
+func (ecommerceModel EcommerceModel) GetProduct(productId int, productSlug string, DB *gorm.DB, tenantid int) (product EcommerceProduct, err error) {
 
 	if productId != 0 {
 
-		if err := DB.Table("tbl_ecom_products").Where("is_deleted = 0 and id = ?", productId).Find(&product).Error; err != nil {
+		if err := DB.Table("tbl_ecom_products").Where("is_deleted = 0 and id = ? and tenant_id=?", productId, tenantid).Find(&product).Error; err != nil {
 
 			return EcommerceProduct{}, err
 		}
@@ -847,7 +943,7 @@ func (ecommerceModel EcommerceModel) GetProduct(productId int, productSlug strin
 
 	if productSlug != "" {
 
-		if err := DB.Table("tbl_ecom_products").Where("is_deleted = 0 and product_slug = ?", productSlug).Find(&product).Error; err != nil {
+		if err := DB.Table("tbl_ecom_products").Where("is_deleted = 0 and product_slug = ? and tenant_id=?", productSlug, tenantid).Find(&product).Error; err != nil {
 
 			return EcommerceProduct{}, err
 		}
@@ -858,9 +954,9 @@ func (ecommerceModel EcommerceModel) GetProduct(productId int, productSlug strin
 }
 
 // Get Customer details
-func (ecommerceModel EcommerceModel) GetCustomer(memberId int, DB *gorm.DB) (customer TblEcomCustomer, err error) {
+func (ecommerceModel EcommerceModel) GetCustomer(memberId int, DB *gorm.DB, tenantid int) (customer TblEcomCustomer, err error) {
 
-	if err := DB.Table("tbl_ecom_customers").Where("tbl_ecom_customers.is_deleted = 0 and tbl_ecom_customers.member_id = ?", memberId).Find(&customer).Error; err != nil {
+	if err := DB.Table("tbl_ecom_customers").Where("tbl_ecom_customers.is_deleted = 0 and tbl_ecom_customers.member_id = ? and tbl_ecom_customers.tenant_id=?", memberId, tenantid).Find(&customer).Error; err != nil {
 
 		return TblEcomCustomer{}, err
 	}
@@ -869,9 +965,9 @@ func (ecommerceModel EcommerceModel) GetCustomer(memberId int, DB *gorm.DB) (cus
 }
 
 // Get Cart Count
-func (ecommerce EcommerceModel) GetCartCount(customerId int, productId int, DB *gorm.DB) (count int64, err error) {
+func (ecommerce EcommerceModel) GetCartCount(customerId int, productId int, DB *gorm.DB, tenantid int) (count int64, err error) {
 
-	result := DB.Table("tbl_ecom_carts").Where("is_deleted = 0 and customer_id = ? and product_id = ?", customerId, productId).Count(&count)
+	result := DB.Table("tbl_ecom_carts").Where("is_deleted = 0 and customer_id = ? and product_id = ? and tenant_id=?", customerId, productId, tenantid).Count(&count)
 	if result.Error != nil {
 		return -1, result.Error
 	}
@@ -880,12 +976,12 @@ func (ecommerce EcommerceModel) GetCartCount(customerId int, productId int, DB *
 }
 
 // Add to product in cart
-func (ecommerceModel EcommerceModel) AddToCart(count int64, cart EcommerceCart, DB *gorm.DB) error {
+func (ecommerceModel EcommerceModel) AddToCart(count int64, cart EcommerceCart, DB *gorm.DB, tenantid int) error {
 
 	query := DB.Table("tbl_ecom_carts")
 
 	if count > 0 {
-		query = query.Where("is_deleted = 0 and customer_id = ? and product_id = ?", cart.CustomerID, cart.ProductID).UpdateColumns(map[string]interface{}{"quantity": gorm.Expr("quantity + ?", cart.Quantity), "modified_on": cart.ModifiedOn})
+		query = query.Where("is_deleted = 0 and customer_id = ? and product_id = ? and tenant_id=?", cart.CustomerID, cart.ProductID, tenantid).UpdateColumns(map[string]interface{}{"quantity": gorm.Expr("quantity + ?", cart.Quantity), "modified_on": cart.ModifiedOn})
 
 	} else {
 
@@ -900,10 +996,10 @@ func (ecommerceModel EcommerceModel) AddToCart(count int64, cart EcommerceCart, 
 }
 
 // Get Cart list
-func (ecommerce EcommerceModel) GetCartListById(customerId int, limit int, offset int, DB *gorm.DB) (cartList []EcommerceProduct, err error) {
+func (ecommerce EcommerceModel) GetCartListById(customerId int, limit int, offset int, DB *gorm.DB, tenantid int) (cartList []EcommerceProduct, err error) {
 
 	result := DB.Table("tbl_ecom_products").Select("tbl_ecom_products.*,rp.price AS discount_price ,rs.price AS special_price,tbl_ecom_carts.*").Joins("inner join tbl_ecom_carts on tbl_ecom_carts.product_id =  tbl_ecom_products.id ").Joins("left join (select *, ROW_NUMBER() OVER (PARTITION BY tbl_ecom_product_pricings.id, tbl_ecom_product_pricings.type ORDER BY tbl_ecom_product_pricings.priority,tbl_ecom_product_pricings.start_date desc) AS rn from tbl_ecom_product_pricings where tbl_ecom_product_pricings.type ='discount' and tbl_ecom_product_pricings.start_date <= now() and tbl_ecom_product_pricings.end_date >= now()) rp on rp.product_id = tbl_ecom_products.id").Joins("left join (select *, ROW_NUMBER() OVER (PARTITION BY tbl_ecom_product_pricings.id, tbl_ecom_product_pricings.type ORDER BY tbl_ecom_product_pricings.priority,tbl_ecom_product_pricings.start_date desc) AS rn from tbl_ecom_product_pricings where tbl_ecom_product_pricings.type ='special' and tbl_ecom_product_pricings.start_date <= now() and tbl_ecom_product_pricings.end_date >= now()) rs on rs.product_id = tbl_ecom_products.id").Joins("inner join tbl_ecom_customers on tbl_ecom_customers.id = tbl_ecom_carts.customer_id").
-		Where("tbl_ecom_carts.is_deleted = 0 and tbl_ecom_products.is_deleted = 0 and tbl_ecom_customers.is_deleted = 0 and tbl_ecom_products.is_active = 1 and tbl_ecom_customers.id = ?", customerId).Preload("EcommerceCart").Limit(limit).Offset(offset).Order("tbl_ecom_carts.id desc").Find(&cartList)
+		Where("tbl_ecom_carts.is_deleted = 0 and tbl_ecom_products.is_deleted = 0 and tbl_ecom_customers.is_deleted = 0 and tbl_ecom_products.is_active = 1 and tbl_ecom_customers.id = ? and tbl_ecom_products.tenant_id = ? ", customerId, tenantid).Preload("EcommerceCart").Limit(limit).Offset(offset).Order("tbl_ecom_carts.id desc").Find(&cartList)
 
 	if result.Error != nil {
 		return []EcommerceProduct{}, result.Error
@@ -914,10 +1010,10 @@ func (ecommerce EcommerceModel) GetCartListById(customerId int, limit int, offse
 
 // Get Cart list count by id
 
-func (ecommerce EcommerceModel) GetCartListCountById(customerId int, DB *gorm.DB) (count int64, err error) {
+func (ecommerce EcommerceModel) GetCartListCountById(customerId int, DB *gorm.DB, tenantid int) (count int64, err error) {
 
 	result := DB.Table("tbl_ecom_carts").Joins("inner join tbl_ecom_products on tbl_ecom_products.id = tbl_ecom_carts.product_id").Joins("left join (select *, ROW_NUMBER() OVER (PARTITION BY tbl_ecom_product_pricings.id, tbl_ecom_product_pricings.type ORDER BY tbl_ecom_product_pricings.priority,tbl_ecom_product_pricings.start_date desc) AS rn from tbl_ecom_product_pricings where tbl_ecom_product_pricings.type ='discount' and tbl_ecom_product_pricings.start_date <= now() and tbl_ecom_product_pricings.end_date >= now()) rp on rp.product_id = tbl_ecom_products.id").Joins("left join (select *, ROW_NUMBER() OVER (PARTITION BY tbl_ecom_product_pricings.id, tbl_ecom_product_pricings.type ORDER BY tbl_ecom_product_pricings.priority,tbl_ecom_product_pricings.start_date desc) AS rn from tbl_ecom_product_pricings where tbl_ecom_product_pricings.type ='special' and tbl_ecom_product_pricings.start_date <= now() and tbl_ecom_product_pricings.end_date >= now()) rs on rs.product_id = tbl_ecom_products.id").Joins("inner join tbl_ecom_customers on tbl_ecom_customers.id = tbl_ecom_carts.customer_id").
-		Where("tbl_ecom_carts.is_deleted = 0 and tbl_ecom_products.is_deleted = 0 and tbl_ecom_customers.is_deleted = 0 and tbl_ecom_products.is_active = 1 and tbl_ecom_customers.id = ?", customerId).Count(&count)
+		Where("tbl_ecom_carts.is_deleted = 0 and tbl_ecom_products.is_deleted = 0 and tbl_ecom_customers.is_deleted = 0 and tbl_ecom_products.is_active = 1 and tbl_ecom_customers.id = ? tbl_ecom_carts.tenant_id = ? ", customerId, tenantid).Count(&count)
 
 	if result.Error != nil {
 		return -1, result.Error
@@ -928,13 +1024,13 @@ func (ecommerce EcommerceModel) GetCartListCountById(customerId int, DB *gorm.DB
 
 // Remove product from cart list
 
-func (ecommerce EcommerceModel) RemoveProductFromCartlist(productId int, memberId int, DB *gorm.DB) (err error) {
+func (ecommerce EcommerceModel) RemoveProductFromCartlist(productId int, memberId int, DB *gorm.DB, tenantid int) (err error) {
 
 	currentTime, _ := time.Parse("2006-01-02 15:04:05", time.Now().UTC().Format("2006-01-02 15:04:05"))
 
-	subquery := DB.Table("tbl_ecom_customers").Select("id").Where("is_deleted = 0 and member_id = ?", memberId)
+	subquery := DB.Table("tbl_ecom_customers").Select("id").Where("is_deleted = 0 and member_id = ? and tenant_id=?", memberId, tenantid)
 
-	result := DB.Table("tbl_ecom_carts").Where("tbl_ecom_carts.is_deleted = 0 and tbl_ecom_carts.product_id = ? and tbl_ecom_carts.customer_id = (?)", productId, subquery).UpdateColumns(map[string]interface{}{"is_deleted": 1, "deleted_on": currentTime})
+	result := DB.Table("tbl_ecom_carts").Where("tbl_ecom_carts.is_deleted = 0 and tbl_ecom_carts.product_id = ? and tbl_ecom_carts.customer_id = (?) and tbl_ecom_carts.tenant_id=?", productId, subquery, tenantid).UpdateColumns(map[string]interface{}{"is_deleted": 1, "deleted_on": currentTime})
 	if result.Error != nil {
 		return result.Error
 	}
@@ -943,9 +1039,9 @@ func (ecommerce EcommerceModel) RemoveProductFromCartlist(productId int, memberI
 }
 
 // Get Product order list
-func (ecommerce EcommerceModel) GetProductOrdersList(filter ProductFilter, sort ProductSort, customerId int, limit int, offset int, DB *gorm.DB) (productOrdersList []EcommerceProduct, count int64, err error) {
+func (ecommerce EcommerceModel) GetProductOrdersList(filter ProductFilter, sort ProductSort, customerId int, limit int, offset int, DB *gorm.DB, tenantid int) (productOrdersList []EcommerceProduct, count int64, err error) {
 
-	query := DB.Table("tbl_ecom_products as p").Joins("inner join tbl_ecom_product_order_details d on d.product_id = p.id").Joins("inner join tbl_ecom_product_orders o on o.id = d.order_id").Joins("inner join tbl_ecom_order_payments op on op.order_id = o.id").Where("p.is_deleted = 0 and o.is_deleted = 0 and o.customer_id = ?", customerId)
+	query := DB.Table("tbl_ecom_products as p").Joins("inner join tbl_ecom_product_order_details d on d.product_id = p.id").Joins("inner join tbl_ecom_product_orders o on o.id = d.order_id").Joins("inner join tbl_ecom_order_payments op on op.order_id = o.id").Where("p.is_deleted = 0 and o.is_deleted = 0 and o.customer_id = ? and p.tenant_id=?", customerId, tenantid)
 
 	if filter.UpcomingOrders == 1 {
 
@@ -1040,9 +1136,9 @@ func (ecommerce EcommerceModel) GetProductOrdersList(filter ProductFilter, sort 
 }
 
 // update product view
-func (ecommerce EcommerceModel) UpdateProductViewCount(productId int, productSlug string, DB *gorm.DB) (err error) {
+func (ecommerce EcommerceModel) UpdateProductViewCount(productId int, productSlug string, DB *gorm.DB, tenantid int) (err error) {
 
-	query := DB.Table("tbl_ecom_products").Where("is_deleted = 0 and is_active = 1")
+	query := DB.Table("tbl_ecom_products").Where("is_deleted = 0 and is_active = 1 and tenant_id=?", tenantid)
 
 	if productId != 0 && productId != -1 {
 
@@ -1075,9 +1171,9 @@ func (ecommerce EcommerceModel) PlaceOrder(orderPlaced EcommerceOrder, DB *gorm.
 }
 
 // get order list
-func (ecommerce EcommerceModel) GetOrderByOrderId(orderId string, DB *gorm.DB) (order EcommerceOrder, err error) {
+func (ecommerce EcommerceModel) GetOrderByOrderId(orderId string, DB *gorm.DB, tenantid int) (order EcommerceOrder, err error) {
 
-	if err := DB.Table("tbl_ecom_product_orders").Where("uuid = ?", orderId).First(&order).Error; err != nil {
+	if err := DB.Table("tbl_ecom_product_orders").Where("uuid = ? and tenant_id=?", orderId, tenantid).First(&order).Error; err != nil {
 
 		return EcommerceOrder{}, err
 	}
@@ -1097,9 +1193,9 @@ func (ecommerce EcommerceModel) CreateOrderDetails(orderDetails OrderProduct, DB
 }
 
 // update stock
-func (ecommerce EcommerceModel) UpdateStock(productId int, quantity int, DB *gorm.DB) (err error) {
+func (ecommerce EcommerceModel) UpdateStock(productId int, quantity int, DB *gorm.DB, tenantid int) (err error) {
 
-	if err = DB.Table("tbl_ecom_products").Where("is_deleted = 0 and is_active = 1 and id = ?", productId).Update("stock", gorm.Expr("stock - ?", quantity)).Error; err != nil {
+	if err = DB.Table("tbl_ecom_products").Where("is_deleted = 0 and is_active = 1 and id = ? and tenant_id=?", productId, tenantid).Update("stock", gorm.Expr("stock - ?", quantity)).Error; err != nil {
 
 		return err
 	}
@@ -1120,11 +1216,11 @@ func (ecommerce EcommerceModel) CreateOrderPayment(orderpayment OrderPayment, DB
 }
 
 // Delete form cart after order
-func (ecommerce EcommerceModel) DeleteFromCartAfterOrder(orderedProductIds []int, customerId int, DB *gorm.DB) (err error) {
+func (ecommerce EcommerceModel) DeleteFromCartAfterOrder(orderedProductIds []int, customerId int, DB *gorm.DB, tenantid int) (err error) {
 
 	currentTime, _ := time.Parse("2006-01-02 15:04:05", time.Now().UTC().Format("2006-01-02 15:04:05"))
 
-	if err := DB.Table("tbl_ecom_carts").Where("is_deleted = 0 and product_id in (?) and customer_id = ?", orderedProductIds, customerId).UpdateColumns(map[string]interface{}{"is_deleted": 1, "deleted_on": currentTime}).Error; err != nil {
+	if err := DB.Table("tbl_ecom_carts").Where("is_deleted = 0 and product_id in (?) and customer_id = ? and tenant_id=?", orderedProductIds, customerId, tenantid).UpdateColumns(map[string]interface{}{"is_deleted": 1, "deleted_on": currentTime}).Error; err != nil {
 
 		return err
 	}
@@ -1133,9 +1229,9 @@ func (ecommerce EcommerceModel) DeleteFromCartAfterOrder(orderedProductIds []int
 }
 
 // Get Status list
-func (ecommerce EcommerceModel) GetOrderStatusList(DB *gorm.DB) (orderStatus []OrderStatusNames, err error) {
+func (ecommerce EcommerceModel) GetOrderStatusList(DB *gorm.DB, tenantid int) (orderStatus []OrderStatusNames, err error) {
 
-	if err := DB.Table("tbl_ecom_statuses").Where("is_deleted = 0 and is_active=1").Order("priority").Find(&orderStatus).Error; err != nil {
+	if err := DB.Table("tbl_ecom_statuses").Where("is_deleted = 0 and is_active=1 and tenant_id=?", tenantid).Order("priority").Find(&orderStatus).Error; err != nil {
 
 		return []OrderStatusNames{}, err
 	}
@@ -1154,9 +1250,9 @@ func (ecommerce EcommerceModel) StoreLists(DB *gorm.DB) (setting TblEcomSettings
 }
 
 // Get payment list
-func (ecommerce EcommerceModel) PaymentLists(offset, limit int, DB *gorm.DB) (pay []TblEcomPayment, err error) {
+func (ecommerce EcommerceModel) PaymentLists(offset, limit int, DB *gorm.DB, tenantid int) (pay []TblEcomPayment, err error) {
 
-	query := DB.Table("tbl_ecom_payments").Where("is_deleted = 0").Order("id desc")
+	query := DB.Table("tbl_ecom_payments").Where("is_deleted = 0 and tenant_id=?", tenantid).Order("id desc")
 
 	if ecommerce.DataAccess == 1 {
 
@@ -1172,9 +1268,9 @@ func (ecommerce EcommerceModel) PaymentLists(offset, limit int, DB *gorm.DB) (pa
 }
 
 // Get Order list
-func (ecommerce EcommerceModel) CurrencyLists(offset, limit int, DB *gorm.DB) (money []TblEcomCurrency, err error) {
+func (ecommerce EcommerceModel) CurrencyLists(offset, limit int, DB *gorm.DB, tenantid int) (money []TblEcomCurrency, err error) {
 
-	query := DB.Table("tbl_ecom_currencies").Where("is_deleted = 0").Order("id desc")
+	query := DB.Table("tbl_ecom_currencies").Where("is_deleted = 0 and tenant_id=?", tenantid).Order("id desc")
 
 	if ecommerce.DataAccess == 1 {
 
@@ -1191,9 +1287,9 @@ func (ecommerce EcommerceModel) CurrencyLists(offset, limit int, DB *gorm.DB) (m
 }
 
 // Get Status list
-func (ecommerce EcommerceModel) StatusLists(offset, limit int, DB *gorm.DB) (status []TblEcomStatus, err error) {
+func (ecommerce EcommerceModel) StatusLists(offset, limit int, DB *gorm.DB, tenantid int) (status []TblEcomStatus, err error) {
 
-	query := DB.Table("tbl_ecom_statuses").Where("is_deleted =0").Order("priority")
+	query := DB.Table("tbl_ecom_statuses").Where("is_deleted =0 and tenant_id=?", tenantid).Order("priority")
 
 	if ecommerce.DataAccess == 1 {
 
@@ -1218,9 +1314,9 @@ func (ecommerce EcommerceModel) CreateSetting(setting TblEcomSettings, DB *gorm.
 }
 
 // Update Setting
-func (ecommerce EcommerceModel) UpdateSetting(setting TblEcomSettings, DB *gorm.DB) error {
+func (ecommerce EcommerceModel) UpdateSetting(setting TblEcomSettings, DB *gorm.DB, tenantid int) error {
 
-	if err := DB.Table("tbl_ecom_settings").Where("id=?", setting.Id).UpdateColumns(map[string]interface{}{"store_name": setting.StoreName, "currency_default": setting.CurrencyDefault, "payment_default": setting.PaymentDefault, "status_default": setting.StatusDefault, "display_stock": setting.DisplayStock, "stock_warning": setting.StockWarning, "stock_checkout": setting.StockCheckout, "modified_on": setting.ModifiedOn, "modified_by": setting.ModifiedBy}).Error; err != nil {
+	if err := DB.Table("tbl_ecom_settings").Where("id=? and tenant_id=?", setting.Id, tenantid).UpdateColumns(map[string]interface{}{"store_name": setting.StoreName, "currency_default": setting.CurrencyDefault, "payment_default": setting.PaymentDefault, "status_default": setting.StatusDefault, "display_stock": setting.DisplayStock, "stock_warning": setting.StockWarning, "stock_checkout": setting.StockCheckout, "modified_on": setting.ModifiedOn, "modified_by": setting.ModifiedBy}).Error; err != nil {
 
 		return err
 	}
@@ -1249,9 +1345,9 @@ func (ecommerce EcommerceModel) FindDefault(DB *gorm.DB) (money TblEcomCurrency,
 
 // Update Default values is 0
 
-func (ecommerce EcommerceModel) ChangeDefaultValue(id int, DB *gorm.DB) error {
+func (ecommerce EcommerceModel) ChangeDefaultValue(id int, DB *gorm.DB, tenantid int) error {
 
-	if err := DB.Table("tbl_ecom_currencies").Where("id = ?", id).UpdateColumns(map[string]interface{}{"currency_default": 0}).Error; err != nil {
+	if err := DB.Table("tbl_ecom_currencies").Where("id = ? and tenant_id=?", id, tenantid).UpdateColumns(map[string]interface{}{"currency_default": 0}).Error; err != nil {
 		return err
 	}
 	return nil
@@ -1259,9 +1355,9 @@ func (ecommerce EcommerceModel) ChangeDefaultValue(id int, DB *gorm.DB) error {
 
 // Update Currency
 
-func (ecommerce EcommerceModel) UpdateCurrency(money TblEcomCurrency, DB *gorm.DB) error {
+func (ecommerce EcommerceModel) UpdateCurrency(money TblEcomCurrency, DB *gorm.DB, tenantid int) error {
 
-	if err := DB.Table("tbl_ecom_currencies").Where("id = ?", money.Id).UpdateColumns(map[string]interface{}{"currency_name": money.CurrencyName, "currency_type": money.CurrencyType, "currency_symbol": money.CurrencySymbol, "currency_default": money.CurrencyDefault, "modified_on": money.ModifiedOn, "modified_by": money.ModifiedBy}).Error; err != nil {
+	if err := DB.Table("tbl_ecom_currencies").Where("id = ? and tenant_id=?", money.Id, tenantid).UpdateColumns(map[string]interface{}{"currency_name": money.CurrencyName, "currency_type": money.CurrencyType, "currency_symbol": money.CurrencySymbol, "currency_default": money.CurrencyDefault, "modified_on": money.ModifiedOn, "modified_by": money.ModifiedBy}).Error; err != nil {
 		return err
 	}
 
@@ -1270,9 +1366,9 @@ func (ecommerce EcommerceModel) UpdateCurrency(money TblEcomCurrency, DB *gorm.D
 
 // Delete Currency
 
-func (ecommerce EcommerceModel) CurrencyDelete(money TblEcomCurrency, DB *gorm.DB) error {
+func (ecommerce EcommerceModel) CurrencyDelete(money TblEcomCurrency, DB *gorm.DB, tenantid int) error {
 
-	if err := DB.Table("tbl_ecom_currencies").Where("id = ?", money.Id).UpdateColumns(map[string]interface{}{"is_deleted": money.IsDeleted, "deleted_on": money.DeletedOn, "deleted_by": money.DeletedBy}).Error; err != nil {
+	if err := DB.Table("tbl_ecom_currencies").Where("id = ? and tenant_id=?", money.Id, tenantid).UpdateColumns(map[string]interface{}{"is_deleted": money.IsDeleted, "deleted_on": money.DeletedOn, "deleted_by": money.DeletedBy}).Error; err != nil {
 		return err
 	}
 	return nil
@@ -1281,9 +1377,9 @@ func (ecommerce EcommerceModel) CurrencyDelete(money TblEcomCurrency, DB *gorm.D
 
 // Currency Isactive
 
-func (ecommerce EcommerceModel) InActiveCurrency(money TblEcomCurrency, DB *gorm.DB) (bool, error) {
+func (ecommerce EcommerceModel) InActiveCurrency(money TblEcomCurrency, DB *gorm.DB, tenantid int) (bool, error) {
 
-	if err := DB.Table("tbl_ecom_currencies").Where("id = ?", money.Id).UpdateColumns(map[string]interface{}{"is_active": money.IsActive, "modified_on": money.ModifiedOn, "modified_by": money.ModifiedBy}).Error; err != nil {
+	if err := DB.Table("tbl_ecom_currencies").Where("id = ? and tenant_id=?", money.Id, tenantid).UpdateColumns(map[string]interface{}{"is_active": money.IsActive, "modified_on": money.ModifiedOn, "modified_by": money.ModifiedBy}).Error; err != nil {
 		return false, err
 	}
 	return true, nil
@@ -1301,9 +1397,9 @@ func (ecommerce EcommerceModel) CreateStatus(status TblEcomStatus, DB *gorm.DB) 
 
 // Update Currency
 
-func (ecommerce EcommerceModel) UpdateStatus(status TblEcomStatus, DB *gorm.DB) error {
+func (ecommerce EcommerceModel) UpdateStatus(status TblEcomStatus, DB *gorm.DB, tenantid int) error {
 
-	if err := DB.Table("tbl_ecom_statuses").Where("id = ?", status.Id).UpdateColumns(map[string]interface{}{"status": status.Status, "description": status.Description, "priority": status.Priority, "color_code": status.ColorCode, "modified_on": status.ModifiedOn, "modified_by": status.ModifiedBy}).Error; err != nil {
+	if err := DB.Table("tbl_ecom_statuses").Where("id = ? and tenant_id=?", status.Id, tenantid).UpdateColumns(map[string]interface{}{"status": status.Status, "description": status.Description, "priority": status.Priority, "color_code": status.ColorCode, "modified_on": status.ModifiedOn, "modified_by": status.ModifiedBy}).Error; err != nil {
 		return err
 	}
 	return nil
@@ -1311,9 +1407,9 @@ func (ecommerce EcommerceModel) UpdateStatus(status TblEcomStatus, DB *gorm.DB) 
 
 // Delete Status
 
-func (ecommerce EcommerceModel) DeleteStatus(status TblEcomStatus, DB *gorm.DB) error {
+func (ecommerce EcommerceModel) DeleteStatus(status TblEcomStatus, DB *gorm.DB, tenantid int) error {
 
-	if err := DB.Table("tbl_ecom_statuses").Where("id = ?", status.Id).UpdateColumns(map[string]interface{}{"is_deleted": status.IsDeleted, "deleted_on": status.DeletedOn, "deleted_by": status.DeletedBy}).Error; err != nil {
+	if err := DB.Table("tbl_ecom_statuses").Where("id = ? and tenant_id=?", status.Id, tenantid).UpdateColumns(map[string]interface{}{"is_deleted": status.IsDeleted, "deleted_on": status.DeletedOn, "deleted_by": status.DeletedBy}).Error; err != nil {
 		return err
 	}
 	return nil
@@ -1322,9 +1418,9 @@ func (ecommerce EcommerceModel) DeleteStatus(status TblEcomStatus, DB *gorm.DB) 
 
 // Status Isactive
 
-func (ecommerce EcommerceModel) OrderStatusIsActive(status TblEcomStatus, DB *gorm.DB) (bool, error) {
+func (ecommerce EcommerceModel) OrderStatusIsActive(status TblEcomStatus, DB *gorm.DB, tenantid int) (bool, error) {
 
-	if err := DB.Table("tbl_ecom_statuses").Where("id = ?", status.Id).UpdateColumns(map[string]interface{}{"is_active": status.IsActive, "modified_on": status.ModifiedOn, "modified_by": status.ModifiedBy}).Error; err != nil {
+	if err := DB.Table("tbl_ecom_statuses").Where("id = ? and tenant_id=?", status.Id, tenantid).UpdateColumns(map[string]interface{}{"is_active": status.IsActive, "modified_on": status.ModifiedOn, "modified_by": status.ModifiedBy}).Error; err != nil {
 		return false, err
 	}
 	return true, nil
@@ -1342,9 +1438,9 @@ func (ecommerce EcommerceModel) PaymentCreate(pay TblEcomPayment, DB *gorm.DB) e
 
 // Update Payment
 
-func (ecommerce EcommerceModel) UpdatePayment(pay TblEcomPayment, DB *gorm.DB) error {
+func (ecommerce EcommerceModel) UpdatePayment(pay TblEcomPayment, DB *gorm.DB, tenantid int) error {
 
-	if err := DB.Table("tbl_ecom_payments").Where("id = ?", pay.Id).UpdateColumns(map[string]interface{}{"payment_name": pay.PaymentName, "payment_image": pay.PaymentImage, "description": pay.Description, "modified_on": pay.ModifiedOn, "modified_by": pay.ModifiedBy}).Error; err != nil {
+	if err := DB.Table("tbl_ecom_payments").Where("id = ? and tenant_id=?", pay.Id, tenantid).UpdateColumns(map[string]interface{}{"payment_name": pay.PaymentName, "payment_image": pay.PaymentImage, "description": pay.Description, "modified_on": pay.ModifiedOn, "modified_by": pay.ModifiedBy}).Error; err != nil {
 		return err
 	}
 	return nil
@@ -1352,9 +1448,9 @@ func (ecommerce EcommerceModel) UpdatePayment(pay TblEcomPayment, DB *gorm.DB) e
 
 // Delete payment
 
-func (ecommerce EcommerceModel) DeletePayment(payment TblEcomPayment, DB *gorm.DB) error {
+func (ecommerce EcommerceModel) DeletePayment(payment TblEcomPayment, DB *gorm.DB, tenantid int) error {
 
-	if err := DB.Table("tbl_ecom_payments").Where("id = ?", payment.Id).UpdateColumns(map[string]interface{}{"is_deleted": payment.IsDeleted, "deleted_on": payment.DeletedOn, "deleted_by": payment.DeletedBy}).Error; err != nil {
+	if err := DB.Table("tbl_ecom_payments").Where("id = ? and tenant_id=?", payment.Id, tenantid).UpdateColumns(map[string]interface{}{"is_deleted": payment.IsDeleted, "deleted_on": payment.DeletedOn, "deleted_by": payment.DeletedBy}).Error; err != nil {
 		return err
 	}
 	return nil
@@ -1363,9 +1459,9 @@ func (ecommerce EcommerceModel) DeletePayment(payment TblEcomPayment, DB *gorm.D
 
 // Payment Isactive
 
-func (ecommerce EcommerceModel) PaymentIsActive(pay TblEcomPayment, DB *gorm.DB) (bool, error) {
+func (ecommerce EcommerceModel) PaymentIsActive(pay TblEcomPayment, DB *gorm.DB, tenantid int) (bool, error) {
 
-	if err := DB.Table("tbl_ecom_payments").Where("id = ?", pay.Id).UpdateColumns(map[string]interface{}{"is_active": pay.IsActive, "modified_on": pay.ModifiedOn, "modified_by": pay.ModifiedBy}).Error; err != nil {
+	if err := DB.Table("tbl_ecom_payments").Where("id = ? and tenant_id=?", pay.Id, tenantid).UpdateColumns(map[string]interface{}{"is_active": pay.IsActive, "modified_on": pay.ModifiedOn, "modified_by": pay.ModifiedBy}).Error; err != nil {
 
 		return false, err
 	}
@@ -1375,9 +1471,9 @@ func (ecommerce EcommerceModel) PaymentIsActive(pay TblEcomPayment, DB *gorm.DB)
 
 // Edit Currency
 
-func (ecommerce EcommerceModel) CurrencyGet(id int, DB *gorm.DB) (currency TblEcomCurrency, err error) {
+func (ecommerce EcommerceModel) CurrencyGet(id int, DB *gorm.DB, tenantid int) (currency TblEcomCurrency, err error) {
 
-	if err := DB.Table("tbl_ecom_currencies").Where("id = ?", id).Find(&currency).Error; err != nil {
+	if err := DB.Table("tbl_ecom_currencies").Where("id = ? and tenant_id=?", id, tenantid).Find(&currency).Error; err != nil {
 
 		return TblEcomCurrency{}, err
 	}
@@ -1385,9 +1481,9 @@ func (ecommerce EcommerceModel) CurrencyGet(id int, DB *gorm.DB) (currency TblEc
 }
 
 // Edit Payment
-func (ecommerce EcommerceModel) PaymentGet(id int, DB *gorm.DB) (payment TblEcomPayment, err error) {
+func (ecommerce EcommerceModel) PaymentGet(id int, DB *gorm.DB, tenantid int) (payment TblEcomPayment, err error) {
 
-	if err := DB.Table("tbl_ecom_payments").Where("id = ?", id).Find(&payment).Error; err != nil {
+	if err := DB.Table("tbl_ecom_payments").Where("id = ? and tenant_id=?", id, tenantid).Find(&payment).Error; err != nil {
 
 		return TblEcomPayment{}, err
 	}
@@ -1396,9 +1492,9 @@ func (ecommerce EcommerceModel) PaymentGet(id int, DB *gorm.DB) (payment TblEcom
 
 // Edit Status
 
-func (ecommerce EcommerceModel) StatusGet(id int, DB *gorm.DB) (status TblEcomStatus, err error) {
+func (ecommerce EcommerceModel) StatusGet(id int, DB *gorm.DB, tenantid int) (status TblEcomStatus, err error) {
 
-	if err := DB.Table("tbl_ecom_statuses").Where("id = ?", id).Find(&status).Error; err != nil {
+	if err := DB.Table("tbl_ecom_statuses").Where("id = ? and tenant_id=?", id, tenantid).Find(&status).Error; err != nil {
 
 		return TblEcomStatus{}, err
 	}
@@ -1407,9 +1503,9 @@ func (ecommerce EcommerceModel) StatusGet(id int, DB *gorm.DB) (status TblEcomSt
 
 // Currency Name Already Exists
 
-func (ecommerce EcommerceModel) CheckCurrencyName(id int, name string, currency TblEcomCurrency, DB *gorm.DB) (bool, error) {
+func (ecommerce EcommerceModel) CheckCurrencyName(id int, name string, currency TblEcomCurrency, DB *gorm.DB, tenantid int) (bool, error) {
 
-	query := DB.Table("tbl_ecom_currencies").Where("LOWER(TRIM(currency_name))=LOWER(TRIM(?)) and is_deleted=0", name)
+	query := DB.Table("tbl_ecom_currencies").Where("LOWER(TRIM(currency_name))=LOWER(TRIM(?)) and is_deleted=0 and tenant_id=?", name, tenantid)
 
 	if id != 0 {
 
@@ -1427,9 +1523,9 @@ func (ecommerce EcommerceModel) CheckCurrencyName(id int, name string, currency 
 
 // Currency Name Already Exists
 
-func (ecommerce EcommerceModel) CheckCurrencyType(id int, ctype string, currency TblEcomCurrency, DB *gorm.DB) (bool, error) {
+func (ecommerce EcommerceModel) CheckCurrencyType(id int, ctype string, currency TblEcomCurrency, DB *gorm.DB, tenantid int) (bool, error) {
 
-	query := DB.Table("tbl_ecom_currencies").Where("LOWER(TRIM(currency_type))=LOWER(TRIM(?)) and is_deleted=0", ctype)
+	query := DB.Table("tbl_ecom_currencies").Where("LOWER(TRIM(currency_type))=LOWER(TRIM(?)) and is_deleted=0 and tenant_id=?", ctype, tenantid)
 
 	if id != 0 {
 
@@ -1446,9 +1542,9 @@ func (ecommerce EcommerceModel) CheckCurrencyType(id int, ctype string, currency
 
 // Currency Name Already Exists
 
-func (ecommerce EcommerceModel) CheckCurrencySymbol(id int, currencysymbol string, currency TblEcomCurrency, DB *gorm.DB) (bool, error) {
+func (ecommerce EcommerceModel) CheckCurrencySymbol(id int, currencysymbol string, currency TblEcomCurrency, DB *gorm.DB, tenantid int) (bool, error) {
 
-	query := DB.Table("tbl_ecom_currencies").Where("LOWER(TRIM(currency_symbol))=LOWER(TRIM(?)) and is_deleted=0", currencysymbol)
+	query := DB.Table("tbl_ecom_currencies").Where("LOWER(TRIM(currency_symbol))=LOWER(TRIM(?)) and is_deleted=0 and tenant_id=?", currencysymbol, tenantid)
 
 	if id != 0 {
 
@@ -1465,9 +1561,9 @@ func (ecommerce EcommerceModel) CheckCurrencySymbol(id int, currencysymbol strin
 
 // Get Product Details By Id
 
-func (ecommerce EcommerceModel) GetProductdetailsById(productId int, productSlug string, DB *gorm.DB) (product EcommerceProduct, err error) {
+func (ecommerce EcommerceModel) GetProductdetailsById(productId int, productSlug string, DB *gorm.DB, tenantid int) (product EcommerceProduct, err error) {
 
-	query := DB.Table("tbl_ecom_products").Select("tbl_ecom_products.*,rp.price AS discount_price ,rs.price AS special_price").Joins("left join (select *, ROW_NUMBER() OVER (PARTITION BY tbl_ecom_product_pricings.id, tbl_ecom_product_pricings.type ORDER BY tbl_ecom_product_pricings.priority,tbl_ecom_product_pricings.start_date desc) AS rn from tbl_ecom_product_pricings where tbl_ecom_product_pricings.type ='discount' and tbl_ecom_product_pricings.start_date <= now() and tbl_ecom_product_pricings.end_date >= now()) rp on rp.product_id = tbl_ecom_products.id").Joins("left join (select *, ROW_NUMBER() OVER (PARTITION BY tbl_ecom_product_pricings.id, tbl_ecom_product_pricings.type ORDER BY tbl_ecom_product_pricings.priority,tbl_ecom_product_pricings.start_date desc) AS rn from tbl_ecom_product_pricings where tbl_ecom_product_pricings.type ='special' and tbl_ecom_product_pricings.start_date <= now() and tbl_ecom_product_pricings.end_date >= now()) rs on rs.product_id = tbl_ecom_products.id").Where("tbl_ecom_products.is_deleted = 0 and tbl_ecom_products.is_active = 1")
+	query := DB.Table("tbl_ecom_products").Select("tbl_ecom_products.*,rp.price AS discount_price ,rs.price AS special_price").Joins("left join (select *, ROW_NUMBER() OVER (PARTITION BY tbl_ecom_product_pricings.id, tbl_ecom_product_pricings.type ORDER BY tbl_ecom_product_pricings.priority,tbl_ecom_product_pricings.start_date desc) AS rn from tbl_ecom_product_pricings where tbl_ecom_product_pricings.type ='discount' and tbl_ecom_product_pricings.start_date <= now() and tbl_ecom_product_pricings.end_date >= now()) rp on rp.product_id = tbl_ecom_products.id").Joins("left join (select *, ROW_NUMBER() OVER (PARTITION BY tbl_ecom_product_pricings.id, tbl_ecom_product_pricings.type ORDER BY tbl_ecom_product_pricings.priority,tbl_ecom_product_pricings.start_date desc) AS rn from tbl_ecom_product_pricings where tbl_ecom_product_pricings.type ='special' and tbl_ecom_product_pricings.start_date <= now() and tbl_ecom_product_pricings.end_date >= now()) rs on rs.product_id = tbl_ecom_products.id").Where("tbl_ecom_products.is_deleted = 0 and tbl_ecom_products.is_active = 1 and tbl_ecom_products.tenant_id=?", tenantid)
 
 	if productId != 0 && productId != -1 {
 
@@ -1489,9 +1585,9 @@ func (ecommerce EcommerceModel) GetProductdetailsById(productId int, productSlug
 
 // Status Name Already Exists
 
-func (ecommerce EcommerceModel) CheckStatusName(id int, name string, status TblEcomStatus, DB *gorm.DB) (bool, error) {
+func (ecommerce EcommerceModel) CheckStatusName(id int, name string, status TblEcomStatus, DB *gorm.DB, tenantid int) (bool, error) {
 
-	query := DB.Table("tbl_ecom_statuses").Where("LOWER(TRIM(status))=LOWER(TRIM(?)) and is_deleted=0", name)
+	query := DB.Table("tbl_ecom_statuses").Where("LOWER(TRIM(status))=LOWER(TRIM(?)) and is_deleted=0 and tenant_id=?", name, tenantid)
 
 	if id != 0 {
 
@@ -1507,9 +1603,9 @@ func (ecommerce EcommerceModel) CheckStatusName(id int, name string, status TblE
 
 // Payment Name Already Exists
 
-func (ecommerce EcommerceModel) CheckPaymentName(id int, name string, payment TblEcomPayment, DB *gorm.DB) (bool, error) {
+func (ecommerce EcommerceModel) CheckPaymentName(id int, name string, payment TblEcomPayment, DB *gorm.DB, tenantid int) (bool, error) {
 
-	query := DB.Table("tbl_ecom_payments").Where("LOWER(TRIM(payment_name))=LOWER(TRIM(?)) and is_deleted=0", name)
+	query := DB.Table("tbl_ecom_payments").Where("LOWER(TRIM(payment_name))=LOWER(TRIM(?)) and is_deleted=0 and tenant_id=?", name, tenantid)
 
 	if id != 0 {
 
@@ -1526,9 +1622,9 @@ func (ecommerce EcommerceModel) CheckPaymentName(id int, name string, payment Tb
 
 // Check Status Priority Already Exists
 
-func (ecommerce EcommerceModel) CheckStatusPriority(id int, priority int, status TblEcomStatus, DB *gorm.DB) (bool, error) {
+func (ecommerce EcommerceModel) CheckStatusPriority(id int, priority int, status TblEcomStatus, DB *gorm.DB, tenantid int) (bool, error) {
 
-	query := DB.Table("tbl_ecom_statuses").Where("priority = ? and is_deleted=0", priority)
+	query := DB.Table("tbl_ecom_statuses").Where("priority = ? and is_deleted=0 and tenant_id=?", priority, tenantid)
 
 	if id != 0 {
 
@@ -1545,9 +1641,9 @@ func (ecommerce EcommerceModel) CheckStatusPriority(id int, priority int, status
 }
 
 // Get Product Details and Order status by Id
-func (ecommerce EcommerceModel) GetProductDetailsAndOrderStatus(productId int, productSlug string, customerId int, orderId int, DB *gorm.DB) (product EcommerceProduct, productOrderStatus []OrderStatus, err error) {
+func (ecommerce EcommerceModel) GetProductDetailsAndOrderStatus(productId int, productSlug string, customerId int, orderId int, DB *gorm.DB, tenantid int) (product EcommerceProduct, productOrderStatus []OrderStatus, err error) {
 
-	query := DB.Table("tbl_ecom_products as p").Joins("inner join tbl_ecom_product_order_details d on d.product_id = p.id").Joins("inner join tbl_ecom_product_orders o on o.id = d.order_id").Joins("inner join tbl_ecom_order_payments op on op.order_id = o.id").Where("p.is_deleted = 0 and o.is_deleted = 0 and o.customer_id = ? and o.id = ?", customerId, orderId)
+	query := DB.Table("tbl_ecom_products as p").Joins("inner join tbl_ecom_product_order_details d on d.product_id = p.id").Joins("inner join tbl_ecom_product_orders o on o.id = d.order_id").Joins("inner join tbl_ecom_order_payments op on op.order_id = o.id").Where("p.is_deleted = 0 and o.is_deleted = 0 and o.customer_id = ? and o.id = ? and p.tenant_id=?", customerId, orderId, tenantid)
 
 	if productId != 0 && productId != -1 {
 
@@ -1573,9 +1669,9 @@ func (ecommerce EcommerceModel) GetProductDetailsAndOrderStatus(productId int, p
 }
 
 // get Customer Details by Id
-func (ecommerce EcommerceModel) GetCustomerDetailsById(memberId int, DB *gorm.DB) (customer CustomerDetails, err error) {
+func (ecommerce EcommerceModel) GetCustomerDetailsById(memberId int, DB *gorm.DB, tenantid int) (customer CustomerDetails, err error) {
 
-	if err := DB.Table("tbl_ecom_customers").Where("is_deleted = 0 and member_id = ?", memberId).First(&customer).Error; err != nil {
+	if err := DB.Table("tbl_ecom_customers").Where("is_deleted = 0 and member_id = ? and tenant_id=?", memberId, tenantid).First(&customer).Error; err != nil {
 
 		return CustomerDetails{}, err
 	}
@@ -1584,9 +1680,9 @@ func (ecommerce EcommerceModel) GetCustomerDetailsById(memberId int, DB *gorm.DB
 }
 
 // Update Member details
-func (ecommerce EcommerceModel) UpdateMemberDetails(memberId int, memberDetails map[string]interface{}, DB *gorm.DB) (err error) {
+func (ecommerce EcommerceModel) UpdateMemberDetails(memberId int, memberDetails map[string]interface{}, DB *gorm.DB, tenantid int) (err error) {
 
-	if err := DB.Table("tbl_members").Where("is_deleted = 0 and id = ?", memberId).UpdateColumns(&memberDetails).Error; err != nil {
+	if err := DB.Table("tbl_members").Where("is_deleted = 0 and id = ? and tenant_id=?", memberId, tenantid).UpdateColumns(&memberDetails).Error; err != nil {
 
 		return err
 	}
@@ -1595,9 +1691,9 @@ func (ecommerce EcommerceModel) UpdateMemberDetails(memberId int, memberDetails 
 }
 
 // Update Customer Details
-func (ecommerce EcommerceModel) UpdateCustomerDetails(memberId int, customerDetails map[string]interface{}, DB *gorm.DB) (err error) {
+func (ecommerce EcommerceModel) UpdateCustomerDetails(memberId int, customerDetails map[string]interface{}, DB *gorm.DB, tenantid int) (err error) {
 
-	if err := DB.Table("tbl_ecom_customers").Where("is_deleted = 0 and member_id = ?", memberId).UpdateColumns(&customerDetails).Error; err != nil {
+	if err := DB.Table("tbl_ecom_customers").Where("is_deleted = 0 and member_id = ? and tenant_id=?", memberId, tenantid).UpdateColumns(&customerDetails).Error; err != nil {
 
 		return err
 	}
